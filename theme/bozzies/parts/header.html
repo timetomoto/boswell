@@ -1,6 +1,20 @@
-<!-- wp:group {"layout":{"type":"constrained"}} -->
-<div class="wp-block-group">
-	<!-- wp:site-title {"level":0} /-->
-	<!-- wp:navigation {"layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"right"}} /-->
+<!-- wp:group {"className":"site-header","layout":{"type":"constrained"}} -->
+<div class="wp-block-group site-header">
+	<!-- wp:group {"className":"site-header__inner","layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}} -->
+	<div class="wp-block-group site-header__inner">
+
+		<!-- wp:group {"className":"site-header__mark","layout":{"type":"default"}} -->
+		<div class="wp-block-group site-header__mark">
+			<!-- wp:site-title {"level":0} /-->
+			<!-- wp:paragraph {"className":"site-header__subline"} -->
+			<p class="site-header__subline">1925 to 1936</p>
+			<!-- /wp:paragraph -->
+		</div>
+		<!-- /wp:group -->
+
+		<!-- wp:navigation {"ref":4,"className":"site-header__nav","overlayMenu":"mobile","icon":"menu","layout":{"type":"flex","setCascadingProperties":true,"justifyContent":"right"}} /-->
+
+	</div>
+	<!-- /wp:group -->
 </div>
 <!-- /wp:group -->
