@@ -31,10 +31,49 @@ body.admin-bar .wp-site-blocks {
 	}
 }
 
-/* Prose in page/post content: reproduce Astro's .container-narrow border-box
-   math (max-width 42rem, padding-inline inside → effective inner = 42rem − 2*gutter)
-   AT ANY VIEWPORT. Uses --wp--style--global--content-size so it tracks the theme's
-   contentSize setting instead of hardcoding 42rem. */
+/* ============================================================================
+ * Section-style groups behave like Astro's <section class="ground-*"> wrapping
+ * a .container: the group is full-bleed via alignfull, has padding-inline for
+ * the gutter, and its direct children span the container width (Astro's 84rem)
+ * — not the theme's default 42rem contentSize. Prose caps below then narrow
+ * paragraphs / headings the Astro way (42rem body, 34ch titles), left-aligned.
+ * ========================================================================= */
+.wp-block-group[class*="is-style-paper"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+.wp-block-group[class*="is-style-ink"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+.wp-block-group[class*="is-style-purple"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
+.wp-block-group[class*="is-style-gold"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
+	max-width: var(--wp--custom--measure--max);
+}
+/* Prose caps inside sections match Astro's .container-narrow border-box math
+ * (42rem outer − 2*gutter). At 1440 that yields ~641px; at ≤42rem viewports
+ * the viewport gutter binds first. Headings are not capped here — they follow
+ * Astro's per-selector treatment when needed; by default they span the
+ * section's container width. Alignwide/full opt out. */
+.wp-block-group[class*="is-style-paper"] > p:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-ink"]   > p:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-purple"] > p:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-gold"]  > p:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-paper"] > .wp-block-paragraph:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-ink"]   > .wp-block-paragraph:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-purple"] > .wp-block-paragraph:not(.alignwide):not(.alignfull),
+.wp-block-group[class*="is-style-gold"]  > .wp-block-paragraph:not(.alignwide):not(.alignfull) {
+	max-width: calc(var(--wp--custom--measure--body) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8)));
+}
+/* Section content aligns to the left edge of the container (matching the
+ * header wordmark), not centered — unless the author explicitly picks
+ * "align text center" on the block. */
+.wp-block-group[class*="is-style-paper"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
+.wp-block-group[class*="is-style-ink"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
+.wp-block-group[class*="is-style-purple"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
+.wp-block-group[class*="is-style-gold"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center) {
+	margin-inline-start: 0 !important;
+	margin-inline-end: auto !important;
+}
+
+/* Prose in page/post content OUTSIDE sections: reproduce Astro's
+   .container-narrow border-box math (max-width 42rem, padding-inline inside).
+   Direct children of post-content only — content inside section-style groups
+   uses the rules above. */
 .wp-block-post-content > .wp-block-paragraph,
 .wp-block-post-content > p,
 .wp-block-post-content > .wp-block-list,
