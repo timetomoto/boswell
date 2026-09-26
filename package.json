@@ -8,9 +8,12 @@
     "stop": "wp-env stop",
     "destroy": "wp-env destroy",
     "clean": "wp-env clean",
-    "wp": "wp-env run cli wp"
+    "wp": "wp-env run cli wp",
+    "build:blocks": "for d in theme/bozzies/blocks/*/; do name=$(basename $d); wp-scripts build --webpack-src-dir=$d/src --output-path=$d/build; done",
+    "start:blocks": "for d in theme/bozzies/blocks/*/; do name=$(basename $d); wp-scripts start --webpack-src-dir=$d/src --output-path=$d/build; done"
   },
   "devDependencies": {
-    "@wordpress/env": "^11.16.0"
+    "@wordpress/env": "^11.16.0",
+    "@wordpress/scripts": "^35.0.0"
   }
 }

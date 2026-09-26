@@ -2,9 +2,32 @@
 
 <!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
 <main class="wp-block-group">
-	<!-- wp:post-title {"level":1} /-->
-	<!-- wp:post-date /-->
+
+	<!-- wp:group {"align":"full","className":"is-style-purple","layout":{"type":"constrained"}} -->
+	<div class="wp-block-group alignfull is-style-purple">
+		<!-- wp:post-terms {"term":"category","prefix":"← Back to ","separator":" · "} /-->
+		<!-- wp:post-title {"level":1} /-->
+		<!-- wp:group {"className":"is-style-eyebrow","layout":{"type":"flex","flexWrap":"wrap"}} -->
+		<div class="wp-block-group is-style-eyebrow">
+			<!-- wp:post-date /-->
+			<!-- wp:post-author-name /-->
+		</div>
+		<!-- /wp:group -->
+	</div>
+	<!-- /wp:group -->
+
 	<!-- wp:post-content {"layout":{"type":"constrained"}} /-->
+
+	<!-- wp:separator {"className":"is-style-hairline-thin","align":"wide"} --><hr class="wp-block-separator alignwide is-style-hairline-thin"/><!-- /wp:separator -->
+
+	<!-- wp:group {"className":"bozzies-postnav","layout":{"type":"flex","flexWrap":"wrap","justifyContent":"space-between"}} -->
+	<div class="wp-block-group bozzies-postnav">
+		<!-- wp:post-navigation-link {"type":"previous","label":"Previous","taxonomy":"category","inSameTerm":true} /-->
+		<!-- wp:post-terms {"term":"category","prefix":"See more "} /-->
+		<!-- wp:post-navigation-link {"type":"next","label":"Next","taxonomy":"category","inSameTerm":true} /-->
+	</div>
+	<!-- /wp:group -->
+
 </main>
 <!-- /wp:group -->
 
