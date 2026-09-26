@@ -1,0 +1,16 @@
+{
+  "name": "boswell-wp",
+  "private": true,
+  "version": "0.0.0",
+  "description": "The Boswell Sisters tribute archive — WordPress block theme + local dev environment.",
+  "scripts": {
+    "start": "wp-env start",
+    "stop": "wp-env stop",
+    "destroy": "wp-env destroy",
+    "clean": "wp-env clean",
+    "wp": "wp-env run cli wp"
+  },
+  "devDependencies": {
+    "@wordpress/env": "^11.16.0"
+  }
+}

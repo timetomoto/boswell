@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# wp-env local state (docker volumes and download cache live under ~/.wp-env,
+# but @wordpress/env also writes a lockfile here)
+.wp-env.override.json
+
+# Build output
+dist/
+build/
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Local credentials — never commit
+admin-credentials.txt
