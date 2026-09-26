@@ -1,0 +1,114 @@
+.bozzies-consent[hidden] { display: none !important; }
+
+.bozzies-consent {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 9999;
+	box-sizing: border-box;
+	max-width: 100%;
+	padding: var(--wp--preset--spacing--l) var(--wp--preset--spacing--l);
+	background: var(--wp--preset--color--ink);
+	color: var(--wp--custom--color--text-on-ink);
+	font-family: var(--wp--preset--font-family--ui);
+	font-size: var(--wp--preset--font-size--small);
+	line-height: var(--wp--custom--line-height--normal);
+	border-top: 1px solid var(--wp--custom--color--ink-hairline);
+	box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.25);
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wp--preset--spacing--l);
+	align-items: center;
+	justify-content: space-between;
+}
+
+.bozzies-consent__text {
+	margin: 0;
+	max-width: 60ch;
+	color: var(--wp--custom--color--text-on-ink);
+}
+
+.bozzies-consent__policy {
+	color: var(--wp--custom--color--link-on-dark);
+	text-decoration: underline;
+	margin-left: 0.5ch;
+}
+.bozzies-consent__policy:hover,
+.bozzies-consent__policy:focus-visible {
+	color: var(--wp--custom--color--link-on-dark-hover);
+}
+
+.bozzies-consent__actions {
+	display: flex;
+	gap: var(--wp--preset--spacing--s);
+	flex-shrink: 0;
+}
+
+.bozzies-consent__btn {
+	font-family: var(--wp--preset--font-family--ui);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: var(--wp--custom--letter-spacing--caps);
+	text-transform: uppercase;
+	padding: 0.625rem 1.25rem;
+	min-height: 44px;
+	min-width: 7rem;
+	background: var(--wp--preset--color--paper);
+	color: var(--wp--preset--color--ink);
+	border: 1px solid var(--wp--preset--color--paper);
+	cursor: pointer;
+}
+.bozzies-consent__btn:hover {
+	background: var(--wp--custom--color--yellow-hover);
+	border-color: var(--wp--custom--color--yellow-hover);
+}
+.bozzies-consent__btn:focus-visible {
+	outline: 2px solid var(--wp--custom--color--yellow-soft);
+	outline-offset: 3px;
+}
+
+.bozzies-cookie-settings[hidden] { display: none !important; }
+.bozzies-cookie-settings {
+	font-family: var(--wp--preset--font-family--ui);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: 500;
+	letter-spacing: var(--wp--custom--letter-spacing--caps);
+	text-transform: uppercase;
+	background: transparent;
+	color: inherit;
+	border: 0;
+	padding: 0.25rem 0;
+	cursor: pointer;
+	text-decoration: underline;
+}
+.bozzies-cookie-settings:focus-visible {
+	outline: 2px solid currentColor;
+	outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+	.bozzies-consent {
+		flex-direction: column;
+		align-items: stretch;
+		padding: var(--wp--preset--spacing--m);
+		gap: var(--wp--preset--spacing--m);
+	}
+	.bozzies-consent__actions {
+		width: 100%;
+	}
+	.bozzies-consent__btn {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.bozzies-consent,
+	.bozzies-consent__btn,
+	.bozzies-cookie-settings,
+	.bozzies-consent__policy {
+		transition: none !important;
+		animation: none !important;
+	}
+}

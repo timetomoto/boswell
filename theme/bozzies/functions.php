@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once __DIR__ . '/inc/analytics.php';
+
 add_action( 'init', 'bozzies_register_section_styles' );
 function bozzies_register_section_styles() {
 	$blocks = array( 'core/group', 'core/columns', 'core/cover' );
