@@ -18,7 +18,7 @@
 		"useRootPaddingAwareAlignments": true,
 		"layout": {
 			"contentSize": "42rem",
-			"wideSize": "60rem"
+			"wideSize": "84rem"
 		},
 		"color": {
 			"background": true,
@@ -271,6 +271,41 @@
 						"text": "var(--wp--preset--color--link)"
 					}
 				}
+			},
+			"button": {
+				"typography": {
+					"fontFamily": "var(--wp--preset--font-family--ui)",
+					"fontWeight": "600",
+					"fontSize": "var(--wp--preset--font-size--small)",
+					"letterSpacing": "var(--wp--custom--letter-spacing--caps)",
+					"textTransform": "uppercase"
+				},
+				"color": {
+					"text": "var(--wp--preset--color--paper)",
+					"background": "var(--wp--preset--color--purple)"
+				},
+				"border": {
+					"color": "var(--wp--preset--color--purple)",
+					"width": "1px",
+					"style": "solid",
+					"radius": "0"
+				},
+				"spacing": {
+					"padding": {
+						"top": "var(--wp--preset--spacing--xs)",
+						"bottom": "var(--wp--preset--spacing--xs)",
+						"left": "var(--wp--preset--spacing--m)",
+						"right": "var(--wp--preset--spacing--m)"
+					}
+				},
+				":hover": {
+					"color": { "text": "var(--wp--preset--color--paper)", "background": "var(--wp--preset--color--oxblood)" },
+					"border": { "color": "var(--wp--preset--color--oxblood)" }
+				},
+				":focus": {
+					"color": { "text": "var(--wp--preset--color--paper)", "background": "var(--wp--preset--color--oxblood)" },
+					"border": { "color": "var(--wp--preset--color--oxblood)" }
+				}
 			}
 		},
 		"blocks": {
@@ -368,7 +403,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -390,7 +427,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -411,7 +450,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -433,7 +474,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -460,7 +503,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -479,7 +524,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -498,7 +545,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -517,7 +566,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -541,7 +592,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -560,7 +613,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -579,7 +634,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {
@@ -598,7 +655,9 @@
 						"spacing": {
 							"padding": {
 								"top": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
-								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))"
+								"bottom": "clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl))",
+								"left": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))",
+								"right": "clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))"
 							}
 						},
 						"elements": {

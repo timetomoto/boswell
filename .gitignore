@@ -28,3 +28,6 @@ yarn-error.log*
 
 # Local credentials — never commit
 admin-credentials.txt
+
+# Screenshots for visual QA (local only)
+_screens/

@@ -16,10 +16,10 @@
 	<!-- /wp:group -->
 	<!-- wp:group {"className":"bozzies-lesson-row__body","layout":{"type":"default"}} -->
 	<div class="wp-block-group bozzies-lesson-row__body">
-		<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/media/lessons/1/">Lesson title</a></h3><!-- /wp:heading -->
+		<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/media/lessons/lesson-1/">Lesson title</a></h3><!-- /wp:heading -->
 		<!-- wp:paragraph --><p>A one-line summary of the lesson.</p><!-- /wp:paragraph -->
 	</div>
 	<!-- /wp:group -->
-	<!-- wp:paragraph --><p><a href="/media/lessons/1/">▶ Listen</a></p><!-- /wp:paragraph -->
+	<!-- wp:paragraph --><p><a href="/media/lessons/lesson-1/">▶ Listen</a></p><!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
