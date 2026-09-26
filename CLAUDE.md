@@ -28,3 +28,10 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 - Don't skip steps or mark work partial. If a step can't be finished, stop, don't commit, and report.
 - Paste reports in chat. Never save report files.
 - Verify version-dependent WordPress facts against official docs and cite them.
+
+## Content
+- Source of truth for content: the Astro repo (~/boswell-poc src/content/ Markdown + frontmatter, plus text hardcoded in src/pages/*.astro and components). Before any content import, confirm the commit deployed at https://boswell-poc.vercel.app/ matches the repo HEAD; if not, stop and ask.
+- Content must be identical to the live Astro site: same text, same order, same images, same alt text, same links.
+- Import as native, editable core/custom blocks (heading, paragraph, list, image, table, quote, etc.). Never dump content into Custom HTML or Classic blocks.
+- Images, PDFs and MP3s go into the media library with Astro's alt text/titles.
+- Verify every imported page with an automated visible-text diff (Playwright) between the Vercel page and the WP page. Report and fix all differences.

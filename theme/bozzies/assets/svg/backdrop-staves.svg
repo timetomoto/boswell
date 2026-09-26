@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="120" viewBox="0 0 400 120" aria-hidden="true">
+  <g fill="none" stroke="#4A2E5A" stroke-width="0.5">
+    <line x1="0" y1="10" x2="400" y2="10"/>
+    <line x1="0" y1="24" x2="400" y2="24"/>
+    <line x1="0" y1="38" x2="400" y2="38"/>
+    <line x1="0" y1="52" x2="400" y2="52"/>
+    <line x1="0" y1="66" x2="400" y2="66"/>
+  </g>
+  <g fill="#4A2E5A" stroke="#4A2E5A" stroke-width="0.4">
+    <ellipse cx="60"  cy="45" rx="5" ry="3.6" transform="rotate(-18 60 45)"/>
+    <line x1="64" y1="43" x2="64" y2="10" fill="none"/>
+    <ellipse cx="140" cy="31" rx="5" ry="3.6" transform="rotate(-18 140 31)"/>
+    <line x1="144" y1="29" x2="144" y2="0" fill="none"/>
+    <ellipse cx="220" cy="52" rx="5" ry="3.6" transform="rotate(-18 220 52)"/>
+    <line x1="224" y1="50" x2="224" y2="18" fill="none"/>
+    <ellipse cx="290" cy="38" rx="5" ry="3.6" transform="rotate(-18 290 38)"/>
+    <line x1="294" y1="36" x2="294" y2="4" fill="none"/>
+    <ellipse cx="350" cy="59" rx="5" ry="3.6" transform="rotate(-18 350 59)"/>
+    <line x1="354" y1="57" x2="354" y2="24" fill="none"/>
+  </g>
+</svg>

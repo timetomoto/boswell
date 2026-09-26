@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240" aria-hidden="true">
+  <g fill="#E1C263" stroke="#E1C263" stroke-width="0.5">
+    <!-- Eighth note (single flag) -->
+    <g transform="translate(40 60)">
+      <ellipse cx="0" cy="26" rx="6" ry="4.4" transform="rotate(-20 0 26)"/>
+      <line x1="5" y1="24" x2="5" y2="-8" stroke-width="1" fill="none"/>
+      <path d="M5 -8 C 14 -4, 16 2, 13 12" stroke-width="1" fill="none"/>
+    </g>
+    <!-- Beamed eighths -->
+    <g transform="translate(140 40)">
+      <ellipse cx="0" cy="30" rx="6" ry="4.4" transform="rotate(-20 0 30)"/>
+      <ellipse cx="26" cy="26" rx="6" ry="4.4" transform="rotate(-20 26 26)"/>
+      <line x1="5" y1="28" x2="5" y2="-4" stroke-width="1"/>
+      <line x1="31" y1="24" x2="31" y2="-8" stroke-width="1"/>
+      <line x1="4" y1="-4" x2="32" y2="-8" stroke-width="2.2"/>
+    </g>
+    <!-- Quarter note -->
+    <g transform="translate(60 150)">
+      <ellipse cx="0" cy="24" rx="6" ry="4.4" transform="rotate(-20 0 24)"/>
+      <line x1="5" y1="22" x2="5" y2="-10" stroke-width="1.2"/>
+    </g>
+    <!-- Treble clef silhouette (abstract) -->
+    <g transform="translate(180 130)" opacity="0.9">
+      <path d="M0 40 C -8 30, -8 18, 0 12 C 8 6, 14 14, 10 22 C 6 30, -4 30, -4 22 C -4 12, 6 -6, 6 -14 C 6 -20, -2 -22, -6 -18"
+            fill="none" stroke="#E1C263" stroke-width="1.2"/>
+    </g>
+  </g>
+</svg>
