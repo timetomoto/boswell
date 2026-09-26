@@ -31,6 +31,7 @@ const TEXT_ON_PURPLE = '#F1E4C4';
 const OXBLOOD   = '#5A2E2E';
 const CHAMPAGNE = '#C8A96A';
 const WHITE     = '#FFFFFF';
+const YELLOW_SOFT = '#E1C263';
 const rows = [
 	[ 'Paper',            'body text-on-paper',       TEXT_ON_PAPER,  PAPER ],
 	[ 'Ink',              'body text-on-ink',         TEXT_ON_INK,    INK ],
@@ -41,15 +42,24 @@ const rows = [
 	[ 'Ink',              'pull-quote champagne',     CHAMPAGNE,      INK ],
 	[ 'Purple',           'pull-quote white',         WHITE,          PURPLE ],
 	[ 'Gold',             'pull-quote oxblood',       OXBLOOD,        GOLD ],
-	[ 'Image + 55% ink overlay (worst-case mid-grey image)',
+	[ 'Image + 70% ink overlay (default) on mid-grey image',
 	                       'body text-on-ink',
-	                       TEXT_ON_INK,   mix( INK, '#808080', 0.55 ) ],
-	[ 'Image + 55% ink overlay (worst-case black image)',
+	                       TEXT_ON_INK,   mix( INK, '#808080', 0.70 ) ],
+	[ 'Image + 70% ink overlay (default) on worst-case white image',
 	                       'body text-on-ink',
-	                       TEXT_ON_INK,   mix( INK, '#000000', 0.55 ) ],
-	[ 'Image + 55% ink overlay (worst-case white image)',
+	                       TEXT_ON_INK,   mix( INK, '#FFFFFF', 0.70 ) ],
+	[ 'Image + 70% ink overlay (default) on worst-case black image',
 	                       'body text-on-ink',
-	                       TEXT_ON_INK,   mix( INK, '#FFFFFF', 0.55 ) ],
+	                       TEXT_ON_INK,   mix( INK, '#000000', 0.70 ) ],
+	// New pairs from home page rebuild:
+	[ 'Purple (hero panel)', 'hero subtitle text-on-ink',
+	                       TEXT_ON_INK,   PURPLE ],
+	[ 'Purple (hero panel)', 'hero tagline yellow-soft',
+	                       YELLOW_SOFT,   PURPLE ],
+	[ 'Purple (hero panel gradient at 100%, worst case)',
+	                       'hero credit rgba(text-on-ink,0.75)',
+	                       mix( TEXT_ON_INK, PURPLE, 0.75 ),   PURPLE ],
+	[ 'Paper', 'intro__body--lead bold on paper', TEXT_ON_PAPER, PAPER ],
 ];
 const AA_LARGE = 3;
 const AA_BODY  = 4.5;

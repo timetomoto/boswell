@@ -17,7 +17,7 @@ $defaults = array(
 	'backgroundImage'     => null,
 	'backgroundFocalPoint' => array( 'x' => 0.5, 'y' => 0.5 ),
 	'overlayColor'        => '#181615',
-	'overlayStrength'     => 55,
+	'overlayStrength'     => 70,
 	'backdrop'            => 'none',
 	'backdropColor'       => '',
 	'width'               => 'container',

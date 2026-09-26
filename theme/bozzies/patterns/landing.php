@@ -3,77 +3,60 @@
  * Title: Landing
  * Slug: bozzies/landing
  * Categories: boswell
- * Description: The site landing pattern — hero (split), intro on Paper, jazz divider, alternating grounds, closing Gold section with cards.
+ * Description: The site landing pattern — every section on the home page, in order, built from the Section block. Matches Astro's home layout section by section.
  */
 ?>
-<!-- wp:group {"align":"full","className":"is-style-purple has-hero-frame","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-purple has-hero-frame">
-	<!-- wp:columns {"verticalAlignment":"stretch"} -->
-	<div class="wp-block-columns are-vertically-aligned-stretch">
-		<!-- wp:column {"verticalAlignment":"stretch","width":"50%"} -->
-		<div class="wp-block-column is-vertically-aligned-stretch" style="flex-basis:50%">
-			<!-- wp:image {"sizeSlug":"large","linkDestination":"none"} -->
-			<figure class="wp-block-image size-large"><img alt="The Boswell Sisters portrait placeholder" /></figure>
-			<!-- /wp:image -->
-		</div>
-		<!-- /wp:column -->
-		<!-- wp:column {"verticalAlignment":"center","width":"50%"} -->
-		<div class="wp-block-column is-vertically-aligned-center" style="flex-basis:50%">
-			<!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Est. 1925 · New Orleans</p><!-- /wp:paragraph -->
-			<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">The Boswell Sisters</h1><!-- /wp:heading -->
-			<!-- wp:paragraph --><p>Martha, Connee, and Vet — pioneers of American vocal harmony.</p><!-- /wp:paragraph -->
-			<!-- wp:paragraph {"style":{"color":{"text":"var:custom|color|yellow-soft"}}} --><p style="color:var(--wp--custom--color--yellow-soft)">Their sound rewrote what a group could do with a song.</p><!-- /wp:paragraph -->
-		</div>
-		<!-- /wp:column -->
-	</div>
-	<!-- /wp:columns -->
+<!-- wp:bozzies/section {"backgroundStyle":"ink","width":"edge","headingWidth":"container","spacing":"none","heroFrame":true,"imageGrayscale":true,"imageZoom":true,"align":"full"} -->
+<!-- wp:columns {"verticalAlignment":"stretch","className":"bozzies-hero-split"} -->
+<div class="wp-block-columns are-vertically-aligned-stretch bozzies-hero-split">
+<!-- wp:column {"verticalAlignment":"stretch","width":"50%","className":"bozzies-hero-split__image"} -->
+<div class="wp-block-column is-vertically-aligned-stretch bozzies-hero-split__image" style="flex-basis:50%"><!-- wp:image {"sizeSlug":"large","linkDestination":"none"} --><figure class="wp-block-image size-large"><img alt="Portrait of the Boswell Sisters, circa 1932." /></figure><!-- /wp:image -->
+<!-- wp:paragraph {"className":"bozzies-hero-split__credit"} --><p class="bozzies-hero-split__credit"><span>c. 1932</span></p><!-- /wp:paragraph --></div>
+<!-- /wp:column -->
+<!-- wp:column {"verticalAlignment":"center","width":"50%","className":"bozzies-hero-split__text"} -->
+<div class="wp-block-column is-vertically-aligned-center bozzies-hero-split__text" style="flex-basis:50%"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Meet the Boswells</h1><!-- /wp:heading -->
+<!-- wp:html --><div class="bozzies-hero-split__glyph" aria-hidden="true"><svg viewBox="0 0 80 20"><g fill="none" stroke="currentColor" stroke-width="0.7"><path d="M0 10 L28 10"/><path d="M52 10 L80 10"/><g transform="translate(40 10)"><path d="M-6 0 L-2 -4 L2 0 L-2 4 Z"/><path d="M-10 0 L-6 -4 M6 4 L10 0" opacity="0.7"/><circle cx="0" cy="0" r="1.4" fill="currentColor" stroke="none"/></g></g></svg></div><!-- /wp:html -->
+<!-- wp:paragraph {"className":"bozzies-hero-split__subtitle"} --><p class="bozzies-hero-split__subtitle">Martha, Connie and Vet, the New Orleans trio who invented swinging close-harmony.</p><!-- /wp:paragraph --></div>
+<!-- /wp:column -->
 </div>
-<!-- /wp:group -->
+<!-- /wp:columns -->
+<!-- /wp:bozzies/section -->
 
-<!-- wp:group {"align":"full","className":"is-style-paper","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-paper">
-	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">About the archive</p><!-- /wp:paragraph -->
-	<!-- wp:paragraph {"align":"center","fontSize":"lead"} --><p class="has-text-align-center has-lead-font-size">A tribute archive to the trio and to Connee's later solo work — writing, recordings, photos, and voices.</p><!-- /wp:paragraph -->
-	<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">bozzies.org gathers primary sources, contemporary features, and audio, and points to the people still keeping the sound alive.</p><!-- /wp:paragraph -->
-</div>
-<!-- /wp:group -->
+<!-- wp:bozzies/section {"backgroundStyle":"paper","width":"narrow","headingWidth":"reading","align":"full"} -->
+<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">The roots of rock and roll literally start here.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"style":{"typography":{"fontWeight":"700"}}} --><p style="font-weight:700">Come on in and meet New Orleans' own Boswell Sisters.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph --><p>Discover the velvet tones of Connie Boswell — inspiration to singers from Ella Fitzgerald to Wynonna Judd, seller of more than 75 million records, and one of America's greatest voices, delivered entirely from a wheelchair. Whether you're a nonplussed novice or a crusty old jazzbo, you'll be delighted by the sounds and stories of the Boswells.</p><!-- /wp:paragraph -->
+<!-- /wp:bozzies/section -->
 
 <!-- wp:separator {"className":"is-style-jazz","align":"wide"} --><hr class="wp-block-separator alignwide is-style-jazz"/><!-- /wp:separator -->
 
-<!-- wp:group {"align":"full","className":"is-style-paper has-backdrop-vinyl","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-paper has-backdrop-vinyl">
-	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Volume One</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-container"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-container">A starter playlist</h2><!-- /wp:heading -->
-	<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Ten sides that open the door — arranged by the trio, played by a small orchestra.</p><!-- /wp:paragraph -->
-</div>
-<!-- /wp:group -->
+<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"vinyl","headingWidth":"reading","align":"full"} -->
+<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Music Playlist</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Hear the Boswell Sound</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">The Boswell Sisters Collection Volume One.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">[Playlist player: added in task 8]</p><!-- /wp:paragraph -->
+<!-- /wp:bozzies/section -->
 
-<!-- wp:separator {"className":"is-style-jazz","align":"wide"} --><hr class="wp-block-separator alignwide is-style-jazz"/><!-- /wp:separator -->
+<!-- wp:bozzies/section {"backgroundStyle":"purple","backdrop":"notes","headingWidth":"reading","align":"full"} -->
+<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">In Their Words</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">What the world has said about the Boswells</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">[Quotes carousel: added in task 8]</p><!-- /wp:paragraph -->
+<!-- /wp:bozzies/section -->
 
-<!-- wp:group {"align":"full","className":"is-style-purple has-backdrop-notes","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-purple has-backdrop-notes">
-	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Voices</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-title"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-title">What their peers said</h2><!-- /wp:heading -->
-	<!-- wp:quote {"className":"is-style-pull-quote"} --><blockquote class="wp-block-quote is-style-pull-quote"><p>The girls were doing what nobody else was doing.</p><cite>— A contemporary bandleader</cite></blockquote><!-- /wp:quote -->
-</div>
-<!-- /wp:group -->
+<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","width":"narrow","headingWidth":"reading","spacing":"spacious","align":"full"} -->
+<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Sample the Sound</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Cynthia Lucas explains what makes the Boswells tick</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">A five-part audio series narrated by one of the best-known Boswell historians. Start with Lesson 1 — The Blend.</p><!-- /wp:paragraph -->
+<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
+<div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/media/lessons/1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
+<!-- /wp:buttons -->
+<!-- /wp:bozzies/section -->
 
-<!-- wp:group {"align":"full","className":"is-style-paper has-backdrop-staves","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-paper has-backdrop-staves">
-	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Sample the sound</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-reading"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-reading">Hear a signature side</h2><!-- /wp:heading -->
-</div>
-<!-- /wp:group -->
-
-<!-- wp:group {"align":"full","className":"is-style-gold has-backdrop-diamond-grid","layout":{"type":"constrained"}} -->
-<div class="wp-block-group alignfull is-style-gold has-backdrop-diamond-grid">
-	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Support the archive</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-reading"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-reading">Keep the Boswell sound alive</h2><!-- /wp:heading -->
-	<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">bozzies.org is run by hand and paid for by small donations. If it's helped you, help us keep it going.</p><!-- /wp:paragraph -->
-	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
-	<div class="wp-block-buttons">
-		<!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#">Donate</a></div><!-- /wp:button -->
-	</div>
-	<!-- /wp:buttons -->
-</div>
-<!-- /wp:group -->
+<!-- wp:bozzies/section {"backgroundStyle":"gold","backdrop":"diamond-grid","width":"narrow","headingWidth":"reading","align":"full"} -->
+<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Support the Work</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Help keep the Boswells' legacy alive.</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Bozzies.org is dedicated to preserving the Boswell Sisters' recordings, research, and public memory. Every contribution keeps us Bozzing.</p><!-- /wp:paragraph -->
+<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
+<div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#">Donate</a></div><!-- /wp:button --></div>
+<!-- /wp:buttons -->
+<!-- /wp:bozzies/section -->

@@ -24,7 +24,7 @@
 		"backgroundImage": { "type": "object", "default": null },
 		"backgroundFocalPoint": { "type": "object", "default": { "x": 0.5, "y": 0.5 } },
 		"overlayColor": { "type": "string", "default": "#181615" },
-		"overlayStrength": { "type": "number", "default": 55 },
+		"overlayStrength": { "type": "number", "default": 70 },
 		"backdrop": { "type": "string", "default": "none" },
 		"backdropColor": { "type": "string", "default": "" },
 		"width": { "type": "string", "default": "container" },

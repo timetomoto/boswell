@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 20" aria-hidden="true">
+	<g fill="none" stroke="currentColor" stroke-width="0.7">
+		<path d="M0 10 L28 10"/>
+		<path d="M52 10 L80 10"/>
+		<g transform="translate(40 10)">
+			<path d="M-6 0 L-2 -4 L2 0 L-2 4 Z"/>
+			<path d="M-10 0 L-6 -4 M6 4 L10 0" opacity="0.7"/>
+			<circle cx="0" cy="0" r="1.4" fill="currentColor" stroke="none"/>
+		</g>
+	</g>
+</svg>

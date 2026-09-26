@@ -169,7 +169,7 @@ const variations = [
 	{
 		name: 'hero-split',
 		title: __( 'Hero split', 'bozzies' ),
-		description: __( 'Image left, purple text panel right. Edge to edge.', 'bozzies' ),
+		description: __( 'Image left, purple text panel right. Edge to edge. Includes decorative glyph, subtitle and tagline slots.', 'bozzies' ),
 		icon: 'columns',
 		attributes: {
 			backgroundStyle: 'ink',
@@ -194,16 +194,14 @@ const variations = [
 						'core/column',
 						{ verticalAlignment: 'center', className: 'bozzies-hero-split__text', width: '50%' },
 						[
-							eyebrow( __( 'Est. 1925 · New Orleans', 'bozzies' ) ),
-							[ 'core/heading', { level: 1, content: __( 'The Boswell Sisters', 'bozzies' ) } ],
-							p( __( 'Martha, Connee, and Vet — pioneers of American vocal harmony.', 'bozzies' ) ),
+							[ 'core/heading', { level: 1, content: __( 'Section heading', 'bozzies' ) } ],
+							// Decorative glyph, aria-hidden. Matches Astro's hero__glyph.
 							[
-								'core/paragraph',
-								{
-									content: __( 'Their sound rewrote what a group could do with a song.', 'bozzies' ),
-									style: { color: { text: 'var:custom|color|yellow-soft' } },
-								},
+								'core/html',
+								{ content: '<div class="bozzies-hero-split__glyph" aria-hidden="true"><svg viewBox="0 0 80 20"><g fill="none" stroke="currentColor" stroke-width="0.7"><path d="M0 10 L28 10"/><path d="M52 10 L80 10"/><g transform="translate(40 10)"><path d="M-6 0 L-2 -4 L2 0 L-2 4 Z"/><path d="M-10 0 L-6 -4 M6 4 L10 0" opacity="0.7"/><circle cx="0" cy="0" r="1.4" fill="currentColor" stroke="none"/></g></g></svg></div>' },
 							],
+							[ 'core/paragraph', { content: __( 'Add a short subtitle here.', 'bozzies' ), className: 'bozzies-hero-split__subtitle' } ],
+							[ 'core/paragraph', { content: __( 'Add a supporting tagline here.', 'bozzies' ), className: 'bozzies-hero-split__tagline', style: { color: { text: 'var:custom|color|yellow-soft' } } } ],
 						],
 					],
 				],

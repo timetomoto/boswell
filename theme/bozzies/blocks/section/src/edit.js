@@ -188,11 +188,13 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	} );
 
 	// Contrast + AA warning.
+	// Worst-case image is a fully white photo; if the overlay + text pair is
+	// AA on that, it is AA on anything darker.
 	const bg = resolvedGroundBg( attributes );
 	const text = resolvedTextColor( attributes );
 	const groundContrast = contrastRatio( bg, text );
 	const overlayEffectiveBg = hasImage
-		? mixOverAlpha( overlayColor, '#808080', overlayStrength / 100 )
+		? mixOverAlpha( overlayColor, '#FFFFFF', overlayStrength / 100 )
 		: null;
 	const overlayContrast = overlayEffectiveBg ? contrastRatio( overlayEffectiveBg, text ) : null;
 	const overlayBelowAA = hasImage && overlayContrast !== null && overlayContrast < 4.5;
@@ -283,7 +285,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 							{ overlayBelowAA && (
 								<Notice status="warning" isDismissible={ false }>
 									{ __(
-										'Overlay is too light for AA text contrast on the darkest images. Raise the strength or pick a darker overlay.',
+										'Overlay is too light for AA body-text contrast on a fully white photograph. Raise the strength or pick a darker overlay.',
 										'bozzies'
 									) }
 								</Notice>

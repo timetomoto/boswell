@@ -219,11 +219,11 @@
 	display: grid !important;
 	grid-template-columns: 1fr 1fr;
 	gap: 0 !important;
+	/* Only a floor — content (longer copy, enlarged type, keyboard zoom)
+	 * grows the hero freely so nothing gets clipped. */
 	min-height: 680px;
-	max-height: 680px;
 	margin: 0 !important;
 	align-items: stretch !important;
-	overflow: hidden;
 }
 .wp-block-columns.bozzies-hero-split > .wp-block-column {
 	padding: 0 !important;
@@ -238,6 +238,22 @@
 	overflow: hidden;
 	background: #0f0d0c;
 	isolation: isolate;
+}
+
+/* Hero image credit (Astro's .hero__credit--split) — positioned bottom-right
+ * of the image panel over the gradient. */
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image .bozzies-hero-split__credit {
+	position: absolute;
+	bottom: var(--wp--preset--spacing--s);
+	right: var(--wp--preset--spacing--m);
+	font-family: var(--wp--preset--font-family--ui);
+	font-size: var(--wp--custom--step--minus-2);
+	color: rgba(237, 230, 214, 0.75);
+	letter-spacing: var(--wp--custom--letter-spacing--caps);
+	text-transform: uppercase;
+	z-index: 3;
+	margin: 0;
+	max-width: none;
 }
 .wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image > .wp-block-image {
 	position: absolute;
@@ -274,9 +290,10 @@
 .wp-block-columns.bozzies-hero-split > .wp-block-column.bozzies-hero-split__text {
 	background: var(--wp--preset--color--purple);
 	color: var(--wp--custom--color--text-on-purple);
-	/* Astro's Hero.astro text-panel padding uses --space-5..--space-9 tokens.
-	 * Pinned to px here so WP's 112.5% root font-size does not skew rem math. */
-	padding: clamp(24px, 3.5vw, 48px) clamp(32px, 5vw, 96px) !important;
+	/* Matches Astro Hero.astro padding: clamp(--space-5, 3.5vw, --space-7)
+	 * clamp(--space-6, 5vw, --space-9). Both sites share 112.5% root, so rem
+	 * resolves identically. */
+	padding: clamp(1.5rem, 3.5vw, 3rem) clamp(2rem, 5vw, 6rem) !important;
 	display: flex;
 	flex-direction: column;
 	justify-content: center !important;
@@ -286,9 +303,9 @@
 .wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .wp-block-heading {
 	font-family: var(--wp--preset--font-family--display);
 	font-weight: 300;
-	/* Astro's hero title clamp resolves against a 16px root; WP uses 112.5%
-	 * root so we pin to px here to keep max-widths measurable to spec. */
-	font-size: clamp(48.8px, 5vw + 4.8px, 76.3px);
+	/* Matches Astro Hero.astro: clamp(--step-5, 5vw + 0.3rem, --step-7).
+	 * Astro and WP share 112.5% root. */
+	font-size: clamp(var(--wp--preset--font-size--x-large), 5vw + 0.3rem, var(--wp--custom--step--7));
 	line-height: 1;
 	letter-spacing: var(--wp--custom--letter-spacing--tight);
 	margin-top: var(--wp--preset--spacing--m);
@@ -297,6 +314,45 @@
 }
 .wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text > * {
 	max-width: 34rem;
+}
+
+/* Decorative glyph between the h1 and the subtitle (Astro's .hero__glyph). */
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .bozzies-hero-split__glyph {
+	margin-top: var(--wp--preset--spacing--xl); /* --space-6 = 2rem in Astro */
+	display: flex;
+	justify-content: flex-start;
+	color: var(--wp--custom--color--yellow-soft);
+	opacity: 0.85;
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .bozzies-hero-split__glyph svg {
+	width: min(140px, 30vw);
+	height: auto;
+	display: block;
+}
+
+/* Subtitle (Astro's .hero__subtitle--split) — Source Serif 4, ivory on purple.
+ * Astro also declares max-width: 34ch here, but with 34ch resolving wider in
+ * Astro's font pipeline the subtitle actually renders capped by the parent
+ * panel's inner width (~576 at 1440). Letting the parent cap it keeps our
+ * WP render aligned to Astro on the visible box regardless of ch metrics. */
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .bozzies-hero-split__subtitle {
+	margin-top: var(--wp--preset--spacing--l); /* --space-5 = 1.5rem */
+	font-family: var(--wp--preset--font-family--body);
+	font-size: clamp(var(--wp--preset--font-size--lead), 1.2vw + 0.4rem, var(--wp--custom--step--2));
+	color: var(--wp--custom--color--text-on-ink);
+	max-width: none;
+	line-height: var(--wp--custom--line-height--normal);
+}
+
+/* Tagline (Astro's .hero__tagline) — Source Serif 4, yellow-soft. */
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .bozzies-hero-split__tagline {
+	margin-top: var(--wp--preset--spacing--m); /* --space-4 = 1rem */
+	font-family: var(--wp--preset--font-family--body);
+	font-weight: 400;
+	font-size: clamp(var(--wp--preset--font-size--lead), 1.4vw + 0.3rem, var(--wp--custom--step--2));
+	color: var(--wp--custom--color--yellow-soft);
+	line-height: 1.35;
+	max-width: 36ch;
 }
 
 @media (max-width: 900px) {

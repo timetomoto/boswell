@@ -65,3 +65,9 @@ function bozzies_add_editor_styles() {
 	// consistently in edit mode.
 	add_editor_style( 'assets/css/chrome.css' );
 }
+
+// Authors on this site write copy that must land on the front verbatim (it
+// often mirrors the Astro reference character-for-character). WordPress
+// auto-textures apostrophes and quotes into curly typographers' variants;
+// switch that off so straight quotes stay straight and match the source.
+add_filter( 'run_wptexturize', '__return_false' );
