@@ -1,3 +1,24 @@
+/* Prose in page/post content: reproduce Astro's .container-narrow effective width.
+   Astro caps max-width at 42rem with padding-inline clamp(1.5rem,4vw,4rem) and
+   box-sizing: border-box, so inner content = 42rem − 2*gutter. WP's contentSize
+   applies max-width without subtracting the padding, so paragraphs at desktop
+   viewports render wider than Astro. This override matches Astro's math. */
+.wp-block-post-content > .wp-block-paragraph,
+.wp-block-post-content > p,
+.wp-block-post-content > .wp-block-list,
+.wp-block-post-content > ul,
+.wp-block-post-content > ol,
+.wp-block-post-content > .wp-block-quote,
+.wp-block-post-content > blockquote,
+.wp-block-post-content > h1,
+.wp-block-post-content > h2,
+.wp-block-post-content > h3,
+.wp-block-post-content > h4,
+.wp-block-post-content > h5,
+.wp-block-post-content > h6 {
+	max-width: calc(42rem - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8)));
+}
+
 /* --- WP core skip link — re-styled with Astro's treatment --- */
 .skip-link.screen-reader-text:focus {
 	background: var(--wp--preset--color--ink);
@@ -34,6 +55,9 @@ header.wp-block-template-part {
 }
 
 .site-header__inner {
+	width: 100%;
+	max-width: var(--wp--custom--measure--max);
+	margin-inline: auto;
 	padding-block: var(--wp--preset--spacing--m);
 	gap: var(--wp--preset--spacing--xl);
 }
@@ -62,6 +86,10 @@ header.wp-block-template-part {
 	line-height: 1;
 }
 
+.site-header__nav .wp-block-navigation__container {
+	gap: clamp(var(--wp--preset--spacing--m), 2.5vw, var(--wp--preset--spacing--xl));
+	--wp--style--block-gap: clamp(var(--wp--preset--spacing--m), 2.5vw, var(--wp--preset--spacing--xl));
+}
 .site-header__nav .wp-block-navigation-item__content {
 	font-family: var(--wp--preset--font-family--ui);
 	font-weight: 500;
@@ -117,10 +145,19 @@ header.wp-block-template-part {
 
 /* --- Site footer (Footer.astro) --- */
 .site-footer__inner {
+	width: 100%;
+	max-width: var(--wp--custom--measure--max);
+	margin-inline: auto;
 	display: grid;
 	gap: var(--wp--preset--spacing--xl);
 	grid-template-columns: 1.4fr 1fr 1.4fr;
 	align-items: start;
+}
+
+/* Footer padding-block matches Astro's Footer.astro clamp, overriding the section-style .section rhythm on the footer only. */
+.wp-block-group.site-footer {
+	padding-top: clamp(var(--wp--custom--space--8), 6vw, var(--wp--custom--space--10));
+	padding-bottom: clamp(var(--wp--custom--space--8), 6vw, var(--wp--custom--space--10));
 }
 @media (max-width: 900px) {
 	.site-footer__inner { grid-template-columns: 1fr; }
@@ -136,7 +173,7 @@ header.wp-block-template-part {
 }
 .site-footer__tagline {
 	font-family: var(--wp--preset--font-family--body);
-	color: var(--wp--custom--color--text-on-purple-muted);
+	color: rgba(245, 234, 209, 0.8);
 	font-size: var(--wp--preset--font-size--body);
 	line-height: var(--wp--custom--line-height--normal);
 	max-width: 34ch;
@@ -165,7 +202,7 @@ header.wp-block-template-part {
 }
 
 .site-footer__meta {
-	color: var(--wp--custom--color--text-on-purple-muted);
+	color: rgba(245, 234, 209, 0.75);
 	font-size: var(--wp--preset--font-size--small);
 }
 .site-footer__meta p + p {
