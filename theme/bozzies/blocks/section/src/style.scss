@@ -1,0 +1,323 @@
+/**
+ * bozzies/section — front-end + editor styles.
+ * Loaded on the front and inside the block editor iframe.
+ * Editor-only rules are scoped to .editor-styles-wrapper below.
+ */
+
+.wp-block-bozzies-section {
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+	box-sizing: border-box;
+	overflow: hidden;
+
+	/* Grounds — match theme.json's is-style-* variations. */
+	&.ground-paper {
+		background-color: var(--wp--preset--color--paper);
+		color: var(--wp--custom--color--text-on-paper);
+	}
+	&.ground-ink {
+		background-color: var(--wp--preset--color--ink);
+		color: var(--wp--custom--color--text-on-ink);
+	}
+	&.ground-purple {
+		background-color: var(--wp--preset--color--purple);
+		color: var(--wp--custom--color--text-on-purple);
+	}
+	&.ground-gold {
+		background-color: var(--wp--preset--color--yellow-bright);
+		color: var(--wp--preset--color--ink);
+	}
+	&.ground-custom {
+		background-color: var(--bozzies-section-bg, var(--wp--preset--color--paper));
+		color: var(--bozzies-section-text, var(--wp--custom--color--text-on-paper));
+	}
+
+	/* Heading + link colours inherit from ground text — but headings on ink/purple
+	 * grounds should not fall back to a global dark color. */
+	&.ground-ink .wp-block-heading,
+	&.ground-ink h1, &.ground-ink h2, &.ground-ink h3, &.ground-ink h4, &.ground-ink h5, &.ground-ink h6 {
+		color: var(--wp--custom--color--text-on-ink);
+	}
+	&.ground-purple .wp-block-heading,
+	&.ground-purple h1, &.ground-purple h2, &.ground-purple h3, &.ground-purple h4, &.ground-purple h5, &.ground-purple h6 {
+		color: var(--wp--custom--color--text-on-purple);
+	}
+	&.ground-paper .wp-block-heading,
+	&.ground-paper h1, &.ground-paper h2, &.ground-paper h3, &.ground-paper h4, &.ground-paper h5, &.ground-paper h6 {
+		color: var(--wp--custom--color--text-on-paper);
+	}
+	&.ground-gold .wp-block-heading,
+	&.ground-gold h1, &.ground-gold h2, &.ground-gold h3, &.ground-gold h4, &.ground-gold h5, &.ground-gold h6 {
+		color: var(--wp--preset--color--ink);
+	}
+
+	&.ground-paper a  { color: var(--wp--preset--color--link); }
+	&.ground-ink a    { color: var(--wp--custom--color--link-on-dark); }
+	&.ground-purple a { color: var(--wp--custom--color--link-on-dark); }
+	&.ground-gold a   { color: var(--wp--custom--color--link-hover); text-decoration: underline; }
+}
+
+/* --- Inner container widths --------------------------------------------- */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner {
+	position: relative;
+	z-index: 1;
+	margin-inline: auto;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.wp-block-bozzies-section.has-width-container > .wp-block-bozzies-section__inner {
+	max-width: var(--wp--custom--measure--max, 84rem);
+	padding-inline: clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8));
+}
+.wp-block-bozzies-section.has-width-narrow > .wp-block-bozzies-section__inner {
+	max-width: var(--wp--custom--measure--body, 42rem);
+	padding-inline: clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8));
+}
+.wp-block-bozzies-section.has-width-edge > .wp-block-bozzies-section__inner {
+	max-width: none;
+	padding-inline: 0;
+}
+
+/* --- Vertical rhythm ---------------------------------------------------- */
+.wp-block-bozzies-section.has-spacing-standard  { padding-block: clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl)); }
+.wp-block-bozzies-section.has-spacing-compact   { padding-block: clamp(var(--wp--preset--spacing--s), 1.4vw, var(--wp--preset--spacing--l)); }
+.wp-block-bozzies-section.has-spacing-spacious  { padding-block: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--10, 8rem)); }
+.wp-block-bozzies-section.has-spacing-none      { padding-block: 0; }
+
+/* --- Heading width ------------------------------------------------------ */
+/* Applied to the direct-descendant headings within the inner. Nested column
+ * layouts (Columns / Card grids) opt out via :not(.wp-block-columns *). */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .wp-block-heading,
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > h1,
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > h2,
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > h3 {
+	margin-inline: 0;
+}
+
+.wp-block-bozzies-section.has-heading-width-container > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) {
+	max-width: none;
+}
+.wp-block-bozzies-section.has-heading-width-wide > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) {
+	max-width: var(--wp--custom--measure--wide, 60rem);
+}
+.wp-block-bozzies-section.has-heading-width-reading > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) {
+	max-width: var(--wp--custom--measure--title, 34ch);
+}
+/* Centre a heading only when it's explicitly centred; otherwise align to
+ * container left edge. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3).has-text-align-center {
+	margin-inline: auto;
+}
+
+/* --- Decorative layers -------------------------------------------------- */
+.wp-block-bozzies-section__image,
+.wp-block-bozzies-section__overlay,
+.wp-block-bozzies-section__backdrop,
+.wp-block-bozzies-section__frame {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.wp-block-bozzies-section__image {
+	background-image: var(--bozzies-section-image);
+	background-size: cover;
+	background-position: var(--bozzies-section-focal, 50% 50%);
+	background-repeat: no-repeat;
+}
+.wp-block-bozzies-section.has-image-grayscale .wp-block-bozzies-section__image {
+	filter: grayscale(0.55) contrast(1.05) brightness(0.94);
+}
+.wp-block-bozzies-section.has-image-zoom .wp-block-bozzies-section__image {
+	animation: bozzies-hero-ken 40s cubic-bezier(0.25, 1, 0.5, 1) both;
+	transform-origin: center;
+}
+@keyframes bozzies-hero-ken {
+	from { transform: scale(1.06); }
+	to   { transform: scale(1.00); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-bozzies-section.has-image-zoom .wp-block-bozzies-section__image {
+		animation: none;
+	}
+}
+
+.wp-block-bozzies-section__overlay {
+	background-color: var(--bozzies-section-overlay, #181615);
+	opacity: var(--bozzies-section-overlay-alpha, 0.55);
+	z-index: 1;
+}
+
+/* --- Backdrop pattern (mask-image so colour is CSS-driven) -------------- */
+.wp-block-bozzies-section__backdrop {
+	background-color: var(--backdrop-color, var(--wp--preset--color--purple));
+	-webkit-mask-repeat: repeat;
+	        mask-repeat: repeat;
+	-webkit-mask-position: center;
+	        mask-position: center;
+	z-index: 2;
+}
+.wp-block-bozzies-section.has-backdrop-vinyl .wp-block-bozzies-section__backdrop {
+	-webkit-mask-image: url("../../../assets/svg/backdrop-vinyl.svg");
+	        mask-image: url("../../../assets/svg/backdrop-vinyl.svg");
+	-webkit-mask-size: 69vw 69vw;
+	        mask-size: 69vw 69vw;
+	opacity: 0.05;
+}
+.wp-block-bozzies-section.has-backdrop-staves .wp-block-bozzies-section__backdrop {
+	-webkit-mask-image: url("../../../assets/svg/backdrop-staves.svg");
+	        mask-image: url("../../../assets/svg/backdrop-staves.svg");
+	-webkit-mask-size: 100vw 30vw;
+	        mask-size: 100vw 30vw;
+	opacity: 0.06;
+}
+.wp-block-bozzies-section.has-backdrop-notes .wp-block-bozzies-section__backdrop {
+	-webkit-mask-image: url("../../../assets/svg/backdrop-notes.svg");
+	        mask-image: url("../../../assets/svg/backdrop-notes.svg");
+	-webkit-mask-size: 100vw 100vw;
+	        mask-size: 100vw 100vw;
+	opacity: 0.09;
+}
+.wp-block-bozzies-section.has-backdrop-diamond-grid .wp-block-bozzies-section__backdrop {
+	-webkit-mask-image: url("../../../assets/svg/backdrop-diamond-grid.svg");
+	        mask-image: url("../../../assets/svg/backdrop-diamond-grid.svg");
+	-webkit-mask-size: 30vw 30vw;
+	        mask-size: 30vw 30vw;
+	opacity: 0.08;
+}
+
+/* Inherit the has-backdrop-* per-usage default colour set in chrome.css so
+ * an author who leaves backdropColor blank still gets Astro's colours. */
+
+/* --- Hero corner brackets ---------------------------------------------- */
+.wp-block-bozzies-section__frame {
+	inset: clamp(0.75rem, 2vw, 2rem);
+	pointer-events: none;
+	z-index: 4;
+	opacity: 0.75;
+	background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
+	background-position: top left, top right, bottom left, bottom right;
+	background-size: 88px 88px, 88px 88px, 88px 88px, 88px 88px;
+	background-image:
+		url("../../../assets/svg/hero-corner-tl.svg"),
+		url("../../../assets/svg/hero-corner-tr.svg"),
+		url("../../../assets/svg/hero-corner-bl.svg"),
+		url("../../../assets/svg/hero-corner-br.svg");
+}
+
+/* --- Hero split layout (Columns child of Hero split variation) ---------- */
+.wp-block-bozzies-section.has-width-edge {
+	> .wp-block-bozzies-section__inner {
+		max-width: none;
+		padding-inline: 0;
+	}
+}
+.wp-block-columns.bozzies-hero-split {
+	display: grid !important;
+	grid-template-columns: 1fr 1fr;
+	gap: 0 !important;
+	min-height: 680px;
+	max-height: 680px;
+	margin: 0 !important;
+	align-items: stretch !important;
+	overflow: hidden;
+}
+.wp-block-columns.bozzies-hero-split > .wp-block-column {
+	padding: 0 !important;
+	margin: 0 !important;
+	flex-basis: auto !important;
+	min-width: 0;
+	box-sizing: border-box !important;
+	align-self: stretch !important;
+}
+.wp-block-columns.bozzies-hero-split > .wp-block-column.bozzies-hero-split__image {
+	position: relative;
+	overflow: hidden;
+	background: #0f0d0c;
+	isolation: isolate;
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image > .wp-block-image {
+	position: absolute;
+	inset: 0;
+	margin: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image > .wp-block-image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 25%;
+	filter: grayscale(0.55) contrast(1.05) brightness(0.94);
+	animation: bozzies-hero-ken 40s cubic-bezier(0.25, 1, 0.5, 1) both;
+}
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image > .wp-block-image img { animation: none; }
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(90deg,
+		rgba(74, 46, 90, 0.20) 0%,
+		rgba(74, 46, 90, 0.40) 33%,
+		rgba(74, 46, 90, 0.60) 66%,
+		rgba(74, 46, 90, 1.00) 100%);
+	pointer-events: none;
+	z-index: 2;
+}
+.wp-block-columns.bozzies-hero-split > .wp-block-column.bozzies-hero-split__text {
+	background: var(--wp--preset--color--purple);
+	color: var(--wp--custom--color--text-on-purple);
+	/* Astro's Hero.astro text-panel padding uses --space-5..--space-9 tokens.
+	 * Pinned to px here so WP's 112.5% root font-size does not skew rem math. */
+	padding: clamp(24px, 3.5vw, 48px) clamp(32px, 5vw, 96px) !important;
+	display: flex;
+	flex-direction: column;
+	justify-content: center !important;
+	position: relative;
+	z-index: 3;
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .wp-block-heading {
+	font-family: var(--wp--preset--font-family--display);
+	font-weight: 300;
+	/* Astro's hero title clamp resolves against a 16px root; WP uses 112.5%
+	 * root so we pin to px here to keep max-widths measurable to spec. */
+	font-size: clamp(48.8px, 5vw + 4.8px, 76.3px);
+	line-height: 1;
+	letter-spacing: var(--wp--custom--letter-spacing--tight);
+	margin-top: var(--wp--preset--spacing--m);
+	max-width: 16ch;
+	color: var(--wp--custom--color--text-on-ink);
+}
+.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text > * {
+	max-width: 34rem;
+}
+
+@media (max-width: 900px) {
+	.wp-block-columns.bozzies-hero-split {
+		grid-template-columns: 1fr;
+	}
+	.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__image { min-height: 58vh; }
+	.wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text {
+		padding-block: clamp(3rem, 8vw, 6rem) !important;
+	}
+}
+
+/* ------------------------------------------------------------------------
+ * Editor-only overrides. .editor-styles-wrapper is the class Gutenberg
+ * applies inside its iframe, so these rules never reach the front.
+ * ------------------------------------------------------------------------ */
+.editor-styles-wrapper .wp-block-bozzies-section.has-image-zoom .wp-block-bozzies-section__image,
+.editor-styles-wrapper .wp-block-bozzies-section .bozzies-hero-split__image .wp-block-image img,
+.editor-styles-wrapper .wp-block-bozzies-section .bozzies-hero-split__image img {
+	animation: none !important;
+}
+.editor-styles-wrapper .wp-block-bozzies-section .bozzies-hero-split__image {
+	min-height: 320px;
+}

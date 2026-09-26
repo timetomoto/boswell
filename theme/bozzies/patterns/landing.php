@@ -43,7 +43,7 @@
 <!-- wp:group {"align":"full","className":"is-style-paper has-backdrop-vinyl","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull is-style-paper has-backdrop-vinyl">
 	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Volume One</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">A starter playlist</h2><!-- /wp:heading -->
+	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-container"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-container">A starter playlist</h2><!-- /wp:heading -->
 	<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Ten sides that open the door — arranged by the trio, played by a small orchestra.</p><!-- /wp:paragraph -->
 </div>
 <!-- /wp:group -->
@@ -53,7 +53,7 @@
 <!-- wp:group {"align":"full","className":"is-style-purple has-backdrop-notes","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull is-style-purple has-backdrop-notes">
 	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Voices</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">What their peers said</h2><!-- /wp:heading -->
+	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-title"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-title">What their peers said</h2><!-- /wp:heading -->
 	<!-- wp:quote {"className":"is-style-pull-quote"} --><blockquote class="wp-block-quote is-style-pull-quote"><p>The girls were doing what nobody else was doing.</p><cite>— A contemporary bandleader</cite></blockquote><!-- /wp:quote -->
 </div>
 <!-- /wp:group -->
@@ -61,14 +61,14 @@
 <!-- wp:group {"align":"full","className":"is-style-paper has-backdrop-staves","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull is-style-paper has-backdrop-staves">
 	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Sample the sound</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Hear a signature side</h2><!-- /wp:heading -->
+	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-reading"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-reading">Hear a signature side</h2><!-- /wp:heading -->
 </div>
 <!-- /wp:group -->
 
 <!-- wp:group {"align":"full","className":"is-style-gold has-backdrop-diamond-grid","layout":{"type":"constrained"}} -->
 <div class="wp-block-group alignfull is-style-gold has-backdrop-diamond-grid">
 	<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Support the archive</p><!-- /wp:paragraph -->
-	<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Keep the Boswell sound alive</h2><!-- /wp:heading -->
+	<!-- wp:heading {"textAlign":"center","level":2,"className":"bozzies-heading-reading"} --><h2 class="wp-block-heading has-text-align-center bozzies-heading-reading">Keep the Boswell sound alive</h2><!-- /wp:heading -->
 	<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">bozzies.org is run by hand and paid for by small donations. If it's helped you, help us keep it going.</p><!-- /wp:paragraph -->
 	<!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 	<div class="wp-block-buttons">

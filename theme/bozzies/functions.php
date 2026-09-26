@@ -57,3 +57,11 @@ function bozzies_enqueue_chrome() {
 		$ver
 	);
 }
+
+add_action( 'after_setup_theme', 'bozzies_add_editor_styles' );
+function bozzies_add_editor_styles() {
+	// Load the front chrome inside the block editor iframe so existing
+	// Group-based ground styles, backdrops, and pull-quote overrides render
+	// consistently in edit mode.
+	add_editor_style( 'assets/css/chrome.css' );
+}

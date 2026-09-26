@@ -8,6 +8,10 @@ node_modules/
 # Build output
 dist/
 build/
+# Block-editor build output is checked in so the theme is drop-in for a
+# non-developer owner — no npm build required after clone / pull.
+!theme/bozzies/blocks/*/build/
+!theme/bozzies/blocks/*/build/**
 
 # Editor / OS files
 .DS_Store

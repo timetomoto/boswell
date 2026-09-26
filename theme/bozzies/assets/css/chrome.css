@@ -441,13 +441,46 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
+ * Pull-quote colour per ground — matches Astro's per-ground overrides.
+ *   paper → oxblood (default from theme.json)
+ *   ink   → champagne
+ *   purple → #FFF, weight 500, subtle shadow (Astro: hardcoded white for
+ *            contrast, not champagne)
+ *   gold  → oxblood (default from theme.json)
+ * Covers both the existing Group-based sections (is-style-*) and the new
+ * bozzies/section block (ground-*).
+ * ========================================================================= */
+.is-style-ink .wp-block-quote.is-style-pull-quote,
+.ground-ink .wp-block-quote.is-style-pull-quote {
+	color: var(--wp--custom--color--champagne);
+}
+.is-style-purple .wp-block-quote.is-style-pull-quote,
+.ground-purple .wp-block-quote.is-style-pull-quote {
+	color: #ffffff;
+	font-weight: 500;
+	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
+}
+.is-style-purple .wp-block-quote.is-style-pull-quote cite,
+.ground-purple .wp-block-quote.is-style-pull-quote cite {
+	color: var(--wp--custom--color--yellow-soft);
+	text-shadow: none;
+	font-weight: 500;
+}
+.is-style-ink .wp-block-quote.is-style-pull-quote p,
+.ground-ink .wp-block-quote.is-style-pull-quote p,
+.is-style-purple .wp-block-quote.is-style-pull-quote p,
+.ground-purple .wp-block-quote.is-style-pull-quote p {
+	color: inherit;
+}
+
+/* ============================================================================
  * Music backdrops — ported from Astro's MusicBackdrop.astro. A section can
- * carry BOTH a ground (is-style-paper/-ink/-purple/-gold) AND a backdrop
- * (has-backdrop-vinyl/-staves/-notes/-diamond-grid). The pattern is painted
- * from an external SVG via a decorative ::after (no pointer/SR interaction).
- * Per-variant opacity matches the Astro landing page's <MusicBackdrop>
- * opacity prop; pattern colour is baked into each SVG to match Astro's
- * on-page color prop (purple, or yellow-soft for notes on the purple ground).
+ * carry BOTH a ground (is-style-paper/-ink/-purple/-gold, or ground-*) AND a
+ * backdrop (has-backdrop-vinyl/-staves/-notes/-diamond-grid). The pattern is
+ * painted from an external SVG via a decorative ::after using mask-image so
+ * the shape comes from the SVG and the colour comes from CSS. Change
+ * --backdrop-color (or set --wp--preset--color--purple / yellow-soft) and
+ * every backdrop follows. Per-variant opacity matches Astro's landing page.
  * ========================================================================= */
 .has-backdrop-vinyl,
 .has-backdrop-staves,
@@ -464,73 +497,86 @@ header.wp-block-template-part {
 	position: relative;
 	z-index: 1;
 }
-.has-backdrop-vinyl::after,
-.has-backdrop-staves::after,
-.has-backdrop-notes::after,
-.has-backdrop-diamond-grid::after {
+/* Per-usage default colour (matches Astro's landing page). Override on the
+ * element with --backdrop-color to change the tint. */
+.has-backdrop-vinyl        { --backdrop-color: var(--wp--preset--color--purple); }
+.has-backdrop-staves       { --backdrop-color: var(--wp--preset--color--purple); }
+.has-backdrop-notes        { --backdrop-color: var(--wp--custom--color--yellow-soft); }
+.has-backdrop-diamond-grid { --backdrop-color: var(--wp--preset--color--purple); }
+
+/* The Section block paints its backdrop via a dedicated __backdrop element,
+ * so exclude it here to avoid a double render. */
+.has-backdrop-vinyl:not(.wp-block-bozzies-section)::after,
+.has-backdrop-staves:not(.wp-block-bozzies-section)::after,
+.has-backdrop-notes:not(.wp-block-bozzies-section)::after,
+.has-backdrop-diamond-grid:not(.wp-block-bozzies-section)::after {
 	content: '';
 	position: absolute;
 	inset: 0;
 	pointer-events: none;
-	background-repeat: repeat;
-	background-position: center;
+	background-color: var(--backdrop-color);
+	-webkit-mask-repeat: repeat;
+	        mask-repeat: repeat;
+	-webkit-mask-position: center;
+	        mask-position: center;
 	z-index: 0;
 }
 /* Astro applies the pattern SVGs with preserveAspectRatio="slice", which
  * scales the pattern tile roughly with viewport width. These sizes reproduce
  * Astro's rendered tile sizes at ~1440px (see MusicBackdrop.astro viewBox
  * math). Sizes use vw so the tile scales down at smaller viewports. */
-.has-backdrop-vinyl::after {
-	background-image: url("../svg/backdrop-vinyl.svg");
-	background-size: 69vw 69vw;
+.has-backdrop-vinyl:not(.wp-block-bozzies-section)::after {
+	-webkit-mask-image: url("../svg/backdrop-vinyl.svg");
+	        mask-image: url("../svg/backdrop-vinyl.svg");
+	-webkit-mask-size: 69vw 69vw;
+	        mask-size: 69vw 69vw;
 	opacity: 0.05;
 }
-.has-backdrop-staves::after {
-	background-image: url("../svg/backdrop-staves.svg");
-	background-size: 100vw 30vw;
+.has-backdrop-staves:not(.wp-block-bozzies-section)::after {
+	-webkit-mask-image: url("../svg/backdrop-staves.svg");
+	        mask-image: url("../svg/backdrop-staves.svg");
+	-webkit-mask-size: 100vw 30vw;
+	        mask-size: 100vw 30vw;
 	opacity: 0.06;
 }
-.has-backdrop-notes::after {
-	background-image: url("../svg/backdrop-notes.svg");
-	background-size: 100vw 100vw;
+.has-backdrop-notes:not(.wp-block-bozzies-section)::after {
+	-webkit-mask-image: url("../svg/backdrop-notes.svg");
+	        mask-image: url("../svg/backdrop-notes.svg");
+	-webkit-mask-size: 100vw 100vw;
+	        mask-size: 100vw 100vw;
 	opacity: 0.09;
 }
-.has-backdrop-diamond-grid::after {
-	background-image: url("../svg/backdrop-diamond-grid.svg");
-	background-size: 30vw 30vw;
+.has-backdrop-diamond-grid:not(.wp-block-bozzies-section)::after {
+	-webkit-mask-image: url("../svg/backdrop-diamond-grid.svg");
+	        mask-image: url("../svg/backdrop-diamond-grid.svg");
+	-webkit-mask-size: 30vw 30vw;
+	        mask-size: 30vw 30vw;
 	opacity: 0.08;
 }
 
 /* ============================================================================
- * Landing-page section heading widths — mirror Astro's per-section caps so
- * a Group's <h2> renders at the same measured width the Astro build does.
- *   has-backdrop-vinyl (playlist on Paper)   → container-inner (84rem − 2·pad)
- *   has-backdrop-notes (voices on Purple)    → 34ch, capped by container-inner
- *   has-backdrop-staves (sample on Paper)    → container-narrow-inner (42rem − 2·pad)
- *   has-backdrop-diamond-grid (donate)       → container-narrow-inner
+ * Heading-width utilities — a single set of measured widths that map to
+ * Astro's per-section heading caps. Applied by:
+ *   • the bozzies/section block via .has-heading-width-* on the wrapper
+ *   • standalone headings via .bozzies-heading-* classes on the heading
+ * Compound selectors bump specificity above the earlier is-style-*
+ * children max-width rule so these utilities can narrow it further.
  * ========================================================================= */
-.wp-block-group.has-backdrop-vinyl > .wp-block-heading,
-.wp-block-group.has-backdrop-vinyl > h1,
-.wp-block-group.has-backdrop-vinyl > h2,
-.wp-block-group.has-backdrop-vinyl > h3 {
+.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-container,
+.wp-block-heading.bozzies-heading-container,
+.bozzies-heading-container {
 	max-width: calc(var(--wp--custom--measure--max) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8)));
 	margin-inline: auto;
 }
-.wp-block-group.has-backdrop-notes > .wp-block-heading,
-.wp-block-group.has-backdrop-notes > h1,
-.wp-block-group.has-backdrop-notes > h2,
-.wp-block-group.has-backdrop-notes > h3 {
+.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-title,
+.wp-block-heading.bozzies-heading-title,
+.bozzies-heading-title {
 	max-width: min(var(--wp--custom--measure--title), calc(var(--wp--custom--measure--max) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))));
 	margin-inline: auto;
 }
-.wp-block-group.has-backdrop-staves > .wp-block-heading,
-.wp-block-group.has-backdrop-diamond-grid > .wp-block-heading,
-.wp-block-group.has-backdrop-staves > h1,
-.wp-block-group.has-backdrop-staves > h2,
-.wp-block-group.has-backdrop-staves > h3,
-.wp-block-group.has-backdrop-diamond-grid > h1,
-.wp-block-group.has-backdrop-diamond-grid > h2,
-.wp-block-group.has-backdrop-diamond-grid > h3 {
+.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-reading,
+.wp-block-heading.bozzies-heading-reading,
+.bozzies-heading-reading {
 	max-width: min(var(--wp--custom--measure--title), calc(var(--wp--custom--measure--body) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))));
 	margin-inline: auto;
 }
