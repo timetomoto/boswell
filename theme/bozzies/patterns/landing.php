@@ -48,7 +48,7 @@
 <!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Cynthia Lucas explains what makes the Boswells tick</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">A five-part audio series narrated by one of the best-known Boswell historians. Start with Lesson 1 — The Blend.</p><!-- /wp:paragraph -->
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
-<div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/media/lessons/1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
+<div class="wp-block-buttons"><!-- wp:button {"className":"bozzies-play-cta"} --><div class="wp-block-button bozzies-play-cta"><a class="wp-block-button__link wp-element-button" href="/media/lessons/lesson-1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <!-- /wp:bozzies/section -->
 

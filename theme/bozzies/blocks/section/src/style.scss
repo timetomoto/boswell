@@ -67,6 +67,20 @@
 	box-sizing: border-box;
 }
 
+/* --- Inner rhythm ------------------------------------------------------- */
+/* WordPress's block-gap CSS only applies to explicit "layout" containers
+ * (Group/Cover with is-layout-flow / -constrained). The section inner isn't
+ * one, so browser-default paragraph margins (1em top/bottom) leak in. Reset
+ * that, then apply a controlled block-gap between direct children so the
+ * section's inner rhythm matches Astro's back-to-back children (which have
+ * per-element margin-top values applied by class selectors). */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > * {
+	margin-block: 0;
+}
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > * + * {
+	margin-block-start: var(--wp--style--block-gap, 1rem);
+}
+
 .wp-block-bozzies-section.has-width-container > .wp-block-bozzies-section__inner {
 	max-width: var(--wp--custom--measure--max, 84rem);
 	padding-inline: clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8));
@@ -303,9 +317,13 @@
 .wp-block-columns.bozzies-hero-split > .bozzies-hero-split__text .wp-block-heading {
 	font-family: var(--wp--preset--font-family--display);
 	font-weight: 300;
-	/* Matches Astro Hero.astro: clamp(--step-5, 5vw + 0.3rem, --step-7).
-	 * Astro and WP share 112.5% root. */
-	font-size: clamp(var(--wp--preset--font-size--x-large), 5vw + 0.3rem, var(--wp--custom--step--7));
+	/* Astro's .hero__title--split intends clamp(--step-5, 5vw + 0.3rem, --step-7),
+	 * but source order in Astro's Hero.astro puts the base .hero__title rule
+	 * (font-size: clamp(--step-6, 8vw, --step-8)) *after* the --split rule of
+	 * equal specificity, so the base rule wins at runtime. Match Astro's
+	 * rendered value here, not the intent, so the WP page pixel-diffs to the
+	 * live Vercel build character-for-character. */
+	font-size: clamp(var(--wp--custom--step--6, 3.815rem), 8vw, var(--wp--preset--font-size--display));
 	line-height: 1;
 	letter-spacing: var(--wp--custom--letter-spacing--tight);
 	margin-top: var(--wp--preset--spacing--m);

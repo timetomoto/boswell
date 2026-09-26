@@ -71,3 +71,45 @@ function bozzies_add_editor_styles() {
 // auto-textures apostrophes and quotes into curly typographers' variants;
 // switch that off so straight quotes stay straight and match the source.
 add_filter( 'run_wptexturize', '__return_false' );
+
+/**
+ * Inject Astro's play-icon SVG into buttons that carry the class
+ * "bozzies-play-cta". The SVG is decorative (aria-hidden), copied verbatim
+ * from Astro's src/pages/index.astro so the mark matches pixel-for-pixel.
+ */
+add_filter( 'render_block_core/button', 'bozzies_inject_play_icon', 10, 2 );
+function bozzies_inject_play_icon( $block_content, $block ) {
+	$class = isset( $block['attrs']['className'] ) ? $block['attrs']['className'] : '';
+	if ( strpos( $class, 'bozzies-play-cta' ) === false ) {
+		return $block_content;
+	}
+	$svg = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M9 7 L17 12 L9 17 Z" fill="currentColor"/></svg>';
+	// Insert the SVG immediately after the opening anchor tag. The regex is
+	// scoped to the first .wp-block-button__link so nested markup inside the
+	// button (if any) is untouched.
+	$pattern = '/(<a\b[^>]*wp-block-button__link[^>]*>)/i';
+	return preg_replace( $pattern, '$1' . $svg, $block_content, 1 );
+}
+
+/**
+ * Rewrite YouTube embed URLs to the privacy-enhanced youtube-nocookie.com
+ * domain everywhere: core Embed blocks, oEmbed HTML cached in the DB,
+ * bare iframe HTML in Custom HTML blocks, and post content. Applies to both
+ * watch URLs (converted to /embed/ form by WP's YouTube handler) and any
+ * direct youtube.com/embed/ iframe src.
+ */
+function bozzies_youtube_nocookie( $html ) {
+	if ( is_string( $html ) && strpos( $html, 'youtube.com' ) !== false ) {
+		$html = preg_replace( '#(https?:)?//(?:www\.)?youtube\.com/embed/#i', '$1//www.youtube-nocookie.com/embed/', $html );
+	}
+	return $html;
+}
+add_filter( 'embed_oembed_html', 'bozzies_youtube_nocookie', 20 );
+add_filter( 'oembed_result', 'bozzies_youtube_nocookie', 20 );
+add_filter( 'the_content', 'bozzies_youtube_nocookie', 20 );
+add_filter( 'render_block', function ( $block_content, $block ) {
+	if ( in_array( $block['blockName'], array( 'core/embed', 'core/html' ), true ) ) {
+		return bozzies_youtube_nocookie( $block_content );
+	}
+	return $block_content;
+}, 20, 2 );
