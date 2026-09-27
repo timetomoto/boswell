@@ -196,21 +196,91 @@ function bozzies_press_rewrite_rule() {
  * and text-diff tooling wouldn't see them. Inject a real <span> at render
  * time on any post-template with the `bozzies-article-list` class.
  */
-add_filter( 'render_block_core/post-template', 'bozzies_number_article_rows', 10, 2 );
-function bozzies_number_article_rows( $block_content, $block ) {
+/**
+ * Rebuild each row of an article list (`core/post-template` with the
+ * `article-list` className) to Astro's exact DOM:
+ *
+ *   <li class="article-row">
+ *     <a class="article-row__link" href="POST_URL">
+ *       <span class="article-row__num">01</span>
+ *       <div class="article-row__body">
+ *         <h3 class="article-row__title">Title</h3>
+ *         <p class="article-row__meta">Meta</p>
+ *       </div>
+ *       <svg class="article-row__arrow" …>…</svg>
+ *     </a>
+ *   </li>
+ *
+ * We parse the URL out of the title link WordPress already emitted, then
+ * discard the default row markup and rebuild it into Astro's shape. This
+ * fires on the press hub, all 5 category archives, and anywhere else a
+ * Query Loop is authored with the `article-list` className.
+ */
+add_filter( 'render_block_core/post-template', 'bozzies_astro_article_rows', 10, 2 );
+function bozzies_astro_article_rows( $block_content, $block ) {
 	$cls = isset( $block['attrs']['className'] ) ? (string) $block['attrs']['className'] : '';
-	// Match Astro's `article-list` (the class name the ported CSS keys on) and
-	// keep backward-compat with the pre-rebuild `bozzies-article-list`.
 	if ( strpos( $cls, 'article-list' ) === false ) {
 		return $block_content;
 	}
+
+	// Astro's arrow is a <span class="article-row__arrow"> wrapping a
+	// 24×10 SVG with a horizontal path + arrowhead. Match verbatim from
+	// ~/boswell-poc/src/pages/press/index.astro lines 81-85.
+	$arrow_svg = '<span class="article-row__arrow" aria-hidden="true"><svg width="24" height="10" viewBox="0 0 24 10" fill="none"><path d="M0 5 H21 M17 1 L21 5 L17 9" stroke="currentColor" stroke-width="1" fill="none"/></svg></span>';
+
 	$i = 0;
 	return preg_replace_callback(
-		'#<li([^>]*)>#',
-		function ( $m ) use ( &$i ) {
+		'#<li([^>]*)>(.*?)</li>#s',
+		function ( $m ) use ( &$i, $arrow_svg ) {
 			$i++;
-			$num = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
-			return '<li' . $m[1] . '><span class="article-row__num">' . $num . '</span>';
+			$num  = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
+			$row  = $m[2];
+
+			// Extract the title link (WP renders it as <h3 class="article-row__title"><a>Title</a></h3>).
+			$url   = '';
+			$title = '';
+			if ( preg_match( '#<h[1-6][^>]*article-row__title[^>]*>(.*?)</h[1-6]>#is', $row, $h ) ) {
+				$inner = $h[1];
+				if ( preg_match( '#<a[^>]*href=(?:"([^"]+)"|\'([^\']+)\')[^>]*>(.*?)</a>#is', $inner, $a ) ) {
+					$url   = html_entity_decode( $a[1] ?: $a[2], ENT_QUOTES );
+					$title = trim( strip_tags( $a[3] ) );
+				} else {
+					$title = trim( strip_tags( $inner ) );
+				}
+			}
+
+			// Extract the meta paragraph (bozzies/article-meta binding).
+			$meta = '';
+			if ( preg_match( '#<p[^>]*article-row__meta[^>]*>(.*?)</p>#is', $row, $p ) ) {
+				$meta = trim( strip_tags( $p[1] ) );
+			}
+
+			// Preserve any `class` on the <li> WP already emitted but ensure
+			// `article-row` is present exactly once.
+			$li_attrs = $m[1];
+			if ( preg_match( '#class="([^"]*)"#', $li_attrs, $c ) ) {
+				$existing = trim( $c[1] );
+				if ( strpos( $existing, 'article-row' ) === false ) {
+					$existing = trim( $existing . ' article-row' );
+				}
+				$li_attrs = preg_replace( '#class="[^"]*"#', 'class="' . esc_attr( $existing ) . '"', $li_attrs, 1 );
+			} else {
+				$li_attrs .= ' class="article-row"';
+			}
+
+			$html  = '<li' . $li_attrs . '>';
+			$html .= '<a class="article-row__link" href="' . esc_url( $url ) . '">';
+			$html .= '<span class="article-row__num">' . esc_html( $num ) . '</span>';
+			$html .= '<div class="article-row__body">';
+			$html .= '<h3 class="article-row__title">' . esc_html( $title ) . '</h3>';
+			if ( '' !== $meta ) {
+				$html .= '<p class="article-row__meta">' . esc_html( $meta ) . '</p>';
+			}
+			$html .= '</div>';
+			$html .= $arrow_svg;
+			$html .= '</a>';
+			$html .= '</li>';
+			return $html;
 		},
 		$block_content,
 		-1

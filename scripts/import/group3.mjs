@@ -367,26 +367,32 @@ ${releases.map(releaseCard).join('\n')}
 
 function buildArticleContent(data, bodyBlocks) {
   // Article page structure — mirrors Astro's [purple hero → paper body → gold
-  // external-link] layout. The purple hero contains the back link (to the
-  // category), the h1, the meta line (author · publication · publicationDate,
-  // rendered from post meta via the bozzies/article-meta binding), and the
-  // pull quote when present. Astro packages all four together in a single
-  // hero band — matching that here removes the "double band" artefact caused
-  // by the earlier split single.html hero + separate pull-quote section.
+  // external-link] layout. Astro's DOM is:
+  //   <section class="ground-purple article-hero">
+  //     <div class="container article-hero__inner">
+  //       <a class="article-hero__back">← Press · Vintage Articles</a>
+  //       <h1 class="article-hero__title">Title</h1>
+  //       <p class="article-hero__meta">Meta</p>
+  //       <blockquote class="article-hero__quote">…</blockquote>?
+  //     </div>
+  //   </section>
+  // Emit that shape with a bozzies/section carrying className "article-hero"
+  // + width edge, plus an inner wp:group with class "container article-hero__inner"
+  // holding the four child blocks. The meta paragraph is a bindings paragraph
+  // so post_meta (bozzies/article-meta) fills it at render time.
   const hubLabel = (HUB_ORDER.find(h => h.slug === data.subhub) || {}).label || 'Press';
-  const backLink = `<a href="/press/${data.subhub}/">← Press &middot; ${hubLabel}</a>`;
-  const metaParagraph = `<!-- wp:paragraph {"className":"is-style-eyebrow bozzies-article-meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} -->
-<p class="is-style-eyebrow bozzies-article-meta"></p>
-<!-- /wp:paragraph -->`;
-  const heroInner = [
-    p(backLink),
-    `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">${data.title}</h1><!-- /wp:heading -->`,
-    metaParagraph,
-    data.pullQuote ? quote(data.pullQuote, data.pullQuoteAttribution ? `— ${data.pullQuoteAttribution}` : '') : '',
-  ].filter(Boolean).join('\n');
+  const backHref = `/press/${data.subhub}/`;
+  const backText = `← Press &middot; ${hubLabel}`;
+  const backAnchor = `<!-- wp:paragraph {"className":"article-hero__back"} --><p class="article-hero__back"><a href="${backHref}">${backText}</a></p><!-- /wp:paragraph -->`;
+  const titleH1 = `<!-- wp:heading {"level":1,"className":"article-hero__title"} --><h1 class="wp-block-heading article-hero__title">${data.title}</h1><!-- /wp:heading -->`;
+  const hasMeta = !!(data.author || data.publication || data.publicationDate);
+  const metaParagraph = hasMeta ? `<!-- wp:paragraph {"className":"article-hero__meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} --><p class="article-hero__meta"></p><!-- /wp:paragraph -->` : '';
+  const pullQuoteBlock = data.pullQuote ? `<!-- wp:quote {"className":"article-hero__quote"} --><blockquote class="wp-block-quote article-hero__quote"><p>${data.pullQuote}</p>${data.pullQuoteAttribution ? `<cite>— ${data.pullQuoteAttribution}</cite>` : ''}</blockquote><!-- /wp:quote -->` : '';
+  const heroInner = [backAnchor, titleH1, metaParagraph, pullQuoteBlock].filter(Boolean).join('\n');
+  const heroGroup = `<!-- wp:group {"className":"container-narrow article-hero__inner","layout":{"type":"default"}} -->\n<div class="wp-block-group container-narrow article-hero__inner">\n${heroInner}\n</div>\n<!-- /wp:group -->`;
   const hero = section(
-    { backgroundStyle: 'purple', backdrop: 'notes', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    heroInner,
+    { backgroundStyle: 'purple', backdrop: 'notes', width: 'edge', headingWidth: 'container', spacing: 'none', align: 'full', className: 'article-hero' },
+    heroGroup,
   );
 
   const heroImage = data.heroImageMedia ? section(

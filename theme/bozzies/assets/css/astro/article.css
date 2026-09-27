@@ -38,7 +38,11 @@
 	margin-bottom: var(--space-5);
 }
 .page-hero__back:hover { color: var(--yellow-hover); }
-.page-hero__eyebrow { color: var(--yellow-soft); }
+.page-hero__eyebrow {
+	color: var(--yellow-soft);
+	margin-top: 0; /* WP's `.wp-block-paragraph { margin-top: --space-4 }` adds a top margin between sibling <p>s; Astro's eyebrow is a bare inline-block <span> at markup level and starts with no top margin. */
+	max-width: none; /* body-level `p { max-width: var(--measure) }` reset would cap the eyebrow paragraph; Astro's `<span class="eyebrow page-hero__eyebrow">` has none. */
+}
 .page-hero__title {
 	font-family: var(--font-display); font-weight: 300;
 	font-size: clamp(var(--step-5), 6vw, var(--step-7)); line-height: 1;
@@ -52,6 +56,13 @@
 }
 
 /* --- Article hero (single article, ground-purple) ------------------- */
+/*  Selector adjustment: `.wp-block-bozzies-section.article-hero` gives
+ *  the padding rule specificity 0-2-0 so it beats the Section block's
+ *  own `.wp-block-bozzies-section.has-spacing-none { padding-block: 0 }`
+ *  (also 0-2-0, later cascade wins because article.css loads after
+ *  the Section block's own CSS). Astro's plain `.article-hero` selector
+ *  has no such fight. */
+.wp-block-bozzies-section.article-hero,
 .article-hero { padding-block: clamp(var(--space-6), 4vw, var(--space-8)); position: relative; overflow: hidden; }
 .article-hero__inner { position: relative; z-index: 1; }
 .article-hero__back {
@@ -60,7 +71,9 @@
 	font-size: var(--step--1); letter-spacing: var(--track-caps); text-transform: uppercase;
 	color: var(--yellow-soft); border: 0;
 	margin-bottom: var(--space-5);
+	max-width: none; /* WP wraps the back link in a <p>; the global `p { max-width: var(--measure) }` reset would cap it — reset to none. Astro's markup is a bare <a> at block level, so it never inherits the reset. */
 }
+.article-hero__back a { color: inherit; border-bottom: 0; text-decoration: none; }
 .article-hero__back:hover { color: var(--yellow-hover); }
 .article-hero__title {
 	font-family: var(--font-display); font-weight: 300;
@@ -77,6 +90,7 @@
 }
 .article-hero__quote {
 	margin-top: var(--space-5);
+	margin-bottom: 0; /* WP theme.json blocks.core/quote adds `margin.bottom: 1.5rem`; Astro's <blockquote> has no bottom margin. Reset here so `.article-hero__inner` height matches Astro. */
 	font-family: var(--font-ui);
 	font-style: italic;
 	font-weight: 400;
@@ -87,6 +101,12 @@
 	padding-left: var(--space-4);
 	border-left: 3px solid var(--yellow-soft);
 }
+/* Astro's `<blockquote class="article-hero__quote">` inlines the text (no
+ * wrapping <p>). WP's core/quote always wraps the text in a <p>. The
+ * body-level `p { line-height: var(--leading-loose) }` reset would push the
+ * quote taller than Astro. Reset the inner <p> to inherit the blockquote's
+ * own line-height + drop its top/bottom margin. */
+.article-hero__quote p { line-height: inherit; margin: 0; max-width: none; }
 .article-hero__quote cite {
 	display: block;
 	margin-top: var(--space-2);

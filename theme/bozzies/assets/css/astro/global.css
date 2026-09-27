@@ -123,33 +123,18 @@
 	--dur-cinematic: 1200ms;
 }
 
-/* --- Reset (opinionated, targeted) — scoped to the front --- */
-.wp-site-blocks *,
-.wp-site-blocks *::before,
-.wp-site-blocks *::after { box-sizing: border-box; }
-.wp-site-blocks h1,
-.wp-site-blocks h2,
-.wp-site-blocks h3,
-.wp-site-blocks h4,
-.wp-site-blocks h5,
-.wp-site-blocks h6,
-.wp-site-blocks p,
-.wp-site-blocks figure,
-.wp-site-blocks blockquote,
-.wp-site-blocks ul,
-.wp-site-blocks ol,
-.wp-site-blocks dl,
-.wp-site-blocks dd { margin: 0; }
-.wp-site-blocks ul[role='list'],
-.wp-site-blocks ol[role='list'] { list-style: none; padding: 0; }
-.wp-site-blocks img,
-.wp-site-blocks picture,
-.wp-site-blocks svg,
-.wp-site-blocks video { display: block; max-width: 100%; }
-.wp-site-blocks input,
-.wp-site-blocks button,
-.wp-site-blocks textarea,
-.wp-site-blocks select { font: inherit; color: inherit; }
+/* --- Reset (opinionated, targeted) — matches Astro's specificity so
+ *     class selectors like `.article-row__title` can override normally.
+ *     astro/global.css is only loaded on the front (wp_enqueue_style
+ *     on `wp_enqueue_scripts`) and inside the block-editor iframe (via
+ *     add_editor_style, which auto-prefixes with .editor-styles-wrapper);
+ *     it never reaches the wp-admin dashboard, so these plain-element
+ *     selectors are safe. --- */
+*, *::before, *::after { box-sizing: border-box; }
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
+ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+img, picture, svg, video { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
 html:focus-within { scroll-behavior: smooth; }
 
 /* --- Base typography --- */
@@ -163,27 +148,26 @@ body {
 	font-feature-settings: 'kern', 'liga', 'onum';
 }
 
-.wp-site-blocks :is(h1, h2, h3, h4, h5, h6) {
+h1, h2, h3, h4, h5, h6 {
 	font-family: var(--font-display);
 	font-weight: 400;
 	line-height: var(--leading-tight);
 	letter-spacing: var(--track-tight);
 }
 
-.wp-site-blocks h1 { font-size: clamp(var(--step-5), 5vw + 1rem, var(--step-8)); font-weight: 400; }
-.wp-site-blocks h2 { font-size: clamp(var(--step-4), 3.5vw + 0.5rem, var(--step-6)); }
-.wp-site-blocks h3 { font-size: var(--step-3); }
-.wp-site-blocks h4 { font-family: var(--font-ui); font-weight: 500; letter-spacing: var(--track-caps); text-transform: uppercase; font-size: var(--step--1); }
-.wp-site-blocks h5,
-.wp-site-blocks h6 { font-family: var(--font-ui); font-weight: 500; }
+h1 { font-size: clamp(var(--step-5), 5vw + 1rem, var(--step-8)); font-weight: 400; }
+h2 { font-size: clamp(var(--step-4), 3.5vw + 0.5rem, var(--step-6)); }
+h3 { font-size: var(--step-3); }
+h4 { font-family: var(--font-ui); font-weight: 500; letter-spacing: var(--track-caps); text-transform: uppercase; font-size: var(--step--1); }
+h5, h6 { font-family: var(--font-ui); font-weight: 500; }
 
-.wp-site-blocks p { max-width: var(--measure); line-height: var(--leading-loose); }
-.wp-site-blocks p + p { margin-top: var(--space-4); }
+p { max-width: var(--measure); line-height: var(--leading-loose); }
+p + p { margin-top: var(--space-4); }
 
-/* Links — recognizable, accessible blue with a solid underline */
-.wp-site-blocks a { color: var(--link); text-decoration: none; border-bottom: 1px solid var(--link); transition: color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart); }
-.wp-site-blocks a:hover { color: var(--link-hover); border-color: var(--link-hover); }
-.wp-site-blocks a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-radius: 2px; }
+/* Links */
+a { color: var(--link); text-decoration: none; border-bottom: 1px solid var(--link); transition: color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart); }
+a:hover { color: var(--link-hover); border-color: var(--link-hover); }
+a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-radius: 2px; }
 
 /* Selection */
 ::selection { background: var(--brass); color: var(--ink); }
