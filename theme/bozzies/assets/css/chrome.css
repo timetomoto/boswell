@@ -727,40 +727,6 @@ header.wp-block-template-part {
 	outline: 0;
 }
 
-/* Sister bio layout — mirrors Astro's src/pages/sisters/[slug].astro
- *
- * `.bozzies-facts` is a CSS auto-fit grid of `.bozzies-fact` pairs. Each fact
- * paragraph carries `<strong>Label</strong> value`; the strong renders as a
- * uppercase caps-label above the value with a 2 px purple left accent.
- *
- * `.bozzies-bio-body` wraps a Columns block; on desktop the first column
- * (portrait) sticks below the site nav and the second column (article body)
- * scrolls past it. Collapses to one column below 820 px.
- * ========================================================================= */
-.bozzies-facts {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
-	gap: clamp(var(--wp--preset--spacing--s), 1.5vw, var(--wp--preset--spacing--m));
-	margin-block: 0;
-}
-.bozzies-facts .bozzies-fact,
-.bozzies-fact {
-	padding-left: var(--wp--preset--spacing--s);
-	border-left: 2px solid var(--wp--preset--color--purple);
-	margin: 0;
-	line-height: var(--wp--custom--line-height--normal);
-}
-.bozzies-fact strong {
-	display: block;
-	font-family: var(--wp--preset--font-family--ui);
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--x-small, 0.75rem);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-	color: var(--wp--preset--color--purple);
-	margin-bottom: var(--wp--preset--spacing--xs, 0.25rem);
-}
-
 /* Section-level override: bozzies/section sets `overflow: hidden` at the
  * block root (needed for backdrop clip), but that breaks position:sticky
  * inside. The bio-body section has no backdrop, so restore overflow. */

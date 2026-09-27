@@ -109,10 +109,33 @@ ${innerHTML}
 <!-- /wp:cover -->`;
 };
 
-// Facts rendered as a group of paragraphs (mirrors Astro's <dl> facts strip).
-// Each fact is "Label: Value" — the space matters for visible-text diffs.
+// Facts rendered as Astro's `.facts-strip` <dl> — a native block whose
+// render.php emits <section class="section-tight ground-paper facts-strip">
+// <div class="container"><dl class="facts">…</dl></div></section> to match
+// ~/boswell-poc/src/pages/sisters/[slug].astro lines 65-78 verbatim. Each
+// child is a bozzies/fact with label+value attributes; render.php emits
+// <div class="facts__pair"><dt class="facts__label">…</dt>
+// <dd class="facts__value">…</dd></div>.
+// Named entities we accept in facts values (HTML entities from Astro markdown
+// / hand-authored strings). Decoded to Unicode here so the serialized block
+// attribute survives an editor save unchanged (Gutenberg re-serializes
+// literal `&` as `&`, which round-trips visually but not byte-wise).
+const FACT_ENTITY_MAP = {
+  '&prime;': '′',    // ′
+  '&Prime;': '″',    // ″
+  '&acute;': '´',    // ´
+  '&ndash;': '–',    // –
+  '&mdash;': '—',    // —
+  '&ldquo;': '“',    // "
+  '&rdquo;': '”',    // "
+  '&lsquo;': '‘',    // '
+  '&rsquo;': '’',    // '
+  '&amp;':   '&',
+};
+const decodeFactValue = (s) =>
+  String(s || '').replace(/&(?:prime|Prime|acute|ndash|mdash|ldquo|rdquo|lsquo|rsquo|amp);/g, (m) => FACT_ENTITY_MAP[m] ?? m);
+
 const factsTable = (facts) => {
-  const rows = [];
   const map = [
     ['born', 'Born'],
     ['died', 'Died'],
@@ -123,14 +146,13 @@ const factsTable = (facts) => {
     ['marriage', 'Marriage'],
     ['children', 'Children'],
   ];
+  const rows = [];
   for (const [k, label] of map) {
-    if (facts[k]) rows.push(`<!-- wp:paragraph {"className":"facts__pair"} --><p class="facts__pair"><strong>${label}</strong> ${facts[k]}</p><!-- /wp:paragraph -->`);
+    if (facts[k]) rows.push(`<!-- wp:bozzies/fact ${JSON.stringify({ label, value: decodeFactValue(facts[k]) })} /-->`);
   }
-  return `<!-- wp:group {"className":"facts","layout":{"type":"default"}} -->
-<div class="wp-block-group facts">
+  return `<!-- wp:bozzies/facts -->
 ${rows.join('\n')}
-</div>
-<!-- /wp:group -->`;
+<!-- /wp:bozzies/facts -->`;
 };
 
 // Item hero (purple compact hero used by sub-pages).
@@ -234,10 +256,10 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
     ].join('\n'),
   );
 
-  const facts_ = section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', spacing: 'compact', align: 'full' },
-    factsTable(facts),
-  );
+  // The bozzies/facts block emits its own <section class="section-tight
+  // ground-paper facts-strip">…, so it goes in the page body directly (no
+  // outer bozzies/section wrapper).
+  const facts_ = factsTable(facts);
 
   // Portrait fills the left column of the sticky two-column layout; no
   // centering (the column itself is the width constraint).

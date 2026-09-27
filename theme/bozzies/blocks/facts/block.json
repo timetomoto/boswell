@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/facts",
+	"version": "1.0.0",
+	"title": "Facts strip",
+	"category": "design",
+	"icon": "list-view",
+	"description": "Astro's `.facts-strip` — a museum-label style dt/dd definition list, used on sister bios. Contains bozzies/fact children; renders <section class=\"section-tight ground-paper facts-strip\"><div class=\"container\"><dl class=\"facts\">…</dl></div></section>.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true
+	},
+	"attributes": {},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}
