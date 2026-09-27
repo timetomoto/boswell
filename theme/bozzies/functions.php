@@ -99,3 +99,19 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 	}
 	return $block_content;
 }, 20, 2 );
+
+/**
+ * Give /press/{category}/{postname}/ post URLs priority over WP's verbose
+ * page-hierarchy resolution. Without this, WP treats /press/ as a page and
+ * refuses to dispatch descendant URLs to posts (the "press" page hub blocks
+ * all article URLs). See settled decisions: articles are posts, sub-hubs are
+ * categories, article URLs are /press/{category}/{slug}/.
+ */
+add_action( 'init', 'bozzies_press_rewrite_rule', 11 );
+function bozzies_press_rewrite_rule() {
+	add_rewrite_rule(
+		'^press/([^/]+)/([^/]+)/?$',
+		'index.php?category_name=$matches[1]&name=$matches[2]',
+		'top'
+	);
+}

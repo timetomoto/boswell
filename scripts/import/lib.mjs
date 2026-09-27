@@ -89,8 +89,11 @@ export function importMedia(publicPath, alt = '', title = '') {
 
 // Look up a page by slug. Returns numeric ID or null.
 export function findPageBySlug(slug) {
+  return findPostBySlug(slug, 'page');
+}
+export function findPostBySlug(slug, postType = 'post') {
   const out = wp([
-    'post', 'list', '--post_type=page',
+    'post', 'list', `--post_type=${postType}`,
     `--name=${slug}`,
     '--fields=ID', '--format=ids',
   ], { allowFail: true });
@@ -117,23 +120,25 @@ function writeTmpContent(slug, content) {
   return `${TMP_CONTAINER_DIR}/${slug}.html`;
 }
 
-export function upsertPage({ slug, title, content, template, status = 'publish' }) {
-  const existing = findPageBySlug(slug);
-  const containerPath = writeTmpContent(slug, content);
+export function upsertPage(opts) {
+  return upsertPost({ ...opts, postType: 'page' });
+}
+export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug }) {
+  const existing = findPostBySlug(slug, postType);
+  const containerPath = writeTmpContent(`${postType}-${slug}`, content);
 
   if (existing) {
-    // Use wp eval to update with file_get_contents so we avoid stdin.
     const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})]); echo 'OK';`;
     wp(['eval', php]);
-    if (template) {
-      wp(['post', 'meta', 'update', String(existing), '_wp_page_template', template]);
-    }
+    if (template) wp(['post', 'meta', 'update', String(existing), '_wp_page_template', template]);
+    if (categorySlug) wp(['post', 'term', 'set', String(existing), 'category', categorySlug]);
     return { id: existing, created: false };
   } else {
-    const php = `$id = wp_insert_post(['post_type'=>'page','post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})]); echo $id;`;
+    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})]); echo $id;`;
     const out = wp(['eval', php]);
     const id = parseInt(out.split(/\s+/).filter(Boolean).pop(), 10);
     if (template) wp(['post', 'meta', 'update', String(id), '_wp_page_template', template]);
+    if (categorySlug) wp(['post', 'term', 'set', String(id), 'category', categorySlug]);
     return { id, created: true };
   }
 }
