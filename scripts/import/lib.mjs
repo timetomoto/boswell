@@ -134,11 +134,11 @@ export function upsertPost({ slug, title, content, template, status = 'publish',
 
   let id;
   if (existing) {
-    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo 'OK';`;
+    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>wp_slash(file_get_contents(${phpStr(containerPath)}))${extraStr}]); echo 'OK';`;
     wp(['eval', php]);
     id = existing;
   } else {
-    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo $id;`;
+    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>wp_slash(file_get_contents(${phpStr(containerPath)}))${extraStr}]); echo $id;`;
     const out = wp(['eval', php]);
     id = parseInt(out.split(/\s+/).filter(Boolean).pop(), 10);
   }
