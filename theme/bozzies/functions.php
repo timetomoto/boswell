@@ -30,6 +30,9 @@ function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/quote',     array( 'name' => 'pull-quote',    'label' => __( 'Pull quote', 'bozzies' ) ) );
 	register_block_style( 'core/group',     array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
 	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
+	/* "Card plain" — paper-ground variant used on Sisters hub etc. */
+	register_block_style( 'core/group',     array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
+	register_block_style( 'core/columns',   array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
 	/* "Play" button style prepends an inline play-icon SVG before the label. */
 	register_block_style( 'core/button', array( 'name' => 'play', 'label' => __( 'Play', 'bozzies' ) ) );
 	/* "Large" button style adds extra padding — Astro's .btn--purple CTA. */

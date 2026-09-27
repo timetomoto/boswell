@@ -442,6 +442,76 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
+ * Paper card variant (is-style-card-plain) — matches Astro's .sister-card:
+ * inherits the section paper background, uses hairline right/bottom borders,
+ * a 4px purple left accent, and body text on ink. Used where cards sit inside
+ * ground-paper and should NOT carry the dark-purple fill of .is-style-card.
+ * ========================================================================= */
+.wp-block-group.is-style-card-plain,
+.wp-block-columns.is-style-card-plain {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--s);
+	padding: clamp(var(--wp--preset--spacing--l), 2.4vw, var(--wp--preset--spacing--xl));
+	padding-left: calc(clamp(var(--wp--preset--spacing--l), 2.4vw, var(--wp--preset--spacing--xl)) + 6px);
+	border-right: 1px solid rgba(24, 22, 21, 0.12);
+	border-bottom: 1px solid rgba(24, 22, 21, 0.12);
+	background: transparent;
+	color: var(--wp--preset--color--ink);
+	position: relative;
+	transition: background var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
+}
+.wp-block-group.is-style-card-plain::before,
+.wp-block-columns.is-style-card-plain::before {
+	content: '';
+	position: absolute;
+	left: 0; top: 0; bottom: 0;
+	width: 4px;
+	background: var(--wp--preset--color--purple);
+	opacity: 0.85;
+}
+.wp-block-group.is-style-card-plain:hover,
+.wp-block-group.is-style-card-plain:focus-within,
+.wp-block-columns.is-style-card-plain:hover,
+.wp-block-columns.is-style-card-plain:focus-within {
+	background: color-mix(in oklab, var(--wp--preset--color--purple) 6%, transparent);
+}
+.wp-block-group.is-style-card-plain .is-style-eyebrow,
+.wp-block-columns.is-style-card-plain .is-style-eyebrow {
+	color: var(--wp--preset--color--purple);
+}
+.wp-block-group.is-style-card-plain .wp-block-button__link,
+.wp-block-columns.is-style-card-plain .wp-block-button__link {
+	background: transparent;
+	color: var(--wp--preset--color--purple);
+	border: 0;
+	padding: 0;
+	padding-top: var(--wp--preset--spacing--s);
+	font-family: var(--wp--preset--font-family--ui);
+	font-weight: 500;
+	font-size: var(--wp--preset--font-size--small);
+	letter-spacing: var(--wp--custom--letter-spacing--caps);
+	text-transform: uppercase;
+}
+.wp-block-group.is-style-card-plain .wp-block-button__link::after,
+.wp-block-columns.is-style-card-plain .wp-block-button__link::after {
+	content: ' →';
+	display: inline-block;
+	transition: transform var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
+}
+.wp-block-group.is-style-card-plain:hover .wp-block-button__link::after,
+.wp-block-columns.is-style-card-plain:hover .wp-block-button__link::after {
+	transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+	.wp-block-group.is-style-card-plain,
+	.wp-block-columns.is-style-card-plain,
+	.wp-block-group.is-style-card-plain .wp-block-button__link::after {
+		transition: none !important;
+	}
+}
+
+/* ============================================================================
  * Jazz separator — ported from Astro's SectionDivider.astro (jazz variant).
  * Reproduces the flex wrapper with a flanking 1px hairline on each side and
  * a 44px staff-and-notes SVG ornament centred between them (max width
@@ -508,6 +578,51 @@ header.wp-block-template-part {
 .is-style-purple .wp-block-quote.is-style-pull-quote p,
 .ground-purple .wp-block-quote.is-style-pull-quote p {
 	color: inherit;
+}
+
+/* Core pullquote block (figure.wp-block-pullquote > blockquote): matches
+ * Astro's PullQuote.astro — italic UI face, curly open/close marks via
+ * `quotes` + generated content, uppercased brass citation. Per-ground colour
+ * overrides mirror the `.wp-block-quote.is-style-pull-quote` block above. */
+.wp-block-pullquote {
+	text-align: center;
+	padding-block: var(--wp--preset--spacing--l);
+	margin-inline: auto;
+	max-width: var(--wp--custom--measure--wide);
+}
+.wp-block-pullquote blockquote {
+	font-family: var(--wp--preset--font-family--ui);
+	font-style: italic;
+	font-weight: 400;
+	line-height: var(--wp--custom--line-height--snug);
+	color: var(--wp--preset--color--oxblood);
+	max-width: 32ch;
+	margin-inline: auto;
+	quotes: "\201C" "\201D";
+}
+.wp-block-pullquote blockquote p { margin: 0; }
+.wp-block-pullquote blockquote p:first-of-type::before { content: open-quote; margin-right: 0.1em; }
+.wp-block-pullquote blockquote p:last-of-type::after { content: close-quote; margin-left: 0.1em; }
+.wp-block-pullquote cite {
+	display: block;
+	margin-top: var(--wp--preset--spacing--m);
+	font-family: var(--wp--preset--font-family--ui);
+	font-weight: 500;
+	font-size: var(--wp--preset--font-size--small);
+	letter-spacing: var(--wp--custom--letter-spacing--caps);
+	text-transform: uppercase;
+	color: var(--wp--preset--color--brass);
+	font-style: normal;
+}
+.ground-ink .wp-block-pullquote blockquote { color: var(--wp--custom--color--champagne); }
+.ground-purple .wp-block-pullquote blockquote {
+	color: #ffffff;
+	font-weight: 500;
+	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
+}
+.ground-purple .wp-block-pullquote cite {
+	color: var(--wp--custom--color--yellow-soft);
+	text-shadow: none;
 }
 
 /* ============================================================================

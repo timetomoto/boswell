@@ -46,7 +46,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Current status
 
-**Last commit:** `13d3784` — Task 10 Group 1: shared plumbing for sitewide style pass.
+**Last commit:** Task 10 Group 2 (partial): pullquote + paper-card fixes applied; sitewide page pass still pending.
 
 **Done**
 - Theme foundation (`bozzies` block theme, no parent, no plugins, no page builder).
@@ -73,7 +73,13 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
   - Placeholders relabeled to `[<name>: interactive block pending]` across import scripts and the DB — Home (Playlist player, Quotes carousel), Media (Playlist player), Discography (Discography search), Connee (Sisters timeline), Career Timeline (Sisters timeline).
   - Duplicated eyebrow-per-ground and button-on-paper/gold rules removed from `assets/css/chrome.css`; canonical copies remain in `blocks/section/src/style.scss` keyed on `.ground-*`. Colour check at 1440: 0 mismatches.
 
-**Next: task 10 Group 2 and Group 3**
+**Task 10 Group 2 — partial (this commit):**
+- Home regression at 1440 and 390: both placeholders render (`[Playlist player: interactive block pending]`, `[Quotes carousel: interactive block pending]`); layout, colours and typography track Astro. `scripts/visual-colors.mjs` at 390: **0 mismatches** (matched=12, missing-in-wp=66 and missing-in-astro=39 are all pathkey-pairing artefacts from CSS text-transform on the skip link and section-class prefixes, not real colour drift).
+- **New block style `is-style-card-plain`** (registered on `core/group` + `core/columns`) — paper card with 4px purple left-accent, purple eyebrow, purple arrow CTA, hairline right/bottom borders. Matches Astro's `.sister-card`. Applied to the three sister cards on `/sisters/` (Martha/Connee/Vet); the two subpage teasers (Boz Biography, Career Timeline) stay on `is-style-card` because they sit on the gold ground and Astro renders them as dark purple cards there. Import helper `card()` in `scripts/import/group1.mjs` now takes `variant: 'card' | 'card-plain'`.
+- **Core `wp:pullquote` styled to Astro's `PullQuote.astro`** in `chrome.css`: `--font-ui` italic body, `quotes: "\201C" "\201D"` with `::before`/`::after` open/close-quote content, uppercased brass citation. Per-ground overrides mirror the existing `wp-block-quote.is-style-pull-quote` rules (`ground-ink` → champagne body; `ground-purple` → white body + yellow-soft citation + subtle text-shadow). Verified live on `/sisters/` and `/sisters/career-timeline/`.
+- YouTube CLAUDE.md line at line 64 was already complete ("YouTube embeds forced to `youtube-nocookie.com` and styled to Astro's `.video-embed` (16:9, `--ink` background).") — no edit needed.
+
+**Next: Group 2 remaining pages + carry-overs, then Group 3**
 
 Group 1 built the shared plumbing (templates, patterns, editor tools). Group 2 does the page-by-page visual pass; Group 3 does the sitewide audits.
 
@@ -89,6 +95,22 @@ For each page, screenshot WP and Astro side by side at 1440 and 390, view them, 
 **Order check:** for the press hub and each category archive, list the article titles in order on WP and on Astro side by side. They must match row for row.
 
 Commit after Sisters/About, after Media, and after Press/other pages.
+
+**Group 2 remaining after the partial pass above — page by page:**
+- **Sister bios (`/sisters/connee/`, `/sisters/martha/`, `/sisters/vet/`) — structural rework.** Astro's `SisterBio` layout puts the facts (Born / Died / Hair / Eyes / etc.) in a fixed-column strip above the article (Martha, Vet) or in a sticky left rail (Connee), with the sister portrait floated inside the article body and previous/next sister links plus a "The Sisters" hub link at page-bottom. WP currently renders facts as a plain stacked paragraph list at the top of the article, centres the portrait, and shows the trio's shared prev/next only. **Fix path:** rebuild the sister-bio template — either (a) a per-page block layout with a Columns block (30/70 facts strip / article) and image-align-left on the portrait, or (b) a dedicated `sister-bio` page template PHP + a bindings-driven facts strip that reads `_bozzies_born / _bozzies_died / _bozzies_hair / _bozzies_eyes / _bozzies_complexion / _bozzies_height / _bozzies_marriage / _bozzies_children` from post_meta. Option (b) is cleaner (one source of truth per sister, no re-import needed). Also add the previous/next sister link pair — Astro cycles Martha ↔ Connee ↔ Vet with a link back to `/sisters/` in the centre.
+- **`/sisters/bio-resources/` — wrong hero ground and pull-quote treatment.** Astro renders the hero on the **gold** ground (yellow eyebrow "A FAMILY AFFAIR", ink title on gold), a full-bleed purple pull-quote section under it, and a paper section with a two-column layout: article body left, "The Boswell Legacy" book cover on the right. WP renders the hero on **purple**, the pull-quote inline on paper, and centres the book cover above the body. Fix: switch the hero section to `backgroundStyle: 'gold'`, wrap the pull-quote in its own `bozzies/section` ground-purple with the notes backdrop, and put the article body + book cover in a `wp:columns` (image column ~40%, right).
+- **`/sisters/career-timeline/` — layout matches Astro through the pull-quote; the actual year-by-year timeline is the `[Sisters timeline: interactive block pending]` placeholder** (as designed). Pull-quote now shows Astro's curly quotes + uppercased citation after this commit's chrome.css change.
+- **`/about/` — mostly matching.** Two small diffs: intro line "Bozzies.org is dedicated to preserving the memory of the Boswell Sisters." renders as a display-size heading in WP (h2 with the "Section title" preset) but as a lead-sized single line in Astro; and the small ornament divider between the "Get involved" section and the gold "Get in touch" CTA is present on both but WP shows slightly more vertical padding above it. Fix: change the intro block from h2 → paragraph.is-style-lede (or drop the "Section title" font-size preset). Verify at 390 too.
+- **Sisters hub (`/sisters/`) — done in this commit** (paper cards + pullquote). The 4 remaining nits are cosmetic: sister-card body text is italic on Astro (WP is regular); Astro's card-order number is a large display-face "01/02/03" separated from the small-caps nickname on the same row, WP renders one paragraph line "01 MBoz". Not blockers.
+- **Home — done in this commit.** Placeholders confirmed, colour check clean at 390.
+
+**Cross-cutting Group 2 work still to do (not yet started this pass):**
+- **Media hub (`/media/`), Charts, Reviews, Discography, Lessons hub, all 5 lessons** — screenshots not yet taken at 1440 / 390.
+- **Press hub (`/press/`), 5 category archives (`/press/interviews/`, `/press/reviews/`, `/press/features/`, `/press/press-releases/`, `/press/personal-notes/`), at least 6 articles covering every category, Privacy Policy, 404** — screenshots not yet taken. Order-tables (WP vs Astro row-for-row) for the press hub and each category archive still to compile.
+- **Photo-hero coverage carry-over from Group 1** — check Astro on `/media/charts/`, `/media/reviews/`, `/media/discography/`, `/media/lessons/N/` and individual article pages; if Astro shows a `heroPhoto` treatment there, apply the same via `heroPhoto()` in `scripts/import/lib.mjs` and re-run the relevant import.
+- **`/media/` inline lesson list carry-over** — add the lesson list to the `/media/` page (inline) so it matches Astro. Keep the `/media/lessons/` hub route.
+
+**Group 3 (unchanged from previous notes):** page titles / meta descriptions / OG cards, favicon set, axe accessibility sweep, full crawl + network + text-diff + colour-check at both viewports.
 
 ## Group 3: Sitewide checks
 1. **Page titles, meta descriptions, and social share previews** (Open Graph/Twitter tags, share image): compare every page's head tags against Astro. Output matching values from the theme (no plugins). Make descriptions editable by the owner where Astro has page-specific ones (e.g. use the page excerpt). Paste a table: page, WP vs Astro title and description, match yes/no.

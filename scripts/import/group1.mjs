@@ -70,15 +70,18 @@ const pullQuote = (text, cite) =>
   `<!-- wp:pullquote --><figure class="wp-block-pullquote"><blockquote><p>${text}</p>${cite ? `<cite>— ${cite}</cite>` : ''}</blockquote></figure><!-- /wp:pullquote -->`;
 
 // Card group used by sisters grid and subpage teasers.
-const card = ({ eyebrow, title, body, cta, href, className = '' }) => {
+// variant: 'card' (dark purple fill, gold ground) or 'card-plain' (paper
+// with purple left-accent, paper ground — matches Astro's .sister-card).
+const card = ({ eyebrow, title, body, cta, href, className = '', variant = 'card' }) => {
+  const base = `is-style-${variant}`;
   const inner = [
     eyebrow ? p(eyebrow, { className: 'is-style-eyebrow' }) : '',
     h(3, title),
     body ? p(body) : '',
     buttons(button(href, cta || 'Open')),
   ].filter(Boolean).join('\n');
-  return `<!-- wp:group {"className":"is-style-card${className ? ' ' + className : ''}","layout":{"type":"default"}} -->
-<div class="wp-block-group is-style-card${className ? ' ' + className : ''}">
+  return `<!-- wp:group {"className":"${base}${className ? ' ' + className : ''}","layout":{"type":"default"}} -->
+<div class="wp-block-group ${base}${className ? ' ' + className : ''}">
 ${inner}
 </div>
 <!-- /wp:group -->`;
@@ -166,6 +169,7 @@ function buildSisters(media) {
   body: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.',
   cta: 'Read the bio',
   href: '/sisters/martha/',
+  variant: 'card-plain',
 })}</div>
 <!-- /wp:column -->
 <!-- wp:column -->
@@ -175,6 +179,7 @@ function buildSisters(media) {
   body: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.',
   cta: 'Read the bio',
   href: '/sisters/connee/',
+  variant: 'card-plain',
 })}</div>
 <!-- /wp:column -->
 <!-- wp:column -->
@@ -184,6 +189,7 @@ function buildSisters(media) {
   body: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...',
   cta: 'Read the bio',
   href: '/sisters/vet/',
+  variant: 'card-plain',
 })}</div>
 <!-- /wp:column -->
 </div>
