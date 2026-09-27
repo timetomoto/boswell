@@ -785,6 +785,16 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
+ * Article meta (author · publication · publicationDate). Bound to the
+ * bozzies/article-meta binding source. Astro drops the whole paragraph when
+ * every part is empty; we mirror that with `:empty { display: none }`.
+ * ========================================================================= */
+.bozzies-article-meta:empty,
+.bozzies-article-row__meta:empty {
+	display: none;
+}
+
+/* ============================================================================
  * Article row (Astro's [NN][title][arrow] list). For a Query Loop template.
  * ========================================================================= */
 .bozzies-article-row {
@@ -841,14 +851,12 @@ header.wp-block-template-part {
  * inject "01", "02"… via ::before with the Astro article-row number treatment.
  * ========================================================================= */
 .wp-block-post-template.bozzies-article-list {
-	counter-reset: bozzies-row;
 	list-style: none;
 	padding: 0;
 	margin: 0;
 	border-top: 1px solid var(--wp--custom--color--paper-hairline);
 }
 .wp-block-post-template.bozzies-article-list > li {
-	counter-increment: bozzies-row;
 	border-bottom: 1px solid var(--wp--custom--color--paper-hairline);
 	display: grid;
 	grid-template-columns: auto 1fr;
@@ -857,8 +865,8 @@ header.wp-block-template-part {
 	padding: var(--wp--preset--spacing--m) 0;
 	transition: padding var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
 }
-.wp-block-post-template.bozzies-article-list > li::before {
-	content: counter(bozzies-row, decimal-leading-zero);
+/* Row number injected by bozzies_number_article_rows() — see functions.php. */
+.wp-block-post-template.bozzies-article-list > li > .bozzies-article-row__num {
 	font-family: var(--wp--preset--font-family--display);
 	font-size: var(--wp--preset--font-size--large);
 	line-height: 1;

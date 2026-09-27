@@ -115,3 +115,171 @@ function bozzies_press_rewrite_rule() {
 		'top'
 	);
 }
+
+/**
+ * Astro's article rows show a zero-padded row number as visible text
+ * (`<span class="article-row__num">01</span>`). CSS counters via `::before`
+ * would be visually correct but wouldn't land in the DOM, so screen readers
+ * and text-diff tooling wouldn't see them. Inject a real <span> at render
+ * time on any post-template with the `bozzies-article-list` class.
+ */
+add_filter( 'render_block_core/post-template', 'bozzies_number_article_rows', 10, 2 );
+function bozzies_number_article_rows( $block_content, $block ) {
+	$cls = isset( $block['attrs']['className'] ) ? (string) $block['attrs']['className'] : '';
+	if ( strpos( $cls, 'bozzies-article-list' ) === false ) {
+		return $block_content;
+	}
+	$i = 0;
+	return preg_replace_callback(
+		'#<li([^>]*)>#',
+		function ( $m ) use ( &$i ) {
+			$i++;
+			$num = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
+			return '<li' . $m[1] . '><span class="bozzies-article-row__num">' . $num . '</span>';
+		},
+		$block_content,
+		-1
+	);
+}
+
+/**
+ * Category archives (press sub-hubs) sort articles by menu_order asc so the
+ * on-page order matches Astro's frontmatter `order` field (vintage 2..12
+ * first, then the fill-in indices for the other sub-hubs). Without this the
+ * default query is date-desc, which reverses the Astro order.
+ */
+/**
+ * Adjacent-post navigation (prev/next on single articles) sorts by
+ * menu_order — mirroring Astro's `order` frontmatter — instead of the WP
+ * default post_date. Otherwise articles that carry a publicationDate
+ * (year → 1937-01-01) fall out of order compared to Astro.
+ */
+add_filter( 'get_previous_post_sort', 'bozzies_adjacent_post_sort' );
+add_filter( 'get_next_post_sort',     'bozzies_adjacent_post_sort' );
+add_filter( 'get_previous_post_where','bozzies_previous_post_where', 10, 5 );
+add_filter( 'get_next_post_where',    'bozzies_next_post_where',     10, 5 );
+function bozzies_adjacent_post_sort( $sort ) {
+	// Preserve caller's ORDER BY direction — get_previous_post uses DESC,
+	// get_next_post uses ASC. Replace the date column with menu_order.
+	$dir = false !== strpos( $sort, 'DESC' ) ? 'DESC' : 'ASC';
+	return "ORDER BY p.menu_order $dir LIMIT 1";
+}
+function bozzies_previous_post_where( $where, $in_same_term, $excluded_terms, $taxonomy, $post ) {
+	global $wpdb;
+	// WP's default WHERE is: `WHERE p.post_date < '...' AND p.post_type = 'post' ...`
+	// (older WP) or the parens form `WHERE (p.post_date < '...' OR (p.post_date = ... AND p.ID < ...))`.
+	// Replace either shape with a single menu_order comparison.
+	$where = preg_replace(
+		'/WHERE\s+\(?\s*p\.post_date\s*<\s*\'[^\']+\'(?:\s+OR\s+\(p\.post_date\s*=\s*\'[^\']+\'\s+AND\s+p\.ID\s*<\s*\d+\)\s*)?\)?/',
+		$wpdb->prepare( 'WHERE p.menu_order < %d', (int) $post->menu_order ),
+		$where
+	);
+	return $where;
+}
+function bozzies_next_post_where( $where, $in_same_term, $excluded_terms, $taxonomy, $post ) {
+	global $wpdb;
+	$where = preg_replace(
+		'/WHERE\s+\(?\s*p\.post_date\s*>\s*\'[^\']+\'(?:\s+OR\s+\(p\.post_date\s*=\s*\'[^\']+\'\s+AND\s+p\.ID\s*>\s*\d+\)\s*)?\)?/',
+		$wpdb->prepare( 'WHERE p.menu_order > %d', (int) $post->menu_order ),
+		$where
+	);
+	return $where;
+}
+
+/**
+ * Astro's article-nav wraps around: at the last article in a sub-hub, "Next"
+ * links to the first; at the first, "Previous" links to the last. WP's
+ * post-navigation-link renders nothing when there's no adjacent post. Fill
+ * in the wraparound render so the UI (and the visible-text diff) matches.
+ */
+add_filter( 'render_block_core/post-navigation-link', 'bozzies_wrap_post_navigation', 10, 2 );
+function bozzies_wrap_post_navigation( $block_content, $block ) {
+	// WP still wraps an empty adjacent-post navigation in a `<div class="…"></div>`.
+	// Treat "no <a> inside" as the empty case rather than an entirely empty string.
+	if ( strpos( $block_content, '<a ' ) !== false ) {
+		return $block_content;
+	}
+	$type = ( isset( $block['attrs']['type'] ) && 'next' === $block['attrs']['type'] ) ? 'next' : 'previous';
+	$post = get_post();
+	if ( ! $post ) {
+		return $block_content;
+	}
+	$terms = get_the_terms( $post, 'category' );
+	if ( empty( $terms ) || is_wp_error( $terms ) ) {
+		return $block_content;
+	}
+	$term_ids = wp_list_pluck( $terms, 'term_id' );
+	$args = array(
+		'post_type'      => 'post',
+		'posts_per_page' => 1,
+		'category__in'   => $term_ids,
+		'post__not_in'   => array( $post->ID ),
+		'orderby'        => 'menu_order',
+		'order'          => 'next' === $type ? 'ASC' : 'DESC',
+		'no_found_rows'  => true,
+	);
+	$wrap = get_posts( $args );
+	if ( empty( $wrap ) ) {
+		return $block_content;
+	}
+	$target = $wrap[0];
+	$label  = 'next' === $type ? 'Next' : 'Previous';
+	$rel    = 'next' === $type ? 'next' : 'prev';
+	$cls    = 'next' === $type
+		? 'post-navigation-link-next wp-block-post-navigation-link'
+		: 'post-navigation-link-previous wp-block-post-navigation-link';
+	return sprintf(
+		'<div class="%s"><span class="post-navigation-link__label">%s</span> <a href="%s" rel="%s">%s</a></div>',
+		esc_attr( $cls ),
+		esc_html( $label ),
+		esc_url( get_permalink( $target ) ),
+		esc_attr( $rel ),
+		esc_html( get_the_title( $target ) )
+	);
+}
+
+add_action( 'pre_get_posts', 'bozzies_press_category_order' );
+function bozzies_press_category_order( $query ) {
+	if ( is_admin() || ! $query->is_main_query() ) {
+		return;
+	}
+	if ( ! $query->is_category() ) {
+		return;
+	}
+	$query->set( 'orderby',         'menu_order' );
+	$query->set( 'order',           'ASC' );
+	$query->set( 'posts_per_page',  -1 ); // Show every article — no pagination.
+}
+
+/**
+ * Register the article-meta post meta fields — author, publication, and the
+ * raw publication-date string. The date string is stored verbatim so the
+ * front matches the Astro source ("1932" stays "1932" instead of becoming
+ * "January 1, 1932"); post_date is set separately for sortability.
+ *
+ * `show_in_rest` is on so the fields appear in the block editor sidebar
+ * (Custom Fields panel + REST API), which lets the owner edit them without
+ * leaving Gutenberg. Sanitized as plain text — no HTML.
+ */
+add_action( 'init', 'bozzies_register_article_meta' );
+function bozzies_register_article_meta() {
+	$args = array(
+		'type'              => 'string',
+		'single'            => true,
+		'show_in_rest'      => true,
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_text_field',
+		'auth_callback'     => function () { return current_user_can( 'edit_posts' ); },
+	);
+	register_post_meta( 'post', '_bozzies_author',           $args );
+	register_post_meta( 'post', '_bozzies_publication',      $args );
+	register_post_meta( 'post', '_bozzies_publication_date', $args );
+	register_term_meta( 'category', '_bozzies_kicker', array(
+		'type'              => 'string',
+		'single'            => true,
+		'show_in_rest'      => true,
+		'default'           => '',
+		'sanitize_callback' => 'sanitize_text_field',
+		'auth_callback'     => function () { return current_user_can( 'manage_categories' ); },
+	) );
+}

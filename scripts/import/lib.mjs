@@ -123,24 +123,43 @@ function writeTmpContent(slug, content) {
 export function upsertPage(opts) {
   return upsertPost({ ...opts, postType: 'page' });
 }
-export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug }) {
+export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug, postDate, menuOrder, meta = {} }) {
   const existing = findPostBySlug(slug, postType);
   const containerPath = writeTmpContent(`${postType}-${slug}`, content);
 
+  const extra = [];
+  if (postDate) extra.push(`'post_date'=>${phpStr(postDate)}`, `'post_date_gmt'=>${phpStr(postDate)}`);
+  if (typeof menuOrder === 'number') extra.push(`'menu_order'=>${menuOrder}`);
+  const extraStr = extra.length ? ',' + extra.join(',') : '';
+
+  let id;
   if (existing) {
-    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})]); echo 'OK';`;
+    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo 'OK';`;
     wp(['eval', php]);
-    if (template) wp(['post', 'meta', 'update', String(existing), '_wp_page_template', template]);
-    if (categorySlug) wp(['post', 'term', 'set', String(existing), 'category', categorySlug]);
-    return { id: existing, created: false };
+    id = existing;
   } else {
-    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})]); echo $id;`;
+    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo $id;`;
     const out = wp(['eval', php]);
-    const id = parseInt(out.split(/\s+/).filter(Boolean).pop(), 10);
-    if (template) wp(['post', 'meta', 'update', String(id), '_wp_page_template', template]);
-    if (categorySlug) wp(['post', 'term', 'set', String(id), 'category', categorySlug]);
-    return { id, created: true };
+    id = parseInt(out.split(/\s+/).filter(Boolean).pop(), 10);
   }
+  if (template) wp(['post', 'meta', 'update', String(id), '_wp_page_template', template]);
+  if (categorySlug) wp(['post', 'term', 'set', String(id), 'category', categorySlug]);
+  for (const [k, v] of Object.entries(meta)) {
+    if (v === null || v === undefined || v === '') {
+      wp(['post', 'meta', 'delete', String(id), k], { allowFail: true });
+    } else {
+      wp(['post', 'meta', 'update', String(id), k, String(v)]);
+    }
+  }
+  return { id, created: !existing };
+}
+
+// Delete a post (or page) by slug. No-op if not found. Force-deletes.
+export function deleteBySlug(slug, postType = 'post') {
+  const id = findPostBySlug(slug, postType);
+  if (!id) return { id: null, deleted: false };
+  wp(['post', 'delete', String(id), '--force']);
+  return { id, deleted: true };
 }
 
 function phpStr(s) {

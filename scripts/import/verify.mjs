@@ -50,11 +50,18 @@ function chromePath() {
 // Extract visible text: strip nav/footer/scripts, keep main content.
 async function visibleText(page) {
   return page.evaluate(() => {
+    // Hide site chrome + aria-hidden decorations IN PLACE. innerText on a
+    // detached clone loses block styling (adjacent <p>/<cite> glue together),
+    // so we mutate the live document instead.
+    document.querySelectorAll(
+      'script, style, ' +
+      'header.wp-block-template-part, footer.wp-block-template-part, ' +
+      '.site-header, .site-footer, ' +
+      'body > nav, body > footer, ' +
+      '[aria-hidden="true"]'
+    ).forEach(el => { el.style.display = 'none'; });
     const main = document.querySelector('main, [role="main"], article, .site-main, .wp-site-blocks main') || document.body;
-    const clone = main.cloneNode(true);
-    // Strip everything that shouldn't participate in a body-text diff.
-    clone.querySelectorAll('script, style, nav, footer, header, .site-footer, .site-header, [aria-hidden="true"]').forEach(el => el.remove());
-    const raw = clone.innerText || clone.textContent || '';
+    const raw = main.innerText || main.textContent || '';
     return raw
       .replace(/\s+/g, ' ')
       .replace(/[‘’]/g, "'")
@@ -65,9 +72,12 @@ async function visibleText(page) {
   });
 }
 
-// Diff two strings token-by-token; return an object with counts + first N mismatches.
+// Diff two strings token-by-token; return counts + first N mismatches.
+// Case-folded on both sides — Astro CSS uppercases eyebrows/table headers via
+// `text-transform: uppercase` (innerText returns the transformed text), so
+// straight token equality would spuriously flag "Born" (WP) vs "BORN" (Astro).
 function tokenDiff(a, b) {
-  const toks = s => s.split(/\s+/).filter(Boolean);
+  const toks = s => s.toLowerCase().split(/\s+/).filter(Boolean);
   const A = toks(a), B = toks(b);
   const setA = new Set(A), setB = new Set(B);
   const onlyA = A.filter(t => !setB.has(t));

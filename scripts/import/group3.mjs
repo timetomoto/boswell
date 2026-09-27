@@ -4,7 +4,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { load } from 'js-yaml';
-import { importMedia, upsertPage, upsertPost, wp } from './lib.mjs';
+import { importMedia, upsertPage, upsertPost, deleteBySlug, wp } from './lib.mjs';
 
 const ARTICLES_DIR = '/Users/keithhalpin/boswell-poc/src/content/articles';
 const RELEASES_DIR = '/Users/keithhalpin/boswell-poc/src/content/press-releases';
@@ -24,9 +24,15 @@ const section = (attrs, inner) =>
 
 const h = (level, text, opts = {}) => {
   const cls = ['wp-block-heading'];
+  if (opts.className) cls.unshift(opts.className);
   if (opts.align) cls.push(`has-text-align-${opts.align}`);
   if (opts.fontSize) cls.push(`has-${opts.fontSize}-font-size`);
-  const a = { level, ...(opts.align && { textAlign: opts.align }), ...(opts.fontSize && { fontSize: opts.fontSize }) };
+  const a = {
+    level,
+    ...(opts.className && { className: opts.className }),
+    ...(opts.align && { textAlign: opts.align }),
+    ...(opts.fontSize && { fontSize: opts.fontSize }),
+  };
   return `<!-- wp:heading ${JSON.stringify(a)} --><h${level} class="${cls.join(' ')}">${text}</h${level}><!-- /wp:heading -->`;
 };
 
@@ -55,8 +61,17 @@ const buttons = (children, justify = 'left') => {
 const quote = (text, cite) =>
   `<!-- wp:quote --><blockquote class="wp-block-quote"><p>${text}</p>${cite ? `<cite>${cite}</cite>` : ''}</blockquote><!-- /wp:quote -->`;
 
-const image = ({ id, url, alt, size = 'large', align = 'center' }) =>
-  `<!-- wp:image {"id":${id},"sizeSlug":"${size}","linkDestination":"none","align":"${align}"} --><figure class="wp-block-image align${align} size-${size}"><img src="${url}" alt="${alt}" class="wp-image-${id}"/></figure><!-- /wp:image -->`;
+const image = ({ id, url, alt, size = 'large', align = 'center', link }) => {
+  const attrs = { id, sizeSlug: size };
+  if (link) { attrs.linkDestination = 'custom'; attrs.href = link; }
+  else       attrs.linkDestination = 'none';
+  if (align) attrs.align = align;
+  const cls = ['wp-block-image', `size-${size}`];
+  if (align) cls.push(`align${align}`);
+  const img = `<img src="${url}" alt="${alt}" class="wp-image-${id}"/>`;
+  const inner = link ? `<a href="${link}">${img}</a>` : img;
+  return `<!-- wp:image ${JSON.stringify(attrs)} --><figure class="${cls.join(' ')}">${inner}</figure><!-- /wp:image -->`;
+};
 
 // ---------- Markdown parsing ----------
 
@@ -68,13 +83,24 @@ function parseFrontmatter(filepath) {
 }
 
 // Inline markdown → HTML: `code`, [text](url), **bold**, _italic_, *italic*.
+// The `(?<!!)` on the link regex prevents matching `![text](url)` (an image);
+// image extraction happens block-level before inline runs.
 function inlineMd(text) {
   return text
     .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>')
+    .replace(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g, (m, label, url) => `<a href="${stripAffiliate(url)}">${label}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
     .replace(/(?:^|(?<=\s|\W))_([^_\n]+)_(?=\s|\W|$)/g, '<em>$1</em>')
     .replace(/(?:^|(?<=\s|\W))\*([^*\n]+)\*(?=\s|\W|$)/g, '<em>$1</em>');
+}
+
+// The Astro source has a Bette Midler amazon.com link with affiliate tracking.
+// Task decision: keep the plain product URL, drop the tag/linkCode/etc. query.
+function stripAffiliate(url) {
+  if (/^https?:\/\/(www\.)?amazon\.[a-z.]+\//i.test(url)) {
+    return url.split('?')[0];
+  }
+  return url;
 }
 
 // Markdown → array of WP block strings.
@@ -136,16 +162,40 @@ function mdToBlocks(markdown, resolveImage) {
       continue;
     }
 
-    // Standalone image
-    const imgMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)\s*$/);
-    if (imgMatch && resolveImage) {
-      const media = resolveImage(imgMatch[2], imgMatch[1]);
+    // Image or linked image at the start of a line — may be followed by
+    // paragraph text on the same line. Astro renders that as a single <p>
+    // with an inline <img> + text; we split it into a wp:image block + a
+    // wp:paragraph block. Text-diff is unaffected (imgs contribute 0 tokens).
+    // Patterns handled:
+    //   ![alt](img)text                    plain image + trailing text
+    //   [![alt](img)](url)text             linked image + trailing text
+    const linkedImg = line.match(/^\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)(.*)$/);
+    const plainImg  = linkedImg ? null : line.match(/^!\[([^\]]*)\]\(([^)]+)\)(.*)$/);
+    if ((linkedImg || plainImg) && resolveImage) {
+      const alt   = (linkedImg || plainImg)[1];
+      const imgSrc = (linkedImg || plainImg)[2];
+      const link  = linkedImg ? stripAffiliate(linkedImg[3]) : null;
+      const rest  = ((linkedImg && linkedImg[4]) || (plainImg && plainImg[3]) || '').trim();
+      const media = resolveImage(imgSrc, alt);
       if (media) {
-        blocks.push(image({ id: media.id, url: media.url, alt: imgMatch[1] }));
+        blocks.push(image({ id: media.id, url: media.url, alt, size: 'large', link }));
       } else {
-        blocks.push(p(`<em>[Image: ${imgMatch[2]}]</em>`));
+        blocks.push(p(`<em>[Image: ${imgSrc}]</em>`));
       }
-      i++; continue;
+      i++;
+      if (rest) {
+        // Accumulate any continued lines (mirrors the plain-paragraph branch below).
+        const para = [rest];
+        while (i < lines.length && lines[i].trim() &&
+          !lines[i].match(/^#{1,6}\s/) && !lines[i].startsWith('>') &&
+          !lines[i].match(/^[*\-]\s/) && !lines[i].match(/^\d+\.\s/) &&
+          !lines[i].match(/^!?\[/) && !lines[i].match(/^<iframe/) &&
+          !lines[i].match(/^-{3,}$/)) {
+          para.push(lines[i]); i++;
+        }
+        blocks.push(p(inlineMd(para.join(' '))));
+      }
+      continue;
     }
 
     // YouTube iframe (embed as core/embed)
@@ -176,7 +226,7 @@ function mdToBlocks(markdown, resolveImage) {
     while (i < lines.length && lines[i].trim() &&
       !lines[i].match(/^#{1,6}\s/) && !lines[i].startsWith('>') &&
       !lines[i].match(/^[*\-]\s/) && !lines[i].match(/^\d+\.\s/) &&
-      !lines[i].match(/^!\[/) && !lines[i].match(/^<iframe/) &&
+      !lines[i].match(/^!?\[/) && !lines[i].match(/^<iframe/) &&
       !lines[i].match(/^-{3,}$/)) {
       para.push(lines[i]); i++;
     }
@@ -217,83 +267,102 @@ function slugFromFile(filename, subhub) {
 
 // ---------- Runner ----------
 
-function buildPressHub() {
-  const hero = heroPurple({
-    backLabel: 'Home', backHref: '/', eyebrow: 'Section',
-    title: 'Press',
-    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.',
-  });
-
-  const heroQuote = proseSection([
-    quote(
-      'The way they work out an &ldquo;arrangement&rdquo; is fascinating. One of them plays from an ordinary piano song company, singing the melody. The other two chip in with uncanny instinct on the right harmony and distribution.',
-      'The Melody Maker',
-    ),
-  ]);
-
-  const intro = proseSection([
-    p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body', fontSize: 'lead' }),
-  ]);
-
-  // Category listing — 5 cards linking to the WP category archives.
-  const hubs = [
-    { slug: 'vintage', kicker: 'From the 1930s', label: 'Vintage Articles', blurb: 'Newspaper and magazine pieces published while the trio was in full swing.' },
-    { slug: 'in-their-own-words', kicker: 'Interviews', label: 'In Their Own Words', blurb: 'Firsthand accounts and interview transcripts.' },
-    { slug: 'video', kicker: 'On Screen', label: 'Video Features', blurb: 'Documentaries and video essays about the Boswell sound.' },
-    { slug: 'feature', kicker: 'Modern Writing', label: 'Features', blurb: 'Contemporary essays and long-form pieces on the trio and Connee.' },
-    { slug: 'essay', kicker: 'Bozzies.org', label: 'About the Site', blurb: 'What Getting Bozzed means, and why the site exists.' },
-  ];
-
-  const cardHTML = ({ kicker, label, blurb, slug }) => `<!-- wp:group {"className":"is-style-card","layout":{"type":"default"}} -->
-<div class="wp-block-group is-style-card">
-${p(kicker, { className: 'is-style-eyebrow' })}
-${h(3, `<a href="/press/${slug}/">${label}</a>`)}
-${p(blurb)}
+// One sub-hub section: header (kicker/label/blurb) + a Query Loop filtered
+// to that category, rendered with our numbered article-list styling. Order
+// asc by menu_order (import sets menu_order = Astro's frontmatter `order`
+// with `999` for missing values, so Query Loop reproduces Astro's sort).
+function buildSubhubSection({ termId, kicker, label, blurb }) {
+  const queryAttrs = {
+    queryId: 100 + termId,
+    query: {
+      perPage: 100, pages: 0, offset: 0,
+      postType: 'post',
+      order: 'asc', orderBy: 'menu_order',
+      author: '', search: '', exclude: [],
+      sticky: '', inherit: false, parents: [],
+      taxQuery: { category: [termId] },
+    },
+  };
+  const queryLoop = `<!-- wp:query ${JSON.stringify(queryAttrs)} -->
+<div class="wp-block-query">
+<!-- wp:post-template {"className":"bozzies-article-list"} -->
+<!-- wp:group {"className":"bozzies-article-row","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-article-row">
+<!-- wp:post-title {"isLink":true,"level":3,"className":"bozzies-article-row__title"} /-->
+<!-- wp:paragraph {"className":"is-style-eyebrow bozzies-article-row__meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} -->
+<p class="is-style-eyebrow bozzies-article-row__meta"></p>
+<!-- /wp:paragraph -->
 </div>
-<!-- /wp:group -->`;
-
-  const hubsSection = section(
-    { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">${cardHTML(hubs[0])}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${cardHTML(hubs[1])}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${cardHTML(hubs[2])}</div><!-- /wp:column -->
+<!-- /wp:group -->
+<!-- /wp:post-template -->
 </div>
-<!-- /wp:columns -->
-<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">${cardHTML(hubs[3])}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${cardHTML(hubs[4])}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column"></div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+<!-- /wp:query -->`;
 
-  const releasesSection = section(
-    { backgroundStyle: 'gold', headingWidth: 'reading', align: 'full' },
+  return section(
+    { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full', spacing: 'compact' },
     [
-      p('The Press Room', { className: 'is-style-eyebrow' }),
-      h(2, 'Press releases &amp; media', { fontSize: 'section-title-medium' }),
-      p('Original press releases, event announcements, and archival documents. Each opens as a PDF.'),
-      p('<a href="/press-releases/">Browse the press-release archive</a>'),
+      p(kicker, { className: 'is-style-eyebrow' }),
+      h(2, label, { fontSize: 'section-title-medium' }),
+      p(blurb, { className: 'bozzies-para-body' }),
+      queryLoop,
+    ].join('\n'),
+  );
+}
+
+// One press-release card. Each card links straight to the PDF (target=_blank
+// so the PDF opens in a new tab, matching Astro's markup).
+function releaseCard({ documentUrl, documentType, title, releaseDate }) {
+  const type = (documentType || 'DOC').toUpperCase();
+  const inner = [
+    p(type, { className: 'is-style-eyebrow release-card__type' }),
+    h(3, title, { className: 'release-card__title' }),
+    releaseDate ? p(releaseDate, { className: 'release-card__date' }) : '',
+  ].filter(Boolean).join('\n');
+  return `<!-- wp:group {"className":"release-card","layout":{"type":"default"}} -->
+<div class="wp-block-group release-card"><a class="release-card__link" href="${documentUrl}" target="_blank" rel="noopener noreferrer">
+${inner}
+</a></div>
+<!-- /wp:group -->`;
+}
+
+function buildPressHub({ hubs, releases }) {
+  // Astro's /press/ hero has no back-link and no eyebrow — only the title
+  // and subtitle. Match that exactly.
+  const hero = section(
+    { backgroundStyle: 'purple', backdrop: 'notes', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
+    [
+      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Press</h1><!-- /wp:heading -->`,
+      p('A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.', { fontSize: 'lead' }),
     ].join('\n'),
   );
 
-  return [hero, heroQuote, intro, hubsSection, releasesSection].join('\n\n');
+  const intro = proseSection([
+    p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body' }),
+  ]);
+
+  const subhubs = hubs.filter(h => h.hasEntries).map(buildSubhubSection);
+
+  const releasesGrid = releases.length ? section(
+    { backgroundStyle: 'gold', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
+    [
+      p('The Press Room', { className: 'is-style-eyebrow' }),
+      h(2, 'Press releases &amp; media', { fontSize: 'section-title-medium' }),
+      p('Original press releases, event announcements, and archival documents. Each opens as a PDF.', { className: 'bozzies-para-body' }),
+      `<!-- wp:group {"className":"releases-grid","layout":{"type":"grid","minimumColumnWidth":"16rem"}} -->
+<div class="wp-block-group releases-grid">
+${releases.map(releaseCard).join('\n')}
+</div>
+<!-- /wp:group -->`,
+    ].join('\n'),
+  ) : '';
+
+  return [hero, intro, ...subhubs, releasesGrid].filter(Boolean).join('\n\n');
 }
 
 function buildArticleContent(data, bodyBlocks) {
-  // The single.html template already renders a purple hero (category + title
-  // + date + author). Our content adds: publication meta (when frontmatter has
-  // one), pull quote, hero image, video embed, body, external-link CTA.
-  const metaTop = [];
-  if (data.publication) metaTop.push(data.publication);
-  if (data.publicationDate) metaTop.push(data.publicationDate);
-  const metaLine = metaTop.length
-    ? p(`<em>${metaTop.join(' · ')}</em>`, { className: 'is-style-eyebrow' })
-    : '';
-
+  // The single.html template renders the meta line (author · publication ·
+  // publicationDate) from post meta via the bozzies/article-meta binding.
+  // Our content is: pull quote, hero image, video embed, body, external-link.
   const pullQuoteBlock = data.pullQuote ? section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', spacing: 'compact', align: 'full' },
     quote(data.pullQuote, data.pullQuoteAttribution ? `— ${data.pullQuoteAttribution}` : ''),
@@ -309,10 +378,9 @@ function buildArticleContent(data, bodyBlocks) {
     `<!-- wp:embed {"url":"${data.videoEmbed}","type":"video","providerNameSlug":"youtube","responsive":true,"className":"wp-embed-aspect-16-9 wp-has-aspect-ratio"} --><figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">${data.videoEmbed}</div></figure><!-- /wp:embed -->`,
   ) : '';
 
-  const bodyWithMeta = [metaLine, ...bodyBlocks].filter(Boolean);
   const body = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
-    bodyWithMeta.join('\n'),
+    bodyBlocks.join('\n'),
   );
 
   const externalLink = data.externalLink ? section(
@@ -323,126 +391,140 @@ function buildArticleContent(data, bodyBlocks) {
   return [pullQuoteBlock, heroImage, videoEmbed, body, externalLink].filter(Boolean).join('\n\n');
 }
 
-function buildPressRelease(data, bodyBlocks) {
-  const hero = heroPurple({
-    backLabel: 'Press', backHref: '/press/', eyebrow: 'Press Release',
-    title: data.title,
-    meta: data.releaseDate || null,
-  });
-
-  const summarySec = data.summary ? proseSection([p(data.summary, { fontSize: 'lead' })]) : '';
-
-  const documentSec = data.document ? section(
-    { backgroundStyle: 'gold', width: 'narrow', headingWidth: 'reading', align: 'full' },
-    [
-      p('Document', { className: 'is-style-eyebrow', align: 'center' }),
-      buttons(button(data.document, `Open ${data.documentType?.toUpperCase() || 'file'}`), 'center'),
-    ].join('\n'),
-  ) : '';
-
-  const body = bodyBlocks.length ? proseSection(bodyBlocks) : '';
-
-  return [hero, summarySec, body, documentSec].filter(Boolean).join('\n\n');
-}
-
 function updateCategoryDescriptions() {
   const hubs = [
-    { slug: 'vintage', desc: 'Newspaper and magazine pieces published while the trio was in full swing.' },
-    { slug: 'in-their-own-words', desc: 'Firsthand accounts and interview transcripts.' },
-    { slug: 'video', desc: 'Documentaries and video essays about the Boswell sound.' },
-    { slug: 'feature', desc: 'Contemporary essays and long-form pieces on the trio and Connee.' },
-    { slug: 'essay', desc: 'What Getting Bozzed means, and why the site exists.' },
+    { slug: 'vintage',            name: 'Vintage Articles',   kicker: 'From the 1930s',  desc: 'Newspaper and magazine pieces published while the trio was in full swing.' },
+    { slug: 'in-their-own-words', name: 'In Their Own Words', kicker: 'Interviews',      desc: 'Firsthand accounts and interview transcripts.' },
+    { slug: 'video',              name: 'Video Features',     kicker: 'On Screen',       desc: 'Documentaries and video essays about the Boswell sound.' },
+    { slug: 'feature',            name: 'Features',           kicker: 'Modern Writing',  desc: 'Contemporary essays and long-form pieces on the trio and Connee.' },
+    { slug: 'essay',              name: 'About the Site',     kicker: 'Bozzies.org',     desc: 'What Getting Bozzed means, and why the site exists.' },
   ];
-  const nameMap = {
-    vintage: 'Vintage Articles',
-    'in-their-own-words': 'In Their Own Words',
-    video: 'Video Features',
-    feature: 'Features',
-    essay: 'About the Site',
-  };
   for (const hub of hubs) {
     const id = wp(['term', 'list', 'category', `--slug=${hub.slug}`, '--fields=term_id', '--format=ids'], { allowFail: true }).trim();
     if (id) {
-      wp(['term', 'update', 'category', id, `--name=${nameMap[hub.slug]}`, `--description=${hub.desc}`]);
+      wp(['term', 'update', 'category', id, `--name=${hub.name}`, `--description=${hub.desc}`]);
+      wp(['term', 'meta', 'update', id, '_bozzies_kicker', hub.kicker]);
     }
   }
 }
 
+// The 5 press sub-hubs in Astro's stated `order` (from src/content/press-hubs/*.md).
+const HUB_ORDER = [
+  { slug: 'vintage',            kicker: 'From the 1930s',  label: 'Vintage Articles' },
+  { slug: 'in-their-own-words', kicker: 'Interviews',      label: 'In Their Own Words' },
+  { slug: 'video',              kicker: 'On Screen',       label: 'Video Features' },
+  { slug: 'feature',            kicker: 'Modern Writing',  label: 'Features' },
+  { slug: 'essay',              kicker: 'Bozzies.org',     label: 'About the Site' },
+];
+const HUB_BLURBS = {
+  vintage: 'Newspaper and magazine pieces published while the trio was in full swing.',
+  'in-their-own-words': 'Firsthand accounts and interview transcripts.',
+  video: 'Documentaries and video essays about the Boswell sound.',
+  feature: 'Contemporary essays and long-form pieces on the trio and Connee.',
+  essay: 'What Getting Bozzed means, and why the site exists.',
+};
+
 function run() {
   console.log('Group 3: Press');
 
-  // 1. Update category descriptions
+  const mediaResolver = (path, alt) => {
+    if (path.startsWith('http')) return null;
+    try { return importMedia(path, alt); }
+    catch (e) { console.error(`    ! failed to import ${path}: ${e.message}`); return null; }
+  };
+
+  // 1. Update category descriptions + labels.
   console.log('  updating category descriptions...');
   updateCategoryDescriptions();
 
-  // 2. Press hub page
-  console.log('  press hub page...');
-  const pressHubRes = upsertPage({
-    slug: 'press', title: 'Press', template: 'page-landing',
-    content: buildPressHub(),
-  });
-  console.log(`  ${pressHubRes.created ? '+' : '~'} press (id=${pressHubRes.id})`);
-
-  // 3. Articles → posts
+  // 2. Articles → posts. Sort by filename so menu_order matches Astro's
+  // getCollection ordering for anything with `order` unset.
   const articleFiles = readdirSync(ARTICLES_DIR).filter(f => f.endsWith('.md')).sort();
   console.log(`  ${articleFiles.length} articles...`);
-  const mediaResolver = (path, alt) => {
-    // Skip external URLs
-    if (path.startsWith('http')) return null;
-    try {
-      return importMedia(path, alt);
-    } catch (e) {
-      console.error(`    ! failed to import ${path}: ${e.message}`);
-      return null;
-    }
-  };
+  const perSubhubIndex = {};
   for (const filename of articleFiles) {
     const { data, body } = parseFrontmatter(`${ARTICLES_DIR}/${filename}`);
     if (!data.subhub) { console.log(`    ! ${filename} — no subhub, skipping`); continue; }
     const slug = slugFromFile(filename, data.subhub);
     if (data.heroImage) {
-      try {
-        data.heroImageMedia = importMedia(data.heroImage, data.heroImageAlt || data.title);
-      } catch (e) { console.error(`    ! hero image failed: ${e.message}`); }
+      try { data.heroImageMedia = importMedia(data.heroImage, data.heroImageAlt || data.title); }
+      catch (e) { console.error(`    ! hero image failed: ${e.message}`); }
     }
     const bodyBlocks = mdToBlocks(body, mediaResolver);
     const content = buildArticleContent(data, bodyBlocks);
+
+    // menu_order = Astro's frontmatter `order` when present, else a
+    // deterministic slot based on alphabetical file order within the
+    // subhub (starting at 500 so vintage's `order: 2..12` stays first).
+    perSubhubIndex[data.subhub] = (perSubhubIndex[data.subhub] || 0) + 1;
+    const menuOrder = typeof data.order === 'number'
+      ? data.order
+      : 500 + perSubhubIndex[data.subhub];
+
+    // post_date: derive a sortable date from publicationDate. Frontmatter
+    // has year-only strings ("1932") so we treat them as Jan 1 of that year.
+    // If publicationDate is missing, leave post_date alone.
+    let postDate;
+    if (data.publicationDate) {
+      const y = String(data.publicationDate).match(/^\d{4}/);
+      if (y) postDate = `${y[0]}-01-01 00:00:00`;
+    }
+
     const res = upsertPost({
       slug, title: data.title, content,
       postType: 'post', categorySlug: data.subhub,
+      menuOrder, postDate,
+      meta: {
+        _bozzies_author:            data.author || '',
+        _bozzies_publication:       data.publication || '',
+        _bozzies_publication_date:  data.publicationDate || '',
+      },
     });
-    console.log(`  ${res.created ? '+' : '~'} [${data.subhub}] ${slug} (id=${res.id})`);
+    console.log(`  ${res.created ? '+' : '~'} [${data.subhub}] ${slug} (id=${res.id}) menu_order=${menuOrder}${postDate ? ` date=${postDate.slice(0,10)}` : ''}`);
   }
 
-  // 4a. Press-releases index page (linked from press hub)
-  const releaseListItems = readdirSync(RELEASES_DIR).filter(f => f.endsWith('.md')).sort().map(f => {
-    const base = f.replace(/\.md$/, '').replace(/^press-release-/, '');
-    const slug = `press-release-${base}`;
-    const { data } = parseFrontmatter(`${RELEASES_DIR}/${f}`);
-    return `<!-- wp:list-item --><li><a href="/${slug}/">${data.title}</a>${data.releaseDate ? ` — <em>${data.releaseDate}</em>` : ''}</li><!-- /wp:list-item -->`;
-  }).join('\n');
-  const releasesIndexContent = [
-    heroPurple({ backLabel: 'Press', backHref: '/press/', eyebrow: 'The Press Room', title: 'Press releases &amp; media', subtitle: 'Original press releases, event announcements, and archival documents.' }),
-    proseSection([`<!-- wp:list -->\n<ul class="wp-block-list">\n${releaseListItems}\n</ul>\n<!-- /wp:list -->`]),
-  ].join('\n\n');
-  const relIdx = upsertPage({ slug: 'press-releases', title: 'Press releases & media', template: 'page-landing', content: releasesIndexContent });
-  console.log(`  ${relIdx.created ? '+' : '~'} press-releases index (id=${relIdx.id})`);
-
-  // 4b. Press releases → pages under /press-releases/ or standalone
+  // 3. Import PDFs into the media library. Astro links straight to
+  // /uploads/docs/*.pdf on the press hub — no per-release pages exist. We
+  // clean up any /press-releases/ index and the 9 release pages left over
+  // from the earlier import.
   const releaseFiles = readdirSync(RELEASES_DIR).filter(f => f.endsWith('.md')).sort();
-  console.log(`  ${releaseFiles.length} press releases...`);
+  console.log(`  ${releaseFiles.length} press releases (PDFs into media library)...`);
+  const releases = [];
   for (const filename of releaseFiles) {
-    const { data, body } = parseFrontmatter(`${RELEASES_DIR}/${filename}`);
-    const baseSlug = filename.replace(/\.md$/, '').replace(/^press-release-/, '');
-    const slug = `press-release-${baseSlug}`;
-    const bodyBlocks = mdToBlocks(body, mediaResolver);
-    const content = buildPressRelease(data, bodyBlocks);
-    const res = upsertPage({
-      slug, title: data.title, template: 'page-landing',
-      content,
+    const { data } = parseFrontmatter(`${RELEASES_DIR}/${filename}`);
+    if (!data.document) { console.log(`    ! ${filename} — no document`); continue; }
+    const pdf = importMedia(data.document, data.title);
+    releases.push({
+      documentUrl: pdf.url,
+      documentType: data.documentType || 'PDF',
+      title: data.title,
+      releaseDate: data.releaseDate || null,
     });
-    console.log(`  ${res.created ? '+' : '~'} press-release: ${slug} (id=${res.id})`);
+    // Delete the standalone page created in the previous pass (Astro has no
+    // per-release page; the link goes straight to the PDF).
+    const baseSlug = filename.replace(/\.md$/, '').replace(/^press-release-/, '');
+    const del = deleteBySlug(`press-release-${baseSlug}`, 'page');
+    if (del.deleted) console.log(`    - deleted old release page: press-release-${baseSlug} (id=${del.id})`);
   }
+  // Delete the /press-releases/ index — Astro has no such route.
+  const relIdxDel = deleteBySlug('press-releases', 'page');
+  if (relIdxDel.deleted) console.log(`    - deleted press-releases index (id=${relIdxDel.id})`);
+
+  // Astro sorts by title alphabetical.
+  releases.sort((a, b) => a.title.localeCompare(b.title));
+
+  // 4. Press hub page — Query Loop per sub-hub + releases grid.
+  console.log('  press hub page...');
+  const hubs = HUB_ORDER.map(hub => {
+    const termId = parseInt(wp(['term', 'list', 'category', `--slug=${hub.slug}`, '--fields=term_id', '--format=ids'], { allowFail: true }).trim(), 10);
+    const count  = parseInt(wp(['post', 'list', `--category=${hub.slug}`, '--post_type=post', '--format=count'], { allowFail: true }).trim(), 10);
+    return { ...hub, termId, blurb: HUB_BLURBS[hub.slug], hasEntries: count > 0 };
+  });
+  const pressHubRes = upsertPage({
+    slug: 'press', title: 'Press', template: 'page-landing',
+    content: buildPressHub({ hubs, releases }),
+  });
+  console.log(`  ${pressHubRes.created ? '+' : '~'} press (id=${pressHubRes.id})`);
 }
 
 run();

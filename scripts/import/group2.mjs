@@ -189,12 +189,11 @@ function buildCharts() {
       while (i < lines.length && lines[i].startsWith('|')) { tbl.push(lines[i]); i++; }
       blocks.push(mdTable(tbl));
     } else if (line.startsWith('_') && line.endsWith('_')) {
-      blocks.push(p(`<em>${line.slice(1, -1)}</em>`));
-      i++;
-    } else if (line.startsWith('_**')) {
-      // "_**BC** = Bing Crosby ..._"
-      const stripped = line.replace(/^_(.*)_$/, '$1');
-      blocks.push(p(stripped.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')));
+      // Italic wrapper. Strip the outer underscores, convert **bold** to
+      // <strong>, then wrap in <em>. Handles "_**BC** = Bing Crosby..._"
+      // (bold key + italic outer) as well as plain italic notes.
+      const inner = line.slice(1, -1).replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      blocks.push(p(`<em>${inner}</em>`));
       i++;
     } else {
       // Merge paragraph until blank line
@@ -214,19 +213,25 @@ function buildCharts() {
     subtitle: 'Boswell Sisters and Connee Boswell chart positions, 1931 onward.',
   });
 
-  const heroQuote = proseSection([
-    quote(
-      '…All these things tended to influence band orchestrations enormously! Glenn Miller even wrote many arrangements from Connee&rsquo;s dictation.',
-      'John Lucas',
-    ),
-  ]);
-
   const proseBody = section(
     { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
     blocks.join('\n'),
   );
 
-  return [hero, heroQuote, proseBody].join('\n\n');
+  // Astro's charts page ends with a "See also → discography" gold card.
+  const seeAlso = section(
+    { backgroundStyle: 'gold', width: 'narrow', headingWidth: 'reading', align: 'full' },
+    `<!-- wp:group {"className":"is-style-card","align":"wide","layout":{"type":"default"}} -->
+<div class="wp-block-group alignwide is-style-card">
+${p('See also', { className: 'is-style-eyebrow', align: 'center' })}
+${h(2, `<a href="/media/discography/">The full discography</a>`, { align: 'center', fontSize: 'section-title-medium' })}
+${p('Chart positions tell you how the records sold. The discography goes deeper — 128 sessions and 500+ tracks, with matrix numbers, personnel, and label catalog data.', { align: 'center' })}
+${buttons(button('/media/discography/', 'Browse the sessions'), 'center')}
+</div>
+<!-- /wp:group -->`,
+  );
+
+  return [hero, proseBody, seeAlso].join('\n\n');
 }
 
 function buildReviews() {
@@ -235,13 +240,6 @@ function buildReviews() {
     title: 'Reviews',
     subtitle: 'Album reviews from the experts.',
   });
-
-  const heroQuote = proseSection([
-    quote(
-      '…All these things tended to influence band orchestrations enormously! Glenn Miller even wrote many arrangements from Connee&rsquo;s dictation.',
-      'John Lucas',
-    ),
-  ]);
 
   const proseBody = proseSection([
     h(2, 'These reviews come from the experts'),
@@ -261,7 +259,7 @@ function buildReviews() {
     p('Lost classic from 1957.', { className: 'bozzies-para-body' }),
   ]);
 
-  return [hero, heroQuote, proseBody].join('\n\n');
+  return [hero, proseBody].join('\n\n');
 }
 
 function buildDiscography() {
@@ -359,6 +357,14 @@ function buildLessonsHub() {
   return [hero, grid].join('\n\n');
 }
 
+const LESSON_TITLES = {
+  1: 'The Blend',
+  2: 'The Tempo',
+  3: 'The Riffs',
+  4: `Melody? Words? Who Needs &rsquo;Em!`,
+  5: 'Scatting, Hand Trumpets, Gibberish and Gulling',
+};
+
 function buildLesson({ order, title, summary, audioMedia }) {
   const hero = heroPurple({
     backLabel: 'Media', backHref: '/media/',
@@ -369,6 +375,11 @@ function buildLesson({ order, title, summary, audioMedia }) {
   const player = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
     [
+      // Astro's player has visible <span>Lesson {n}</span><span>{title}</span>
+      // labels next to the <audio>. Mirror those as small paragraphs so the
+      // text-diff picks them up.
+      p(`Lesson ${order}`, { className: 'is-style-eyebrow' }),
+      p(`<strong>${title.replace(/&rsquo;/g, "'")}</strong>`),
       `<!-- wp:audio {"id":${audioMedia.id}} --><figure class="wp-block-audio"><audio controls src="${audioMedia.url}"></audio></figure><!-- /wp:audio -->`,
       p(`<a href="${audioMedia.url}" download>Download MP3</a>`),
       p('<em>Narrated by Cynthia Lucas.</em>', { className: 'bozzies-para-body' }),
@@ -386,7 +397,7 @@ function buildLesson({ order, title, summary, audioMedia }) {
 <div class="wp-block-columns">
 <!-- wp:column --><div class="wp-block-column">
 ${p('Previous', { className: 'is-style-eyebrow' })}
-${p(`<a href="/media/lessons/lesson-${prev}/">Lesson ${prev}</a>`)}
+${p(`<a href="/media/lessons/lesson-${prev}/">Lesson ${prev} &middot; ${LESSON_TITLES[prev]}</a>`)}
 </div><!-- /wp:column -->
 <!-- wp:column --><div class="wp-block-column">
 ${p('All', { className: 'is-style-eyebrow', align: 'center' })}
@@ -394,7 +405,7 @@ ${p(`<a href="/media/lessons/">Lessons</a>`, { align: 'center' })}
 </div><!-- /wp:column -->
 <!-- wp:column --><div class="wp-block-column">
 ${p('Next', { className: 'is-style-eyebrow', align: 'right' })}
-${p(`<a href="/media/lessons/lesson-${next}/">Lesson ${next}</a>`, { align: 'right' })}
+${p(`<a href="/media/lessons/lesson-${next}/">Lesson ${next} &middot; ${LESSON_TITLES[next]}</a>`, { align: 'right' })}
 </div><!-- /wp:column -->
 </div>
 <!-- /wp:columns -->`,

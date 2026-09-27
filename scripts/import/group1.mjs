@@ -135,11 +135,12 @@ const itemHero = ({ backLabel, backHref, eyebrow, title, subtitle }) => {
 // ---------- Content builders (per-page) ----------
 
 function buildSisters(media) {
+  // Astro's sisters hub hero has no back-link and no eyebrow — just title +
+  // subtitle over the full-bleed photo. Match the text; the full-bleed
+  // photo hero itself is a later sitewide pass.
   const hero = section(
     { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
     [
-      p(`<a href="/">← Home</a>`),
-      p('Meet the Sisters', { className: 'is-style-eyebrow' }),
       `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">The Sisters</h1><!-- /wp:heading -->`,
       p('Get to know the Boswell Sisters — Martha at the piano, Connee out front, Vet in the middle.', { fontSize: 'lead' }),
     ].join('\n'),
@@ -163,27 +164,27 @@ function buildSisters(media) {
 <div class="wp-block-columns">
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '01 · MBoz',
+  eyebrow: '01 MBoz',
   title: 'Martha Boswell',
-  body: '&ldquo;If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.&rdquo;',
+  body: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.',
   cta: 'Read the bio',
   href: '/sisters/martha/',
 })}</div>
 <!-- /wp:column -->
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '02 · CBoz',
+  eyebrow: '02 CBoz',
   title: 'Connee Boswell',
-  body: '&ldquo;We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.&rdquo;',
+  body: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.',
   cta: 'Read the bio',
   href: '/sisters/connee/',
 })}</div>
 <!-- /wp:column -->
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '03 · VBoz',
+  eyebrow: '03 VBoz',
   title: 'Vet Boswell',
-  body: '&ldquo;Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...&rdquo;',
+  body: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...',
   cta: 'Read the bio',
   href: '/sisters/vet/',
 })}</div>
@@ -299,10 +300,11 @@ ${p(`<a href="/sisters/${next.slug}/">${next.name}</a>`, { align: 'right' })}
 }
 
 function buildAbout(media) {
+  // Astro's about hero: eyebrow "Our Mission", title "About", subtitle. No
+  // back-link. The full-bleed photo hero itself is a later sitewide pass.
   const hero = section(
     { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
     [
-      p(`<a href="/">← Home</a>`),
       p('Our Mission', { className: 'is-style-eyebrow' }),
       `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">About</h1><!-- /wp:heading -->`,
       p('A tribute archive to the New Orleans trio who invented swinging close-harmony.', { fontSize: 'lead' }),
@@ -348,6 +350,10 @@ function buildAbout(media) {
 }
 
 function buildBioResources(media) {
+  // Astro's bio-resources hero: back-link, eyebrow "A Family Affair",
+  // title "Boz Biography", subtitle. Then a pull quote, then prose, then
+  // a single "Get the Book at Baby Bee Books" button. No extra eyebrow
+  // or duplicate heading.
   const hero = section(
     { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
     [
@@ -362,7 +368,7 @@ function buildBioResources(media) {
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
     quote(
       'They were special. They were unique. And although they were born elsewhere, Martha, Connie, and Helvetia &ldquo;Vet&rdquo; Boswell were pure New Orleans.',
-      'Steve Steinberg, Offbeat Magazine',
+      '— Steve Steinberg, Offbeat Magazine',
     ),
   );
 
@@ -377,12 +383,8 @@ function buildBioResources(media) {
   );
 
   const bookCta = section(
-    { backgroundStyle: 'gold', backdrop: 'diamond-grid', width: 'narrow', headingWidth: 'reading', align: 'full' },
-    [
-      p('Buy the Book', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, 'Get the Book at Baby Bee Books', { align: 'center', fontSize: 'section-title-small' }),
-      buttons(button('http://www.babybeebooks.com/Boswell.htm', 'Buy at Baby Bee Books', 'large'), 'center'),
-    ].join('\n'),
+    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'reading', align: 'full', spacing: 'compact' },
+    buttons(button('http://www.babybeebooks.com/Boswell.htm', 'Get the Book at Baby Bee Books', 'large')),
   );
 
   return [hero, heroQuote, prose, bookCta].join('\n\n');
@@ -417,7 +419,7 @@ const marthaBody = [
   `<!-- wp:paragraph --><p>MBoz played piano accompaniment on most of the Sisters recordings and was a gifted concert pianist as well. She could play almost anything with keys. MBoz wrote music including three songs that were recorded by the Sisters (Cryin&rsquo; Blues, Nights When I am Lonely, and Rainy Days) and a song that became the theme of Connie&rsquo;s radio show, Pal O&rsquo; Mine.</p><!-- /wp:paragraph -->`,
   `<!-- wp:paragraph --><p>MBoz and Connie performed classical music as prodigies when they were still quite young. Rag and blues entered MBoz&rsquo;s musical vocabulary at an early age as well. She accompanied others and sang through her youth. Her ability to play with just about anyone and her sparkling good looks helped attract young jazzmen and musicians of the day to the home on 3937 Camp Street. One of those musicians was Emmett Hardy who is said to have taught Bix Beiderbecke to play and who has been accorded the legendary status of one of the best to ever blow a horn. When he met Martha romance bloomed, but Emmett contracted tuberculosis and died at age 23.</p><!-- /wp:paragraph -->`,
   `<!-- wp:paragraph --><p>Early in the Sister&rsquo;s singing career MBoz played multiple roles: pianist, manager and occasional lead singer. MBoz&rsquo;s solo voice was slightly higher than Connie&rsquo;s, but when she harmonized she and CBoz could both get very low. Her lead lines diminished once the trio began recording for Brunswick, but you can occasionally hear MBoz out front on songs like Wha&rsquo;d Ja Do To Me, Why Don&rsquo;t You Practice What You Preach, and Every Little Moment. But the melody line seldom stayed with any sister for long which is what, according to MBoz, resulted in the &ldquo;Boswell Sound&rdquo;. The Times Picayune published these comment from MBoz in a January 4, 1935 article entitled &ldquo;Blending Termed Secret of Boswell Success&rdquo;.</p><!-- /wp:paragraph -->`,
-  `<!-- wp:quote --><blockquote class="wp-block-quote"><p>&ldquo;I&rsquo;ll explain it as simply as I can,&rdquo; said the eldest sister. &ldquo;If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.&rdquo;</p><p>&ldquo;But we don&rsquo;t sing in the orthodox musical way,&rdquo; Martha Boswell continued. &ldquo;Instead, when we sing as a trio we achieve an unusual and unorthodox effect by deserting out own particular tone and singing in another tone. We call that blending.</p><p>&ldquo;If you know anything about music, for example, you know that a soprano is rarely about to hit a low &ldquo;C&rdquo; note effectively, but Vet can do that when we sing as a unit thereby producing an effect which is out of the ordinary and which accounts for our own peculiar type of individuality.</p><p>&ldquo;Blending and cross-blending of voices achieve by a desertion at various times of the tones in which we would normally sing is an important factor in the production of the think you have heard called &ldquo;Boswell Rhythm,&rdquo; Martha Boswell explained.</p><p>&ldquo;This blending,&rdquo; the eldest of the trio continued, &ldquo;takes varied forms. Sometimes all three of us will strike a crescendo in the same tone. At other times we achieve a cross blending effect as when the soprano sings contralto and the contralto sings soprano. If we sang out of tone separately it wouldn&iexcl;t be so good, but doing together produces the blending effect that goes over.&rdquo;</p></blockquote><!-- /wp:quote -->`,
+  `<!-- wp:quote --><blockquote class="wp-block-quote"><p>&ldquo;I&rsquo;ll explain it as simply as I can,&rdquo; said the eldest sister. &ldquo;If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.&rdquo;</p><p>&ldquo;But we don&rsquo;t sing in the orthodox musical way,&rdquo; Martha Boswell continued. &ldquo;Instead, when we sing as a trio we achieve an unusual and unorthodox effect by deserting out own particular tone and singing in another tone. We call that blending.</p><p>&ldquo;If you know anything about music, for example, you know that a soprano is rarely about to hit a low &ldquo;C&rdquo; note effectively, but Vet can do that when we sing as a unit thereby producing an effect which is out of the ordinary and which accounts for our own peculiar type of individuality.</p><p>&ldquo;Blending and cross-blending of voices achieve by a desertion at various times of the tones in which we would normally sing is an important factor in the production of the think you have heard called &ldquo;Boswell Rhythm,&rdquo; Martha Boswell explained.</p><p>&ldquo;This blending,&rdquo; the eldest of the trio continued, &ldquo;takes varied forms. Sometimes all three of us will strike a crescendo in the same tone. At other times we achieve a cross blending effect as when the soprano sings contralto and the contralto sings soprano. If we sang out of tone separately it wouldn&sup1;t be so good, but doing together produces the blending effect that goes over.&rdquo;</p></blockquote><!-- /wp:quote -->`,
   `<!-- wp:paragraph --><p>But it is her fabulous jazz piano, thundering left hand, and ability to conduct the trio with the movement of her body AND sing that makes Martha Boswell a most amazing Bozzie.</p><!-- /wp:paragraph -->`,
   `<!-- wp:heading {"level":4} --><h4 class="wp-block-heading">Personality</h4><!-- /wp:heading -->`,
   `<!-- wp:paragraph --><p>MBoz has been described as &ldquo;wonderfully alive&rdquo; with sparkling bright eyes that want to take in everything around her. She had a great memory and could beat her sisters in trivia. MBoz loved to chat, have fun with friends and cook. She was trusting to the point of gullibility, once famously failing to ask a theater manager how much they would be paid for three performances and receiving a check for three dollars.</p><!-- /wp:paragraph -->`,
