@@ -124,10 +124,10 @@ const factsTable = (facts) => {
     ['children', 'Children'],
   ];
   for (const [k, label] of map) {
-    if (facts[k]) rows.push(`<!-- wp:paragraph {"className":"bozzies-fact"} --><p class="bozzies-fact"><strong>${label}</strong> ${facts[k]}</p><!-- /wp:paragraph -->`);
+    if (facts[k]) rows.push(`<!-- wp:paragraph {"className":"facts__pair"} --><p class="facts__pair"><strong>${label}</strong> ${facts[k]}</p><!-- /wp:paragraph -->`);
   }
-  return `<!-- wp:group {"className":"bozzies-facts","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-facts">
+  return `<!-- wp:group {"className":"facts","layout":{"type":"default"}} -->
+<div class="wp-block-group facts">
 ${rows.join('\n')}
 </div>
 <!-- /wp:group -->`;
@@ -161,9 +161,9 @@ function buildSisters(media) {
   const introProse = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
     [
-      p(`There are many fascinating facets to the Boswell Sisters, but none shines as brightly as their music. There are myriad sources on the web where you can stream their music, and in some ways that listening is the best way to come to understand the Sisters. We recommend <a href="http://www.archive.org">archive.org</a> and <a href="http://www.youtube.com">youtube.com</a> for your first entre&rsquo; to the land of Boz.`, { className: 'bozzies-para-body', fontSize: 'lead' }),
-      p(`While there are records, movies, sheet music and many other manifestations of the Boswell Sisters&rsquo; short but meteoric career, it was radio that brought them into the homes of a Depression weary nation. Ephemeral, of the moment, and fleeting, radio would go on to shape what we today might take for granted as the way broadcast entertainment has always been. As pioneers of network radio, the Boswell Sisters created an archetype that lives on to this day in top-billed &ldquo;girl groups&rdquo; that range from the Dixie Chicks to the Pointer Sisters.`, { className: 'bozzies-para-body' }),
-      p(`So who were they? Where did they come from? What all did they do? Put on your headsets and stream a little stream of Boz while you explore the lives and times of Martha, Connie and Vet.`, { className: 'bozzies-para-body' }),
+      p(`There are many fascinating facets to the Boswell Sisters, but none shines as brightly as their music. There are myriad sources on the web where you can stream their music, and in some ways that listening is the best way to come to understand the Sisters. We recommend <a href="http://www.archive.org">archive.org</a> and <a href="http://www.youtube.com">youtube.com</a> for your first entre&rsquo; to the land of Boz.`, { className: 'article-body', fontSize: 'lead' }),
+      p(`While there are records, movies, sheet music and many other manifestations of the Boswell Sisters&rsquo; short but meteoric career, it was radio that brought them into the homes of a Depression weary nation. Ephemeral, of the moment, and fleeting, radio would go on to shape what we today might take for granted as the way broadcast entertainment has always been. As pioneers of network radio, the Boswell Sisters created an archetype that lives on to this day in top-billed &ldquo;girl groups&rdquo; that range from the Dixie Chicks to the Pointer Sisters.`, { className: 'article-body' }),
+      p(`So who were they? Where did they come from? What all did they do? Put on your headsets and stream a little stream of Boz while you explore the lives and times of Martha, Connie and Vet.`, { className: 'article-body' }),
     ].join('\n'),
   );
 
@@ -271,8 +271,8 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
 
   // Two-column bio body — portrait sticky on the left, article prose on the
   // right (matches Astro's .bio-body__layout, 300px + 1fr, sticky under nav).
-  const bodyInner = `<!-- wp:group {"className":"bozzies-bio-body","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-bio-body">
+  const bodyInner = `<!-- wp:group {"className":"bio-body","layout":{"type":"default"}} -->
+<div class="wp-block-group bio-body">
 <!-- wp:columns {"verticalAlignment":"top"} -->
 <div class="wp-block-columns are-vertically-aligned-top">
 <!-- wp:column {"verticalAlignment":"top","width":"300px"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:300px">
@@ -348,8 +348,8 @@ function buildAbout(media) {
       // Intro line renders as a lede paragraph on Astro, not a section-title
       // heading — use is-style-lede so it inherits the site's lead typography.
       p('Bozzies.org is dedicated to preserving the memory of the Boswell Sisters.', { className: 'is-style-lede' }),
-      p('Martha, Connee, and Vet Boswell recorded seventy-five sides between 1925 and 1936, invented the swinging vocal harmony that shaped every close-harmony group that came after, and vanished from the popular consciousness before the Second World War. This archive exists to change that.', { className: 'bozzies-para-body' }),
-      p('We pull together the best Boz content available — recordings, press coverage, chart data, biographies, tribute performances, and scholarship — and present it as a living reference for anyone who wants to hear, learn, and share.', { className: 'bozzies-para-body' }),
+      p('Martha, Connee, and Vet Boswell recorded seventy-five sides between 1925 and 1936, invented the swinging vocal harmony that shaped every close-harmony group that came after, and vanished from the popular consciousness before the Second World War. This archive exists to change that.', { className: 'article-body' }),
+      p('We pull together the best Boz content available — recordings, press coverage, chart data, biographies, tribute performances, and scholarship — and present it as a living reference for anyone who wants to hear, learn, and share.', { className: 'article-body' }),
       h(2, 'What we do'),
       `<!-- wp:list -->
 <ul class="wp-block-list">
@@ -360,9 +360,9 @@ function buildAbout(media) {
 </ul>
 <!-- /wp:list -->`,
       h(2, 'Who we are'),
-      p('Bozzies.org is a non-profit tribute site, curated with the participation of Boswell family members, historians, musicians, and enthusiasts around the world. The archive is stewarded by a small group of volunteers; the content and technology are open to anyone who wants to contribute.', { className: 'bozzies-para-body' }),
+      p('Bozzies.org is a non-profit tribute site, curated with the participation of Boswell family members, historians, musicians, and enthusiasts around the world. The archive is stewarded by a small group of volunteers; the content and technology are open to anyone who wants to contribute.', { className: 'article-body' }),
       h(2, 'Get involved'),
-      p(`If you're a researcher, performer, family member, or listener with material to add — recordings, photographs, press clippings, personal recollections — we would love to hear from you. If you can support the archive with a donation, every contribution keeps us Bozzing.`, { className: 'bozzies-para-body' }),
+      p(`If you're a researcher, performer, family member, or listener with material to add — recordings, photographs, press clippings, personal recollections — we would love to hear from you. If you can support the archive with a donation, every contribution keeps us Bozzing.`, { className: 'article-body' }),
     ].join('\n'),
   );
 
@@ -371,7 +371,7 @@ function buildAbout(media) {
     [
       p('Get in touch', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, 'Have something to share, or want to help?', { align: 'center', fontSize: 'section-title-medium' }),
-      p('Reach out with material for the archive, corrections, or collaboration ideas — or make a donation to help keep the Boswells&rsquo; legacy alive.', { align: 'center', className: 'bozzies-para-body' }),
+      p('Reach out with material for the archive, corrections, or collaboration ideas — or make a donation to help keep the Boswells&rsquo; legacy alive.', { align: 'center', className: 'article-body' }),
       buttons(
         `${button('#', 'Contact us')}${button('#', 'Donate', 'large')}`,
         'center',
@@ -411,7 +411,7 @@ function buildBioResources(media) {
   // Two-column body: article prose on the left, book cover on the right
   // (image column ~40 %). Matches Astro's `.book-body` grid.
   const legacyImage = image({ id: media.legacy.id, url: media.legacy.url, alt: 'Boswell Legacy', size: 'large' });
-  const proseBody = p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'bozzies-para-body', fontSize: 'lead' });
+  const proseBody = p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'article-body', fontSize: 'lead' });
 
   const prose = section(
     { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
