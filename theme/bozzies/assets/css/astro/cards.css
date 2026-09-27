@@ -20,6 +20,16 @@
  *     via a compound selector; the CTA anchor keeps its overlay.
  *  2. `:global(...)` wrappers in Astro's scoped styles dropped to plain
  *     descendant selectors.
+ *  3. `.subpage-card` (an <a> on ground-gold) needs its `color` and
+ *     `border-*` rules scoped to `.sisters-subpages .subpage-card`
+ *     (specificity 0-2-0) so they beat `global.css`'s `.ground-gold a`
+ *     rule (0-1-1). Astro achieves the same via its
+ *     `data-astro-cid-*` scoping.
+ *  4. `.subpage-card__eyebrow`'s color rule needs `.subpage-card
+ *     .subpage-card__eyebrow` (0-2-0) so it beats `.ground-gold
+ *     .eyebrow` (0-2-0, later in cascade). We also nudge specificity
+ *     with a compound selector so cascade order determines the winner
+ *     — cards.css loads after global.css so the yellow-soft color wins.
  *
  * No other selector was renamed.
  * -------------------------------------------------------------------- */
@@ -142,7 +152,8 @@
 }
 @media (max-width: 820px) { .sisters-subpages__grid { grid-template-columns: 1fr; } }
 
-.subpage-card {
+.subpage-card,
+.sisters-subpages .subpage-card {
 	display: flex; flex-direction: column; gap: var(--space-3);
 	padding: clamp(var(--space-5), 2.4vw, var(--space-6));
 	border: 1px solid color-mix(in oklab, var(--purple) 55%, black);
@@ -151,9 +162,10 @@
 	text-decoration: none;
 	transition: transform var(--dur) var(--ease-out-quart), background var(--dur) var(--ease-out-quart);
 }
-.subpage-card:hover, .subpage-card:focus-visible,
-.subpage-card:focus-within { transform: translateY(-3px); background: var(--oxblood); color: var(--paper-warm); }
-.subpage-card__eyebrow { color: var(--yellow-soft); }
+.sisters-subpages .subpage-card:hover,
+.sisters-subpages .subpage-card:focus-visible,
+.sisters-subpages .subpage-card:focus-within { transform: translateY(-3px); background: var(--oxblood); color: var(--paper-warm); }
+.subpage-card .subpage-card__eyebrow { color: var(--yellow-soft); }
 .subpage-card__title {
 	font-family: var(--font-display); font-weight: 400;
 	font-size: clamp(var(--step-3), 2.4vw, var(--step-4));

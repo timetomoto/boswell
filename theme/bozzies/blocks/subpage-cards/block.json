@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/subpage-cards",
+	"version": "1.0.0",
+	"title": "Subpage cards",
+	"category": "design",
+	"icon": "grid-view",
+	"description": "The two dark-purple teaser cards on gold ground for the Sisters hub. Contains bozzies/subpage-card children; renders Astro's exact <section class=\"section ground-gold sisters-subpages\"><div class=\"container sisters-subpages__grid\"> DOM.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align": { "type": "string", "default": "full" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

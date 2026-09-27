@@ -193,8 +193,11 @@ function buildSisters(media) {
   // card as `<li class="sister-card"><a class="sister-card__link">…`. Emitted
   // via the native bozzies/sister-cards + bozzies/sister-card blocks so the
   // owner can edit each card in place; render.php builds Astro's exact DOM.
+  // Gutenberg's block serializer normalizes ASCII `"` inside block-comment
+  // JSON to `"`. Match its output so opening + saving the page in the
+  // editor yields byte-identical post_content (round-trip clean).
   const sisterCard = ({ order, nickname, name, quote, href, ctaLabel = 'Read the bio' }) =>
-    `<!-- wp:bozzies/sister-card ${JSON.stringify({ order, nickname, name, quote, href, ctaLabel })} /-->`;
+    `<!-- wp:bozzies/sister-card ${JSON.stringify({ order, nickname, name, quote, href, ctaLabel }).replace(/\\"/g, '\\u0022')} /-->`;
   const sistersGrid = section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
     [
@@ -216,31 +219,19 @@ ${sisterCard({ order: '03', nickname: 'VBoz', name: 'Vet Boswell', quote: 'Vet a
     ),
   );
 
-  const teasers = section(
-    { backgroundStyle: 'gold', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: 'Further Reading',
-  title: 'Boz Biography',
-  body: 'The definitive family biography of the Boswell Sisters.',
-  cta: 'Explore the Boz Biography',
-  href: '/sisters/bio-resources/',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: 'Career Timeline',
-  title: 'Their story, year by year',
-  body: 'From Martha&rsquo;s 1905 birth through the trio&rsquo;s final broadcast in 1936 — every recording, tour, and turning point in one scrollable timeline.',
-  cta: 'Open the timeline',
-  href: '/sisters/career-timeline/',
-})}</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  // Astro's sisters-subpages section is emitted verbatim by the
+  // bozzies/subpage-cards + bozzies/subpage-card blocks. Container block
+  // renders <section class="section ground-gold sisters-subpages"><div
+  // class="container sisters-subpages__grid">…</div></section>; each child
+  // block renders one <a class="subpage-card"> with Astro's exact inner DOM
+  // (eyebrow + h3 + body p + cta span with arrow SVG). Verbatim from
+  // ~/boswell-poc/src/pages/sisters/index.astro lines 87-110.
+  const subpageCard = ({ eyebrow, title, body, ctaLabel, href }) =>
+    `<!-- wp:bozzies/subpage-card ${JSON.stringify({ eyebrow, title, body, ctaLabel, href })} /-->`;
+  const teasers = `<!-- wp:bozzies/subpage-cards {"align":"full"} -->
+${subpageCard({ eyebrow: 'Further Reading', title: 'Boz Biography', body: 'The definitive family biography of the Boswell Sisters.', ctaLabel: 'Explore the Boz Biography', href: '/sisters/bio-resources/' })}
+${subpageCard({ eyebrow: 'Career Timeline', title: 'Their story, year by year', body: 'From Martha’s 1905 birth through the trio’s final broadcast in 1936 — every recording, tour, and turning point in one scrollable timeline.', ctaLabel: 'Open the timeline', href: '/sisters/career-timeline/' })}
+<!-- /wp:bozzies/subpage-cards -->`;
 
   return [hero, introProse, separator(), sistersGrid, trioQuote, teasers].join('\n\n');
 }
