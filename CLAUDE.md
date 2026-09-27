@@ -82,25 +82,31 @@ Every component port ships four passes before commit:
 - `82d6650` astro-rebuild Step 1: full Astro inventory in CLAUDE.md
 - `b59500f` astro-rebuild base layer: port global.css, add Instrument Serif, disable WP layout CSS
 - `fdae892` astro-rebuild article list: port article-list / article-row / article-hero / page-hero / article-nav / prose / video-embed CSS; rewrite category.html + single.html; rewrite post-navigation filter
-- **THIS commit** — astro-rebuild cards (sisters): port sister-card / subpage-card / bio-body / bio-portrait / facts-strip / facts / bio-timeline / bio-nav from Astro's sisters/index.astro + sisters/[slug].astro. Existing imported content still carries the pre-rebuild `bozzies-*` class prefix; the ported Astro CSS applies to new content and to old content once Step 14 re-imports. Remaining card families (release-card, lesson-card, music-teaser, see-also) will append to cards.css in a follow-up.
+- `d04714c` astro-rebuild cards (sisters): port sister-card / subpage-card / bio-body / bio-portrait / facts / bio-timeline / bio-nav
+- **THIS commit** — astro-rebuild cards (media/press): append release-card / lesson-card / music-teaser / see-also from press/index.astro + media/index.astro + media/charts.astro to cards.css. All card families now covered.
 
 **Build order — one commit per step, riskiest first:**
 
 1. **[DONE via cherry-pick]** Hero (photo) — trial commits already on branch. Verify against new base layer once base ships.
 2. **[DONE]** Step 1 inventory — recorded in the "Astro inventory" section below.
 3. **[DONE]** Base layer — `theme/bozzies/assets/css/astro/global.css` ports Astro's `global.css` verbatim (with token aliases + WP-scoping edits documented in the file header). `theme.json` adds Instrument Serif font, disables `useRootPaddingAwareAlignments`. `functions.php` enqueues astro/global.css → astro/hero.css → chrome.css in that order (front + editor). Test pages deleted (Sample Page 2, Section styles + patterns test 6, Section styles test 46, Embed test 54). chrome.css kept for now; the dead-code sweep at Step 15 will prune whatever the ported CSS has replaced.
-4. **Article list + article-hero + adjacent-post nav.** Article-row DOM comes from Astro's page files (`src/pages/press/index.astro` etc.), not chrome.css. Ports `.article-list`, `.article-row`, `.article-row__num`, `.article-hero`, `.article-hero__quote`, `.post-navigation` from Astro. Wires `bozzies-article-list` block variation on `core/post-template`; rewrites `single.html` and `category.html`.
-5. **Cards + sticky-portrait bio + facts strip.** Ports `.sister-card`, `.card-grid`, `.teaser-card`, `.bio-body`, `.bio-body__portrait`, `.bozzies-facts` (Astro names verified during Step 1) from Astro pages. Rewrites 4 patterns.
-6. **Hero (split) — new `bozzies/hero-split` block.** Astro DOM verbatim. Only used on home page.
-7. **Nav + Footer template parts.** Rewrite `parts/header.html` and `parts/footer.html` to emit `.site-nav__*` and `.site-footer.ground-purple` markup.
-8. **Pull quote.** Port `PullQuote.astro` CSS. Register as block style on `core/quote`.
-9. **Section divider.** New `bozzies/divider` block; every Astro variant; owner menu shows only the ones the live site uses.
-10. **Playlist player.** New `bozzies/playlist-player` block. Astro DOM + JS verbatim. Round-trip safe.
-11. **Quotes carousel.** New `bozzies/quotes-carousel`. Astro DOM + JS.
-12. **Sisters timeline.** New `bozzies/timeline` block (Astro's `Timeline.astro`). Used on Connee bio (solo) + career-timeline (trio).
-13. **Discography search.** New `bozzies/discography-search` block.
-14. **Import script rewrite** — move `scripts/import/` → `scripts/dev/import/` with README; add helpers for the new patterns; re-import all content; text diff every page.
-15. **Dead code sweep + Group 3 audits + final CLAUDE.md.**
+4. **[DONE]** Article list + article-hero + adjacent-post nav — `fdae892`
+5. **[DONE — CSS only]** Cards (sister/subpage/bio-body/facts/bio-nav) `d04714c` + (release/lesson/music-teaser/see-also) THIS commit.
+    - **Follow-up needed:** rewrite `patterns/card-grid-2.php`, `patterns/card-grid-3.php`, `patterns/donate-teaser.php`, `patterns/lesson-row.php`, `patterns/see-also.php`, `patterns/item-hero.php`, `patterns/subpage-hero.php` to emit Astro class names. Add new patterns for sticky-portrait bio + facts strip.
+6. **[NEXT]** Section patterns rewrite (item above). Owner-facing surface — the pattern text is what carries the Astro classes onto the inner blocks.
+7. **Home split hero — new `bozzies/hero-split` block.** Astro DOM verbatim (`~/boswell-poc/src/components/Hero.astro` split variant). Only used on the home page. Astro home is `~/boswell-poc/src/pages/index.astro`; the hero image comes from `heroImage` in `content/pages/home.md`.
+8. **Home page + Sisters hub CSS.** Port intro/sample/voices/playlist/donate-teaser CSS from `pages/index.astro` (styles 118–201) plus sisters intro/pull-quote CSS. New `assets/css/astro/pages.css`.
+9. **Nav + Footer template parts.** Rewrite `parts/header.html` and `parts/footer.html` to emit `.site-nav__*` and `.site-footer.ground-purple` DOM. Port `Nav.astro` (37–132) and `Footer.astro` (33–71). New `assets/css/astro/nav.css` and `assets/css/astro/footer.css`.
+10. **Pull quote.** Port `PullQuote.astro` CSS (11–41) to `assets/css/astro/pull-quote.css`. Register as block style on `core/quote` (already exists, verify).
+11. **Section divider.** New `bozzies/divider` block; Astro's 11 variants (`SectionDivider.astro` 255–268). Owner menu shows only the ones the live site uses.
+12. **Music backdrop.** Extend `bozzies/section` backdrop enum to include Astro's 12 variants (`MusicBackdrop.astro` 354–368); ship all SVGs; owner menu shows only the 4-5 used variants.
+13. **Playlist player.** New `bozzies/playlist-player` block. Astro DOM + JS verbatim (`PlaylistPlayer.astro` 80–256). Round-trip safe (save `<InnerBlocks.Content />` — has no inner blocks so `save: () => null` is fine, but ATTRIBUTES round-trip must be tested).
+14. **Quotes carousel.** New `bozzies/quotes-carousel`. Astro DOM + JS (`QuotesCarousel.astro` 44–191).
+15. **Sisters timeline.** New `bozzies/timeline` block (`Timeline.astro` 54–152). Used on Connee bio (solo entries) + career-timeline (trio entries). Replaces the `[Sisters timeline: interactive block pending]` placeholder.
+16. **Discography search.** New `bozzies/discography` block (`media/discography.astro` 101–265). Replaces the `[Discography search: interactive block pending]` placeholder.
+17. **Import script rewrite** — move `scripts/import/` → `scripts/dev/import/` with a short README (per settled answer 8). Add helpers for the new patterns/blocks. Re-import all content. Text diff every page.
+18. **Templates + `page.html` behavior** — `page.html` (default) auto-emits a ground-purple `.page-hero` bound to the post title; `page-landing.html` and `page-subpage.html` emit only `core/post-content` because their content starts with a hero. No page ever shows two titles; no page is ever missing an h1.
+19. **Dead code sweep + Group 3 audits + final CLAUDE.md.** Remove every rule/PHP/pattern/SVG/JS the ports replaced. chrome.css should be down to WP plumbing only (or gone). Run axe on every page (zero serious or critical). Crawl. Network audit. Colour check.
 
 **Recorded issues / things not matching Astro exactly:**
 - **Cards CSS applies to Astro class names only.** Existing imported content on `/sisters/`, `/sisters/{connee,martha,vet}/`, `/sisters/bio-resources/`, `/sisters/career-timeline/` still uses the pre-rebuild `bozzies-bio-body`, `bozzies-facts`, `bozzies-fact`, `bozzies-card-*` class prefixes. Old chrome.css rules keep those visually correct today. Step 14 re-imports content with Astro class names; that's when the cards.css port takes effect on hub pages. New sister-card DOM authored via the block editor (Step 5b, follow-up pattern) will get Astro classes from the pattern directly.
@@ -186,9 +192,26 @@ Same as the original 15-step order; the inventory confirms every piece has a hom
 **How to resume from this file alone:**
 1. `git status` clean on branch `astro-rebuild`.
 2. Read the last commit's message + this "Current status" block.
-3. Do the next step in the build order above. Follow the styling rules block above.
+3. Do the next `[NEXT]` step in the build order above. Follow the styling rules block above.
 4. After every commit, update this "Current status" block (last commit, next step, any recorded issues) and include the CLAUDE.md change in the same commit.
 5. Delete throwaway admin (usually `astroshot`) at the end of any editor-test session.
+6. Verification harness lives at `scripts/dev/hero-style-diff.mjs` — extend per component. Owner-test harness at `scripts/dev/owner-tests.mjs`. Text-diff harness at `scripts/import/verify.mjs`.
+7. **Backup before any DB change:** `cd ~/boswell-wp && npx wp-env run cli --env-cwd=/var/www/html wp db export - > ~/boswell-backups/db-$(date +%Y-%m-%d-%H%M).sql`.
+
+**Committed CSS ports so far (all live under `theme/bozzies/assets/css/astro/`):**
+- `global.css` — full Astro global (reset scoped inside `.wp-site-blocks`, tokens re-exported from `--wp--*`, grounds, container, section, hairline, eyebrow, skip-link, visually-hidden).
+- `hero.css` — Astro's full-bleed hero (from the trial). Split hero pending.
+- `article.css` — page-hero, article-hero, article-hero__quote, article-list, article-row, article-nav, prose, video-embed, subhub-section.
+- `cards.css` — sister-card, subpage-card, bio-body, bio-portrait, facts-strip, facts, bio-timeline (head), bio-nav, release-card, lesson-card, music-teaser, see-also.
+
+**Still needed:**
+- CSS ports for: home page sections (intro, sample, voices, playlist, donate-teaser), Nav, Footer, PullQuote, SectionDivider (11 variants), MusicBackdrop (12 variants), PlaylistPlayer, QuotesCarousel, Timeline, discography search + tracks + sessions, lesson-hero, lesson-player, `.page-hero__inner` context on lesson pages, `.bio-hero` (sister-bio purple hero).
+- Pattern rewrites so the block-editor inserter emits Astro class names.
+- Import script rewrite + full re-import (this is when existing content picks up the ported CSS, because the imports currently emit `bozzies-*` prefixed class names on structured content).
+- Templates: `page.html` default hero, `page-landing.html`, `page-subpage.html` — audit for duplicate titles.
+- Interactive blocks (Playlist, Carousel, Timeline, Discography).
+- Dead code sweep of `theme/bozzies/assets/css/chrome.css` — most of chrome.css can be removed after the imports run with Astro class names.
+- Group 3 audits (heads, favicon, axe, crawl, network, colour).
 
 ## Working habits
 - Read files with `offset`/`limit` instead of loading whole files; re-read sparingly.
