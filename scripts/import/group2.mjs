@@ -56,6 +56,38 @@ const quote = (text, cite) =>
 const pullQuote = (text, cite) =>
   `<!-- wp:pullquote --><figure class="wp-block-pullquote"><blockquote><p>${text}</p>${cite ? `<cite>— ${cite}</cite>` : ''}</blockquote></figure><!-- /wp:pullquote -->`;
 
+// Lesson row — mirrors Astro's .lesson-card ([num][body][cta] grid) via the
+// bozzies-lesson-row group + child groups styled in chrome.css.
+const lessonRow = ({ order, title, summary, href }) => {
+  const num = `<!-- wp:group {"className":"bozzies-lesson-row__num","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-lesson-row__num">
+${p('Lesson', { className: 'is-style-eyebrow' })}
+${p(String(order).padStart(2, '0'))}
+</div>
+<!-- /wp:group -->`;
+  const body = `<!-- wp:group {"className":"bozzies-lesson-row__body","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-lesson-row__body">
+<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="${href}">${title}</a></h3><!-- /wp:heading -->
+${summary ? p(summary) : ''}
+</div>
+<!-- /wp:group -->`;
+  const cta = `<!-- wp:paragraph {"className":"bozzies-lesson-row__cta"} --><p class="bozzies-lesson-row__cta"><a href="${href}">▶ Listen</a></p><!-- /wp:paragraph -->`;
+  return `<!-- wp:group {"className":"bozzies-lesson-row","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-lesson-row">
+${num}
+${body}
+${cta}
+</div>
+<!-- /wp:group -->`;
+};
+
+const lessonRows = (rows) =>
+  `<!-- wp:group {"className":"bozzies-lesson-rows","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-lesson-rows">
+${rows.map(lessonRow).join('\n')}
+</div>
+<!-- /wp:group -->`;
+
 const card = ({ eyebrow, title, body, cta, href }) => {
   const inner = [
     eyebrow ? p(eyebrow, { className: 'is-style-eyebrow' }) : '',
@@ -128,18 +160,16 @@ function buildMedia(media) {
   const lessonsGrid = section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
     [
-      p('Audio Lessons', { className: 'is-style-eyebrow' }),
-      h(2, 'Five keys to the Boswell sound', { fontSize: 'section-title' }),
-      p('Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.'),
-      `<!-- wp:list {"ordered":true} -->
-<ol class="wp-block-list">
-<!-- wp:list-item --><li><strong>Lesson 01</strong> — <a href="/media/lessons/lesson-1/">The Blend</a> — Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li><strong>Lesson 02</strong> — <a href="/media/lessons/lesson-2/">The Tempo</a> — The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li><strong>Lesson 03</strong> — <a href="/media/lessons/lesson-3/">The Riffs</a> — The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li><strong>Lesson 04</strong> — <a href="/media/lessons/lesson-4/">Melody? Words? Who Needs 'Em!</a> — What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.</li><!-- /wp:list-item -->
-<!-- wp:list-item --><li><strong>Lesson 05</strong> — <a href="/media/lessons/lesson-5/">Scatting, Hand Trumpets, Gibberish and Gulling</a> — The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.</li><!-- /wp:list-item -->
-</ol>
-<!-- /wp:list -->`,
+      p('Audio Lessons', { className: 'is-style-eyebrow', align: 'center' }),
+      h(2, 'Five keys to the Boswell sound', { align: 'center', fontSize: 'section-title' }),
+      p('Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.', { align: 'center' }),
+      lessonRows([
+        { order: 1, title: 'The Blend',       summary: "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.", href: '/media/lessons/lesson-1/' },
+        { order: 2, title: 'The Tempo',       summary: "The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.", href: '/media/lessons/lesson-2/' },
+        { order: 3, title: 'The Riffs',       summary: "The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.", href: '/media/lessons/lesson-3/' },
+        { order: 4, title: `Melody? Words? Who Needs &rsquo;Em!`, summary: "What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.", href: '/media/lessons/lesson-4/' },
+        { order: 5, title: 'Scatting, Hand Trumpets, Gibberish and Gulling', summary: "The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.", href: '/media/lessons/lesson-5/' },
+      ]),
     ].join('\n'),
   );
 
@@ -244,22 +274,27 @@ function buildReviews() {
     subtitle: 'Album reviews from the experts.',
   });
 
+  // Wrap the review rows in a bozzies-reviews group so the h3+p pattern picks
+  // up Astro's row treatment (hairline top border on each h3, italic muted
+  // paragraph immediately after) via chrome.css.
+  const rows = [
+    ['Connee Boswell — Singing the Blues', 'Want to hear Connee Boswell full of the feeling and passion that only a mature woman can express?'],
+    ['Boswell Sisters — Shout, Sisters, Shout', 'Without a doubt one of the best of all possible albums to begin your trip to Boz.'],
+    [`Connee Boswell — They Can&rsquo;t Take These Songs`, 'A treasure trove.'],
+    ['Boswell Sisters — Storyville Vol. 1 (of 5)', 'Boswell Sisters start at the top.'],
+    ['Boswell Sisters — Storyville Vol. 4 (of 5)', 'Great volume of the hot New Orleans harmonists.'],
+    ['Boswell Sisters — Storyville Vol. 5 (of 5)', 'Final volume of the definitive series.'],
+    ['Connee Boswell — Original Memphis Five in Hi-Fi (RCA)', 'Lost classic from 1957.'],
+  ];
+  const reviewsGroup = `<!-- wp:group {"className":"bozzies-reviews","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-reviews">
+${rows.map(([title, body]) => `${h(3, title)}\n${p(body, { className: 'bozzies-review-body' })}`).join('\n')}
+</div>
+<!-- /wp:group -->`;
+
   const proseBody = proseSection([
     h(2, 'These reviews come from the experts'),
-    h(3, 'Connee Boswell — Singing the Blues'),
-    p('Want to hear Connee Boswell full of the feeling and passion that only a mature woman can express?', { className: 'bozzies-para-body' }),
-    h(3, 'Boswell Sisters — Shout, Sisters, Shout'),
-    p('Without a doubt one of the best of all possible albums to begin your trip to Boz.', { className: 'bozzies-para-body' }),
-    h(3, `Connee Boswell — They Can&rsquo;t Take These Songs`),
-    p('A treasure trove.', { className: 'bozzies-para-body' }),
-    h(3, 'Boswell Sisters — Storyville Vol. 1 (of 5)'),
-    p('Boswell Sisters start at the top.', { className: 'bozzies-para-body' }),
-    h(3, 'Boswell Sisters — Storyville Vol. 4 (of 5)'),
-    p('Great volume of the hot New Orleans harmonists.', { className: 'bozzies-para-body' }),
-    h(3, 'Boswell Sisters — Storyville Vol. 5 (of 5)'),
-    p('Final volume of the definitive series.', { className: 'bozzies-para-body' }),
-    h(3, 'Connee Boswell — Original Memphis Five in Hi-Fi (RCA)'),
-    p('Lost classic from 1957.', { className: 'bozzies-para-body' }),
+    reviewsGroup,
   ]);
 
   return [hero, proseBody].join('\n\n');
