@@ -86,12 +86,17 @@ function parseFrontmatter(filepath) {
 // The `(?<!!)` on the link regex prevents matching `![text](url)` (an image);
 // image extraction happens block-level before inline runs.
 function inlineMd(text) {
+  // Italic: opener `*` must be at start / after space or punctuation, first
+  // content char must be alphanumeric, last content char must be non-space.
+  // The trailing char after the closer is unconstrained, so `*Music Hall*radio`
+  // becomes `<em>Music Hall</em>radio` (matches Astro's markdown pipeline),
+  // and `*.*` / `2 * 3` don't over-match.
   return text
     .replace(/`([^`]+)`/g, '<code>$1</code>')
     .replace(/(?<!!)\[([^\]]+)\]\(([^)]+)\)/g, (m, label, url) => `<a href="${stripAffiliate(url)}">${label}</a>`)
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(?:^|(?<=\s|\W))_([^_\n]+)_(?=\s|\W|$)/g, '<em>$1</em>')
-    .replace(/(?:^|(?<=\s|\W))\*([^*\n]+)\*(?=\s|\W|$)/g, '<em>$1</em>');
+    .replace(/(?:^|(?<=\s|\W))_([A-Za-z0-9](?:[^_\n]*?[^\s_])?)_/g, '<em>$1</em>')
+    .replace(/(?:^|(?<=\s|\W))\*([A-Za-z0-9](?:[^*\n]*?[^\s*])?)\*/g, '<em>$1</em>');
 }
 
 // The Astro source has a Bette Midler amazon.com link with affiliate tracking.
@@ -335,7 +340,10 @@ function buildPressHub({ hubs, releases, media }) {
   });
 
   const intro = proseSection([
-    p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body' }),
+    // Astro's press intro is the .prose block: `--step-1` (Lead-sized) body
+    // with loose line-height. Use the Lead preset so WP renders the same
+    // font-size and rhythm.
+    p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body', fontSize: 'lead' }),
   ]);
 
   const subhubs = hubs.filter(h => h.hasEntries).map(buildSubhubSection);
