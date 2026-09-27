@@ -46,7 +46,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Current status
 
-**Last commit:** `4bc2ea7` — Task 9b: finish content import (meta, press hub, releases, text diffs).
+**Last commit:** `13d3784` — Task 10 Group 1: shared plumbing for sitewide style pass.
 
 **Done**
 - Theme foundation (`bozzies` block theme, no parent, no plugins, no page builder).
@@ -58,23 +58,51 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 - Consent banner (`assets/js/consent.js`, `assets/css/consent.css`).
 - Privacy Policy page.
 - Templates: `page`, `page-landing`, `page-subpage`, `single`, `archive`, `category`, `404`, `index`.
-- Patterns: `landing`, `subpage-hero`, `card-grid-2`, `card-grid-3`, `donate-teaser`, `see-also`, `item-hero`, `lesson-row`.
+- Patterns: `landing`, `subpage-hero`, `card-grid-2`, `card-grid-3`, `donate-teaser`, `see-also`, `item-hero`, `lesson-row`, `hero-photo`.
 - Ornaments: hero corner brackets (tl/tr/bl/br), hero glyph, jazz divider, four backdrop SVGs.
 - Home page built with real Astro copy.
 - YouTube embeds forced to `youtube-nocookie.com` and styled to Astro's `.video-embed` (16:9, `--ink` background).
 - Visual measurement scripts: `scripts/visual-colors.mjs`, `scripts/visual-backdrops.mjs`, `scripts/visual-diff.mjs`, `scripts/measure-sections.mjs`, `scripts/measure-others.mjs`, `scripts/crop-sections.mjs`.
 - **All content imported from Astro** (tasks 9 + 9b): Sisters hub + Connee/Martha/Vet bios, About, Bio Resources, Media hub, Charts, Reviews, Discography, Career Timeline, Lessons hub + Lessons 1–5, Press hub with per-sub-hub core Query Loops, the five press categories, 34 article posts with author / publication / publicationDate post_meta (registered `show_in_rest=true`), and nine press-release PDFs linked from `/press/` (no per-release pages).
-- Re-runnable import scripts in `scripts/import/`: `group1.mjs` (Sisters + About), `group2.mjs` (Media), `group3.mjs` (Press), shared `lib.mjs` (wp-cli wrapper, idempotent media importer, upsert-by-slug). Verification harness: `verify.mjs` (Playwright visible-text diff with wp=astro route mapping), `crawl.mjs` (BFS 404 sweep), `alt-audit.mjs` (per-image alt comparison), `network-audit.mjs` (failed subresource sweep).
+- Re-runnable import scripts in `scripts/import/`: `group1.mjs` (Sisters + About), `group2.mjs` (Media), `group3.mjs` (Press), shared `lib.mjs` (wp-cli wrapper, idempotent media importer, upsert-by-slug, `heroPhoto()`). Verification harness: `verify.mjs` (Playwright visible-text diff with wp=astro route mapping), `crawl.mjs` (BFS 404 sweep), `alt-audit.mjs` (per-image alt comparison), `network-audit.mjs` (failed subresource sweep).
+- **Task 10 Group 1 — shared plumbing for the sitewide style pass:**
+  - `page-subpage.html` stripped of placeholder chrome; every page assigned a template. Hubs → `page-landing`: Home (39), About (10), The Sisters (7), Media (9), Press (8), Lessons (23). Details → `page-subpage`: Connee (15), Martha (16), Vet (17), Bio Resources (18), Career Timeline (19), Charts (20), Reviews (21), Discography (22), Lessons 1–5 (24–28). Privacy Policy (3) and Sample Page (2) stay on WP `default` (`page.html`).
+  - Full-bleed photo hero option on the Section block: new `is-hero-photo` variant (dark ground + corner brackets + Ken Burns + scrim), reusable `patterns/hero-photo.php`, and a shared `heroPhoto()` helper in `scripts/import/lib.mjs`. Applied to About (`Boswell_Sisters_1932.jpg`), The Sisters (`bozbios.jpg`), Media (`Boswell_Sisters_Bing_Crosby.jpg` + credit line "The Boswell Sisters recording with Bing Crosby."), Press (`bozbuz.jpg`), Lessons (`Boswell_Sisters_1932.jpg`).
+  - Single article hero (no double band): `single.html` no longer injects a purple hero; the hero (back link, h1, article-meta binding, pull quote) is emitted from `buildArticleContent` in `group3.mjs` so the pull quote lives inside the same purple band as the title, matching Astro. DOM verified: purple hero → paper body → post-nav.
+  - Article details sidebar panel: `assets/js/article-meta-panel.js` (plain JS, no build) enqueued from `functions.php` on post-editor screens only. Exposes `_bozzies_author`, `_bozzies_publication`, `_bozzies_publication_date` via REST. Tested end-to-end (edit → article page + category list picked up the change).
+  - Placeholders relabeled to `[<name>: interactive block pending]` across import scripts and the DB — Home (Playlist player, Quotes carousel), Media (Playlist player), Discography (Discography search), Connee (Sisters timeline), Career Timeline (Sisters timeline).
+  - Duplicated eyebrow-per-ground and button-on-paper/gold rules removed from `assets/css/chrome.css`; canonical copies remain in `blocks/section/src/style.scss` keyed on `.ground-*`. Colour check at 1440: 0 mismatches.
 
-**Next task — sitewide style pass**
-Bring every page to visual parity with `https://boswell-poc.vercel.app/`, page by page. Known issues to address:
-- **Full-bleed photo heroes are missing** on `/`, `/sisters/`, `/about/`, `/media/`, `/press/`, `/media/charts/`, `/media/reviews/`, `/media/discography/`, articles, and lessons. `/media/` also needs the "The Boswell Sisters recording with Bing Crosby." credit line under the hero image.
-- **Double purple band on article single pages**: `single.html`'s built-in purple hero and the pull-quote section from post content both render on the paper→purple transition.
-- **Sticky scrolling not working** on the sister bio pages (Connee / Martha / Vet).
-- **All pages are on the `page-landing` template.** They were switched during import to sidestep the `page-subpage` template's built-in "Section" placeholder eyebrow. Fix the subpage template so it doesn't inject placeholder chrome, then move each page to the right template for its role.
-- **Article order on category archives and the press hub** must be checked visually against Astro. The text-diff harness only compares token sets — it does not check ordering. `menu_order` was set for every article during import; verify each list matches Astro row-for-row.
-- **Article-meta is not owner-editable in the sidebar.** The three keys are underscore-prefixed (`_bozzies_author`, `_bozzies_publication`, `_bozzies_publication_date`), so the Custom Fields panel hides them. Add a small "Article details" panel in the post editor sidebar (theme code, no plugins) that exposes them via the REST API.
-- **Placeholder labels are inconsistent.** Home says `[Playlist player: added in task 8]` and `[Quotes carousel: added in task 8]`; other pages say `[…: added in task 10]`. Relabel everything to one consistent tag with no task number, e.g. `[Playlist player: interactive block pending]`.
+**Next: task 10 Group 2 and Group 3**
+
+Group 1 built the shared plumbing (templates, patterns, editor tools). Group 2 does the page-by-page visual pass; Group 3 does the sitewide audits.
+
+## Group 2: Page by page
+For each page, screenshot WP and Astro side by side at 1440 and 390, view them, and fix differences using the styling rules. Cover every page type:
+- Home (check nothing regressed)
+- Sisters hub, Connee, Martha, Vet (sticky scrolling must work like Astro), Bio Resources, Career Timeline
+- About
+- Media hub, Charts, Reviews, Discography, Lessons hub, all 5 lessons
+- Press hub (including the release PDF grid), all 5 category archives, and at least 6 articles covering every category
+- Privacy Policy, 404
+
+**Order check:** for the press hub and each category archive, list the article titles in order on WP and on Astro side by side. They must match row for row.
+
+Commit after Sisters/About, after Media, and after Press/other pages.
+
+## Group 3: Sitewide checks
+1. **Page titles, meta descriptions, and social share previews** (Open Graph/Twitter tags, share image): compare every page's head tags against Astro. Output matching values from the theme (no plugins). Make descriptions editable by the owner where Astro has page-specific ones (e.g. use the page excerpt). Paste a table: page, WP vs Astro title and description, match yes/no.
+2. **Site icon/favicon:** match Astro's (all sizes and apple-touch-icon Astro provides).
+3. **Accessibility, every page type:** keyboard-only pass (every link and control reachable, visible focus), heading order (one h1, no skipped levels), color contrast AA, image alt text present, landmarks. Run axe (via Playwright) on every page: zero serious or critical issues. Paste results.
+4. Re-run the full crawl (zero non-200), network audit (zero real failures), text diff on all pages (zero differences outside placeholders), and color check at 1440 and 390.
+
+Commit Group 3.
+
+**Carry-over gaps from Group 1, handle in Group 2**
+- **Photo hero coverage.** Group 1 only added photo heroes to the five hubs (About, Sisters, Media, Press, Lessons). Check whether Astro uses a photo hero on `/media/charts/`, `/media/reviews/`, `/media/discography/`, `/media/lessons/N/`, and individual article pages, and apply the `heroPhoto` pattern where it does.
+- **/media/ inline lesson list.** Astro shows the lesson list inline on `/media/`, and its playlist track list currently sits behind the `[Playlist player: interactive block pending]` placeholder. Add the lesson list to `/media/` so it matches Astro. Keep the `/media/lessons/` hub route.
+- **Colour check at 390.** Group 1 only ran `scripts/visual-colors.mjs` at 1440 (0 mismatches). Re-run at 390 as part of the Home regression check.
+- **Home placeholders.** The Group 1 template table did not include Home; confirm the two placeholders on `/` (`[Playlist player: interactive block pending]`, `[Quotes carousel: interactive block pending]`) actually render on the front.
 
 **After the style pass**
 - Build the interactive blocks and drop each into its labelled placeholder: playlist player, quotes carousel, sisters timeline (used on `/sisters/connee/` for the solo timeline and on `/sisters/career-timeline/` for the trio), discography search.
@@ -82,9 +110,9 @@ Bring every page to visual parity with `https://boswell-poc.vercel.app/`, page b
 
 **Open items / pre-launch**
 - Hero at 1440 has ~6% pixel diff vs Astro (photo grayscale/contrast render + heading font-metrics on the same image file). Titles at 1920 read ~5% wider due to font-metric drift on Cormorant Garamond. Neither is content-visible; flagged in earlier 7d/7f/7g reports.
-- Ground colour rules are duplicated in `blocks/section/src/style.scss` and `assets/css/chrome.css` (eyebrow colour, button text colour, heading colour). Not a bug; hygiene cleanup.
 - `Privacy Policy` copy still has a `[CONTACT EMAIL]` placeholder.
 - Three test pages in the DB: `Section styles test` (id 46, publish), `Section styles + patterns test` (id 6, draft), `Embed test` (id 54, from task 7d). Delete before handoff.
+- **Delete WordPress default Sample Page (id 2).**
 - **Before handoff, delete `theme/bozzies/.import-tmp/`.** The import script stages page content there because `wp-env` doesn't forward stdin. It's gitignored, but it lives inside the theme directory, so it would otherwise ship with the theme zip.
 - **Decide whether `scripts/import/` stays in the repo** for the handoff. The scripts are re-runnable and idempotent, but they assume a running local wp-env + a Python HTTP server on `host.docker.internal:8899` for uploads; a fresh owner would not need them.
 - **`/media/lessons/` hub is WP-only.** Astro shows the lesson list inline on `/media/` and serves individual lessons at `/media/lessons/N/`. Per settled decisions the WP structure is `/media/lessons/` + `/media/lessons/lesson-N/`; the hub adds a route Astro does not have.
