@@ -101,6 +101,82 @@ Every component port ships four passes before commit:
 **Recorded issues / things not matching Astro exactly:**
 - (none yet — will be filled in per commit)
 
+## Astro inventory (Step 1)
+
+Every distinct styled piece in ~/boswell-poc/src/, grouped by owning file, so each rebuild commit can port one file's CSS at a time. Full class names + `<style>` line ranges below. `.prose` is defined **per-page** (each page has its own scoped `<style>` with `:global(p)` etc.), **not** in global.css.
+
+### Global (styles/)
+- `tokens.css` 1–130 — palette, type stacks (`--font-display` Cormorant Garamond, `--font-body` Source Serif 4, `--font-accent` **Instrument Serif**, `--font-ui` Inter), scale, spacing, measures, motion.
+- `global.css` 1–191 — reset + `@fontsource` imports + base typography + public classes: `.ground-ink / -paper / -purple / -gold` (paper has SVG-noise grain), `.container / -narrow / -wide`, `.section / -tight`, `.hairline / -thin`, `.eyebrow`, `.skip-link`, `.visually-hidden`.
+
+### Layout
+- `layouts/Base.astro` — `<html>` + skip-link + `<Nav>` + `<main id="main">` + `<Footer>`. Imports global.css.
+
+### Components
+- `components/Hero.astro` — two layouts. Full-bleed rules 103–287 (`.hero, .hero--full-bleed, .hero--{tall,medium,short,center,left}, .hero__{image-wrap, image, tint, scrim, content, eyebrow, title, subtitle, glyph, credit, frame, frame-corner}`). Split rules 120–196 (`.hero--split, .hero__split, .hero__image-panel, .hero__text-panel, .hero__image--split, .hero__tint--gradient, .hero__title--split, .hero__subtitle--split, .hero__tagline, .hero__credit--split, .hero__text-inner`). **@media (max-width: 900px)** stacks split.
+- `components/Nav.astro` 37–132 — `.site-nav, .site-nav__inner, .site-nav__mark, .site-nav__mark-line-1, .site-nav__mark-line-2, .site-nav__list, .site-nav__link, .site-nav__donate`.
+- `components/Footer.astro` 33–71 — `.site-footer.ground-purple, .site-footer__inner, .site-footer__wordmark, .site-footer__tagline, .site-footer__nav, .site-footer__meta`.
+- `components/PullQuote.astro` 11–41 — `.pull-quote, .pull-quote__quote, .pull-quote__attr`; per-ground overrides on `.ground-ink` and `.ground-purple`.
+- `components/SectionDivider.astro` 255–268 — `.divider, .divider__line, .divider__ornament-wrap, .divider__ornament, .divider__ornament--wide, .divider__ornament--jazz`. **11 variants**: line, fan, step, rays, fleur, deco, notes, diamond, jazz, second-line, bar-line. **4 colors**: brass (default), purple, yellow, copper.
+- `components/MusicBackdrop.astro` 354–368 — `.music-backdrop` + **12 variants**: sunburst, chevrons, arcs, rays, diamond-grid, piano-keys, vinyl, sheet-music, staves, notes, fleur, ironwork. All SVG.
+- `components/QuotesCarousel.astro` 93–191 CSS + 44–90 JS — `.qc, .qc__viewport, .qc__slide, .qc__quote, .qc__attr, .qc__controls, .qc__btn, .qc__dots`. Auto-rotate, hover/focus pause, arrow-key nav, reduced-motion respect.
+- `components/PlaylistPlayer.astro` 160–256 CSS + 80–157 JS — `.pp, .pp__player, .pp__now, .pp__controls, .pp__progress-wrap, .pp__time, .pp__progress, .pp__progress-bar, .pp__list, .pp__track`, `.pp__track[aria-current='true']`. HTML5 audio, seek by click/keyboard, autoplay-next.
+- `components/Timeline.astro` 54–152 — `.timeline, .timeline::before, .timeline__entry, .timeline__entry--alt, .timeline__marker, .timeline__dot, .timeline__year, .timeline__event, .timeline__event-text, .timeline__image`. `--tl-accent` CSS var. **@media (max-width: 640px)** collapses to 2-col.
+
+### Page-owned pieces (each page has its own `<style>` and owns the CSS for its DOM shapes)
+- `pages/index.astro` — home sections. `.intro-section, .intro, .intro__lede, .intro__body, .intro__body--lead` (lines 118–135); `.playlist-section, .playlist-section__head, .playlist-section__title, .playlist-section__blurb` (143–145); `.voices-section, .voices-section__head, .voices-section__eyebrow, .voices-section__title` (148–150); `.sample-section, .sample__inner, .sample__title, .sample__body, .sample__cta` (152–167); `.donate-teaser, .donate-teaser__inner, .donate-teaser__title, .donate-teaser__body, .btn, .btn--purple` (169–201).
+- `pages/about.astro` — `.section-intro, .about-cta, .about-cta__inner, .about-cta__head, .about-cta__title, .about-cta__body, .about-cta__actions, .btn--outline, .btn--gold` (74–97). **Per-page `.prose`** (61–72).
+- `pages/sisters/index.astro` — `.sisters-grid, .sisters-grid__head, .sisters-grid__title` (122–130); `.sisters-cards` (131–138); `.sister-card, .sister-card::before, .sister-card__link, .sister-card__meta, .sister-card__order, .sister-card__nickname, .sister-card__name, .sister-card__quote, .sister-card__cta` (139–210); `.sisters-subpages, .sisters-subpages__grid, .subpage-card, .subpage-card__eyebrow, .subpage-card__title, .subpage-card__body, .subpage-card__cta` (212–257).
+- `pages/sisters/[slug].astro` — `.bio-hero, .bio-hero__inner, .bio-hero__back, .bio-hero__eyebrow, .bio-hero__name, .bio-hero__quote` (132–179); `.bio-body, .bio-body__layout, .bio-portrait, .bio-portrait__caption` (181–226); `.facts-strip, .facts, .facts__pair, .facts__label, .facts__value` (228–258); `.bio-timeline, .bio-timeline__head, .bio-timeline__title` (260–268); **per-page `.prose`** (271–302); `.bio-nav, .bio-nav__inner, .bio-nav__link, .bio-nav__link--prev/all/next, .bio-nav__label, .bio-nav__name` (305–338).
+- `pages/sisters/bio-resources.astro` — `.page-hero, .page-hero__inner, .page-hero__back, .page-hero__title, .page-hero__subtitle` (50–80); per-page `.prose` (82–86); `.btn--purple` (89–102).
+- `pages/sisters/career-timeline.astro` — `.page-hero...` (41–63); `.timeline-section, .timeline__image` cap (65–70).
+- `pages/press/index.astro` — per-page `.prose` (122–124); `.subhub-section, .subhub-head, .subhub-title, .subhub-blurb` (126–130); `.article-list` (132–133); `.article-row, .article-row__link, .article-row__num, .article-row__body, .article-row__title, .article-row__meta, .article-row__arrow` (134–150); `.press-releases, .releases-head, .releases-head__title, .releases-head__blurb, .releases-grid, .release-card, .release-card__link, .release-card__type, .release-card__title, .release-card__date` (152–182).
+- `pages/press/[subhub]/index.astro` — same `.page-hero...` (62–83); same `.article-list, .article-row...` (88–117).
+- `pages/press/[subhub]/[slug].astro` — `.article-hero, .article-hero__inner, .article-hero__back, .article-hero__title, .article-hero__meta, .article-hero__quote` (101–143); per-page `.prose, .article-body, .video-embed, .article-external` (146–169); `.article-nav, .article-nav__inner, .article-nav__link, .article-nav__link--prev/all/next, .article-nav__label, .article-nav__title` (172–183).
+- `pages/media/index.astro` — per-page `.prose--centered` (151–153); `.lessons-grid, .lessons-grid__head, .lessons-grid__title, .lessons-grid__lede, .lessons-cards, .lesson-card, .lesson-card::after, .lesson-card__link, .lesson-card__num, .lesson-card__num-label, .lesson-card__num-value, .lesson-card__body, .lesson-card__title, .lesson-card__summary, .lesson-card__cta` (162–192); `.music-teasers, .music-teasers__grid, .music-teaser, .music-teaser__eyebrow, .music-teaser__title, .music-teaser__body, .music-teaser__cta` (195–213).
+- `pages/media/lessons/[order].astro` — `.lesson-hero, .lesson-hero__inner, .lesson-hero__back, .lesson-hero__eyebrow, .lesson-hero__title, .lesson-hero__summary` (89–122); `.lesson-player, .lesson-player__label, .lesson-player__label-kicker, .lesson-player__label-title, .lesson-player__audio, .lesson-player__download` (125–152); prose (154–156); `.lesson-nav, .lesson-nav__inner, .lesson-nav__link, .lesson-nav__label, .lesson-nav__name` (159–182).
+- `pages/media/charts.astro` — `.page-hero...` (43–49); per-page `.prose :global(table/thead/th/td)` with hover + purple date column + brass peak column (52–96); `.see-also, .see-also__grid, .see-also__card, .see-also__eyebrow, .see-also__title, .see-also__body, .see-also__cta` (98–123).
+- `pages/media/reviews.astro` — `.page-hero...` (29–35); per-page `.prose` with H3+P reviews and hairline separators (38–65).
+- `pages/media/discography.astro` — `.page-hero` (151–173); `.discography-tools, .disc-search, .disc-search__label, .disc-search__input, .disc-search__count` (175–199) **+ inline JS 101–147 debounced-filter**; `.disc-scope, .disc-scope__head, .disc-scope__title, .disc-scope__subtitle, .disc-scope__attribution, .disc-sessions, .disc-session, .disc-session__header, .disc-tracks, .disc-track, .disc-track__matrix, .disc-track__title, .disc-track__notes, .disc-track__refs` (201–264); see-also card 268–292.
+- No `pages/404.astro` — Astro's default 404 is used.
+
+### Pieces the rebuild plan must build
+
+| Piece | Owning Astro file | Which build step |
+|---|---|---|
+| Full-bleed photo hero (`.hero.hero--full-bleed`) | Hero.astro | done (trial cherry-pick) — re-verify vs base |
+| Split hero (`.hero--split`) | Hero.astro | new `bozzies/hero-split` block |
+| Page hero (`.page-hero`, ground-purple, no image) | 8 pages share the pattern | new pattern `bozzies/page-hero`; `page.html` default template auto-emits it bound to `core/post-title` |
+| Bio hero (`.bio-hero`) | sisters/[slug].astro | new pattern for sister bios |
+| Article hero (`.article-hero` + `.article-hero__quote`) | press/[subhub]/[slug].astro | in `single.html` template |
+| Lesson hero (`.lesson-hero`) | media/lessons/[order].astro | new pattern (lessons live under pages, not posts) |
+| `.article-list` + `.article-row` + `.article-row__num` | press/index + press/[subhub]/index | `bozzies-article-list` block variation on `core/post-template` + row-number render filter (already exists) + article-row CSS ported from Astro pages |
+| `.article-nav` + `.bio-nav` + `.lesson-nav` (3-col prev / all / next) | 3 pages | shared partial rendered from `render_block_core/post-navigation-link` (existing wraparound filter) plus new pattern; CSS ported once |
+| `.sister-card` + `.subpage-card` + `.music-teaser` + `.release-card` + `.see-also` (card family) | sisters/index + media/index + press/index + charts + discography | new patterns emitting these class names; single ported CSS file `astro/cards.css` |
+| `.bio-body` + `.bio-portrait` (sticky) | sisters/[slug] | new pattern `bozzies/sticky-portrait-bio` |
+| `.facts-strip` + `.facts` + `.facts__pair` | sisters/[slug] | new pattern `bozzies/facts` |
+| `.lesson-card` (5-lesson list on media hub) | media/index | new pattern `bozzies/lesson-rows` |
+| `.pull-quote` | PullQuote.astro | `is-style-pull-quote` on `core/quote` |
+| `.qc.*` (quotes carousel) | QuotesCarousel.astro | new `bozzies/quotes-carousel` block |
+| `.pp.*` (playlist player) | PlaylistPlayer.astro | new `bozzies/playlist-player` block |
+| `.timeline.*` | Timeline.astro | new `bozzies/timeline` block |
+| `.divider.*` (11 variants) | SectionDivider.astro | new `bozzies/divider` block; menu shows 5 used variants; rest under "Advanced" |
+| `.music-backdrop.*` (12 variants) | MusicBackdrop.astro | extend `bozzies/section` backdrop enum; menu shows 5 used variants; rest under "Advanced" |
+| `.disc-search` + `.disc-scope` + `.disc-session` + `.disc-track` | media/discography | new `bozzies/discography` block |
+| `.lesson-player` (native HTML5 with wrapper) | media/lessons/[order] | new pattern `bozzies/lesson-player` (no JS — native audio) |
+| `.video-embed` | press/[subhub]/[slug] | CSS-only wrapper on `core/embed` youtube (existing `youtube-nocookie` filter stays) |
+| `.donate-teaser` + `.btn--purple` + `.about-cta__actions` (buttons row) | index + about | patterns; button styling from Astro pages |
+| Home intro/sample/voices/playlist sections | index.astro | patterns emitting Astro classes; no new blocks needed |
+| `.pull-quote` on grounds | PullQuote.astro | ported CSS |
+| `.prose` (per-page) | 8 pages | port each page's `.prose` block into a shared `astro/prose.css`, applied via `is-style-article-prose` on `core/post-content` in `single.html` and on `core/group` on hub-page bodies |
+| `.hairline`, `.eyebrow` variants (`--purple / --yellow / --copper / --brass`) | global.css + pages | in `astro/global.css` |
+| `.skip-link`, `.visually-hidden` | global.css | in `astro/global.css` |
+
+### Build order (updated from inventory)
+Same as the original 15-step order; the inventory confirms every piece has a home. The two things Step 1 clarified:
+- `.prose` lives per-page, not in global.css — port each page's prose block into one shared `astro/prose.css` at the article-list commit (Step 4) so `single.html` can apply it via a block-style variation.
+- **Instrument Serif** (`--font-accent`) is used — port it as a self-hosted font at the base-layer step.
+
 **How to resume from this file alone:**
 1. `git status` clean on branch `astro-rebuild`.
 2. Read the last commit's message + this "Current status" block.
