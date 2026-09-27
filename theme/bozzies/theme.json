@@ -15,7 +15,7 @@
 	],
 	"settings": {
 		"appearanceTools": true,
-		"useRootPaddingAwareAlignments": true,
+		"useRootPaddingAwareAlignments": false,
 		"layout": {
 			"contentSize": "42rem",
 			"wideSize": "84rem"
@@ -89,6 +89,15 @@
 						{ "fontFamily": "Inter", "fontStyle": "normal", "fontWeight": "500", "fontDisplay": "swap", "src": ["file:./assets/fonts/inter-latin-500-normal.woff2"] },
 						{ "fontFamily": "Inter", "fontStyle": "italic", "fontWeight": "500", "fontDisplay": "swap", "src": ["file:./assets/fonts/inter-latin-500-italic.woff2"] },
 						{ "fontFamily": "Inter", "fontStyle": "normal", "fontWeight": "600", "fontDisplay": "swap", "src": ["file:./assets/fonts/inter-latin-600-normal.woff2"] }
+					]
+				},
+				{
+					"slug": "accent",
+					"name": "Instrument Serif",
+					"fontFamily": "'Instrument Serif', Georgia, serif",
+					"fontFace": [
+						{ "fontFamily": "Instrument Serif", "fontStyle": "normal", "fontWeight": "400", "fontDisplay": "swap", "src": ["file:./assets/fonts/instrument-serif-latin-400-normal.woff2"] },
+						{ "fontFamily": "Instrument Serif", "fontStyle": "italic", "fontWeight": "400", "fontDisplay": "swap", "src": ["file:./assets/fonts/instrument-serif-latin-400-italic.woff2"] }
 					]
 				}
 			],

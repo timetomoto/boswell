@@ -78,13 +78,15 @@ Every component port ships four passes before commit:
 - `6b52116` main baseline
 - `0187eb2` cherry-pick from trial: port Hero.astro verbatim, emit Astro DOM
 - `d140a99` cherry-pick from trial: owner-first photo hero (toggle, pre-fill, pattern)
-- **THIS commit** — CLAUDE.md rewrite: new styling rules, current status placeholder for the rebuild.
+- `4d80b67` astro-rebuild Step 0: rewrite styling rules + set up branch
+- `82d6650` astro-rebuild Step 1: full Astro inventory in CLAUDE.md
+- **THIS commit** — astro-rebuild Step 3 base layer: port global.css verbatim, add Instrument Serif font, disable useRootPaddingAwareAlignments, delete test pages + Sample Page.
 
 **Build order — one commit per step, riskiest first:**
 
 1. **[DONE via cherry-pick]** Hero (photo) — trial commits already on branch. Verify against new base layer once base ships.
-2. **[NEXT]** Step 1 inventory — read every file in ~/boswell-poc/src/pages/ (and layouts, styles, and any other folder with markup or CSS). List every distinct styled piece and every style block, with file + line. Commit inventory into this section.
-3. **Base layer** — theme.json rebuild (Astro's 17 tokens.css tokens → WP presets + custom); port `global.css` verbatim; disable WP layout CSS; add every font Astro uses; wire enqueues (front + editor); delete 3 test pages + Sample Page (per settled answers).
+2. **[DONE]** Step 1 inventory — recorded in the "Astro inventory" section below.
+3. **[DONE]** Base layer — `theme/bozzies/assets/css/astro/global.css` ports Astro's `global.css` verbatim (with token aliases + WP-scoping edits documented in the file header). `theme.json` adds Instrument Serif font, disables `useRootPaddingAwareAlignments`. `functions.php` enqueues astro/global.css → astro/hero.css → chrome.css in that order (front + editor). Test pages deleted (Sample Page 2, Section styles + patterns test 6, Section styles test 46, Embed test 54). chrome.css kept for now; the dead-code sweep at Step 15 will prune whatever the ported CSS has replaced.
 4. **Article list + article-hero + adjacent-post nav.** Article-row DOM comes from Astro's page files (`src/pages/press/index.astro` etc.), not chrome.css. Ports `.article-list`, `.article-row`, `.article-row__num`, `.article-hero`, `.article-hero__quote`, `.post-navigation` from Astro. Wires `bozzies-article-list` block variation on `core/post-template`; rewrites `single.html` and `category.html`.
 5. **Cards + sticky-portrait bio + facts strip.** Ports `.sister-card`, `.card-grid`, `.teaser-card`, `.bio-body`, `.bio-body__portrait`, `.bozzies-facts` (Astro names verified during Step 1) from Astro pages. Rewrites 4 patterns.
 6. **Hero (split) — new `bozzies/hero-split` block.** Astro DOM verbatim. Only used on home page.

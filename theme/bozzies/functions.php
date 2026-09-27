@@ -65,32 +65,42 @@ add_action( 'wp_enqueue_scripts', 'bozzies_enqueue_chrome' );
 function bozzies_enqueue_chrome() {
 	$ver     = wp_get_theme()->get( 'Version' );
 	$dir_uri = get_stylesheet_directory_uri();
+	// Astro's global styles — the sitewide reset + typography + grounds
+	// + layout helpers + eyebrow + hairline + skip-link + visually-hidden.
+	// Verbatim port of ~/boswell-poc/src/styles/global.css.
 	wp_enqueue_style(
-		'bozzies-chrome',
-		$dir_uri . '/assets/css/chrome.css',
+		'bozzies-astro-global',
+		$dir_uri . '/assets/css/astro/global.css',
 		array(),
 		$ver
 	);
-	// Astro hero CSS — verbatim port of Hero.astro's <style> plus the
-	// .eyebrow / .container rules from Astro's global.css. Owned by the
-	// section block's is-hero-photo variant.
+	// Astro hero CSS — verbatim port of Hero.astro's <style>. Owned by
+	// the section block's is-hero-photo variant.
 	wp_enqueue_style(
 		'bozzies-astro-hero',
 		$dir_uri . '/assets/css/astro/hero.css',
-		array( 'bozzies-chrome' ),
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// chrome.css is what remains of the pre-rebuild theme CSS. During the
+	// rebuild it is being pared down commit-by-commit as ports land; it
+	// will end up holding only WordPress-specific plumbing (or be deleted
+	// entirely). Kept last so ported Astro CSS wins any tie.
+	wp_enqueue_style(
+		'bozzies-chrome',
+		$dir_uri . '/assets/css/chrome.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-hero' ),
 		$ver
 	);
 }
 
 add_action( 'after_setup_theme', 'bozzies_add_editor_styles' );
 function bozzies_add_editor_styles() {
-	// Load the front chrome inside the block editor iframe so existing
-	// Group-based ground styles, backdrops, and pull-quote overrides render
-	// consistently in edit mode.
-	add_editor_style( 'assets/css/chrome.css' );
-	// Same Astro hero CSS the front uses, so the owner sees the real hero
-	// look while editing a hub page.
+	// Same Astro CSS the front uses, so the owner sees the real look
+	// while editing.
+	add_editor_style( 'assets/css/astro/global.css' );
 	add_editor_style( 'assets/css/astro/hero.css' );
+	add_editor_style( 'assets/css/chrome.css' );
 }
 
 /**
