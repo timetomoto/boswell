@@ -46,7 +46,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Current status
 
-**Last commit:** Task 10 Group 2 complete — page-by-page pass done through Home, Sisters, About, Media, Press, Privacy, 404.
+**Last commit:** Task 10 Group 2b — QA fixes from Keith's real-browser review, plus style-diff harness.
 
 **Done**
 - Theme foundation (`bozzies` block theme, no parent, no plugins, no page builder).
@@ -156,6 +156,33 @@ Press + Privacy + 404 (verified — no code changes needed):
 | # | WP | Astro |
 |---|----|-------|
 | 1 | Martha Boswell — The Spotlight | Martha Boswell — The Spotlight |
+
+**Task 10 Group 2b — QA-driven fixes on top of Group 2, three commits (`c8c24c4`, `2a84f3a`, `b62127d`):**
+
+Shared components (`c8c24c4`):
+- `scripts/dev/style-diff.mjs` + `scripts/dev/style-diff-all.mjs`: side-by-side computed-style comparison against the Vercel build, at 1440 and 390. Loads both pages under Chromium, pairs elements by role (hero / heading / eyebrow / card / pull-quote / button / list-row / section-wrap) + normalized visible text, and reports every property mismatch. Emits heading line-count deltas so wrap regressions surface. Full sweep across 23 pages saves JSON detail per page in `_screens/style-diff/`.
+- **Fully-clickable cards, sitewide.** `.is-style-card` / `.is-style-card-plain` are now `position: relative`; the primary `.wp-block-button__link` inside each card gets `::before { position: absolute; inset: 0 }` so the whole card is the click target. Screen readers still hear one link (verified: 1 anchor per card on `/sisters/` via `scripts/dev/keyboard-tab.mjs`). Keyboard focus lands on the CTA link (`outline: 0` suppressed) and the card draws a 2 px outline via `:focus-within` (verified `scripts/dev/focus-test.mjs`: computed outline `2px solid rgb(74, 46, 90)` with 3 px offset). Buttons block is pinned to the bottom via `margin-top: auto`; each card fills its column via `height: 100%` so a row of cards is equal-height.
+- **Full-bleed photo hero (`is-hero-photo`) matches Astro's `.hero--medium`.** `min-height: 62vh` + `justify-content: flex-end` (was 92vh — dropped in `b62127d` after the shared commit initially set 92vh which pushed the headline off the fold). Linear + radial ink scrim (`::after`) for AA over any background photo. Gold accent glyph via `::after` on the section inner — inline SVG of Astro's three-musical-notes with rails, yellow-soft, centered near the bottom of the content column.
+- **Pull-quote on ground-purple** kept Astro's centered curly-quote treatment (Sisters hub, Career Timeline). The article-hero quote uses `wp:quote` (not `wp:pullquote`) so a dedicated `.ground-purple .wp-block-quote:not(.is-style-pull-quote)` rule was added in `2a84f3a` (Astro's `.article-hero__quote`: 3 px yellow-soft left rule, italic UI copy on champagne, uppercased yellow cite). Verified on `/press/feature/andrews-sisters/`.
+- **Article row list.** Removed the duplicate `border-bottom` on `.bozzies-article-row` (the parent `<li>` already draws the hairline — was painting two under every row). Hover matches Astro — background wash only, no horizontal padding-left slide.
+- **Press hub intro** paragraph now uses the Lead font-size preset (Astro `.prose` = `--step-1`).
+- **About centered eyebrow** — `.is-style-eyebrow.has-text-align-center` now uses `display: block; width: fit-content; margin-inline: auto` so the paragraph box (not just its inline text) is centered. Fixes "Get in touch" alignment on About.
+- **About CTA row** — Contact us / Donate buttons render equal-height via `align-items: stretch` on the Buttons block flex container and a shared `min-height: 3rem` + inline-flex on `.wp-block-button__link`.
+- **Markdown italic converter** — `inlineMd()` in `scripts/import/group3.mjs` no longer requires whitespace after the closing `*`, so `*Music Hall*radio` → `<em>Music Hall</em>radio` (matches Astro's markdown pipeline). Andrews-sisters article verified: literal `*Music Hall*radio program*.*` gone. Applies to every article via the shared parser.
+
+Page-specific fixes (`2a84f3a`):
+- Article-hero yellow rule (see above under pull-quote).
+- Keyboard test helpers.
+
+Height correction (`b62127d`):
+- 92vh → 62vh for `is-hero-photo` after Astro's four full-bleed heroes were confirmed to pass `height="medium"`.
+
+**Verification (Group 2b close):**
+- Text diff — 0/0 on `/sisters/`, `/sisters/martha/`, `/sisters/vet/`, `/sisters/bio-resources/`, `/about/`, `/media/charts/`, `/media/reviews/`, `/press/`, all 5 archives, `/press/vintage/02-cats-hepped/`. `/press/feature/andrews-sisters/` is 7/8 (both sides now emit the same `<em>Music Hall</em>` markup; remaining tokens are trailing periods around markdown quirks that don't affect the visible text). `/`, `/media/`, `/sisters/connee/`, `/sisters/career-timeline/`, `/media/discography/` have the expected `onlyAstro` gaps that live behind the four interactive-block placeholders.
+- Colour check at 1440 and 390: **0 mismatches** (matched=12 both).
+- Crawl from `/`: **0 non-200s** across 12 internal links.
+- Keyboard tab through `/sisters/`: one focus stop per card (5 cards, 5 stops), each landing on the CTA anchor, card gets a purple 2 px `:focus-within` ring.
+- style-diff harness: run before + after saved under `_screens/style-diff/`. The numeric mismatch count is higher after the fixes on card-heavy pages (`sisters/` 297→305, `press-vintage/` 132→132, `home/` 61→70) because the fixes deliberately diverge from Astro's DOM structure to preserve WP's block-editor model — the whole-card click target is a `::before` overlay on a small anchor rather than wrapping the whole card in an anchor (which core/group doesn't support), so the tool reports the anchor's own box (small) as differing from Astro's `.sister-card__link` (whole card). These structural mismatches are documented "expected" outcomes of the WP-native approach; the user-facing behaviour (click anywhere, one link per card, focus ring around card, equal-height rows) all matches. The remaining category-level counts (`h3` sizes, `body-p` widths inside cards) are further downstream of the same DOM-shape gap. Screenshot pairs at `_screens/task-10b/` show the fixes in place; view any pair with the file paths listed under the Group 2b report.
 
 **Next: Group 3 sitewide audits**
 
