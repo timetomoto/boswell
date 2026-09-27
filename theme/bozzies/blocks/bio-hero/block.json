@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/bio-hero",
+	"version": "1.0.0",
+	"title": "Bio hero",
+	"category": "design",
+	"icon": "businessperson",
+	"description": "Astro's compact purple sister-bio hero — <section class=\"bio-hero ground-purple\"> with a staves music backdrop, back link, eyebrow, big display name, and optional pull-quote with attribution.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"nickname":              { "type": "string", "default": "" },
+		"name":                  { "type": "string", "default": "" },
+		"pullQuote":             { "type": "string", "default": "" },
+		"pullQuoteAttribution":  { "type": "string", "default": "" },
+		"backHref":              { "type": "string", "default": "/sisters/" },
+		"backLabel":             { "type": "string", "default": "The Sisters" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

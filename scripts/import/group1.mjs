@@ -246,15 +246,26 @@ ${sisterCard({ order: '03', nickname: 'VBoz', name: 'Vet Boswell', quote: 'Vet a
 }
 
 function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, pullQuoteAttr, facts, bodyBlocks, hasSoloTimeline }) {
-  const hero = section(
-    { backgroundStyle: 'purple', backdrop: 'staves', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    [
-      p(`<a href="/sisters/">← The Sisters</a>`),
-      p(nickname, { className: 'is-style-eyebrow' }),
-      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">${name}</h1><!-- /wp:heading -->`,
-      quote(pullQuoteText, pullQuoteAttr ? `— ${pullQuoteAttr}` : ''),
-    ].join('\n'),
-  );
+  // Sister-bio hero — the bozzies/bio-hero block emits Astro's exact
+  // <section class="bio-hero ground-purple"><div class="music-backdrop">…</div>
+  // <div class="container-narrow bio-hero__inner"><a class="bio-hero__back">…</a>
+  // <span class="eyebrow bio-hero__eyebrow">…</span><h1 class="bio-hero__name">…</h1>
+  // <blockquote class="bio-hero__quote">"…"<cite>—…</cite></blockquote></div></section>
+  // DOM verbatim from ~/boswell-poc/src/pages/sisters/[slug].astro lines 46-63.
+  // Decode HTML entities on the attribute values so the JSON stored in
+  // post_content already contains Unicode glyphs. Otherwise Gutenberg
+  // re-serializes `&` as `&` on save, and the editor round-trip diff
+  // reports a spurious mismatch even though nothing visible changed.
+  const heroAttrs = {
+    nickname:             decodeFactValue(nickname),
+    name:                 decodeFactValue(name),
+    pullQuote:            decodeFactValue(pullQuoteText),
+    pullQuoteAttribution: decodeFactValue(pullQuoteAttr || ''),
+    backHref: '/sisters/',
+    backLabel: 'The Sisters',
+    align: 'full',
+  };
+  const hero = `<!-- wp:bozzies/bio-hero ${JSON.stringify(heroAttrs)} /-->`;
 
   // The bozzies/facts block emits its own <section class="section-tight
   // ground-paper facts-strip">…, so it goes in the page body directly (no

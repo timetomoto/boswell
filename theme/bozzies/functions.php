@@ -100,6 +100,23 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro music-backdrop CSS — verbatim port of MusicBackdrop.astro's
+	// <style>. Currently used by the bozzies/bio-hero block (staves variant);
+	// step 12 extends the section block's backdrop enum to share it.
+	wp_enqueue_style(
+		'bozzies-astro-music-backdrop',
+		$dir_uri . '/assets/css/astro/music-backdrop.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro bio-hero CSS — verbatim port of sisters/[slug].astro's .bio-hero*
+	// rules. Owned by the bozzies/bio-hero block.
+	wp_enqueue_style(
+		'bozzies-astro-bio-hero',
+		$dir_uri . '/assets/css/astro/bio-hero.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -107,7 +124,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero' ),
 		$ver
 	);
 }
@@ -120,6 +137,8 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/hero.css' );
 	add_editor_style( 'assets/css/astro/article.css' );
 	add_editor_style( 'assets/css/astro/cards.css' );
+	add_editor_style( 'assets/css/astro/music-backdrop.css' );
+	add_editor_style( 'assets/css/astro/bio-hero.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
