@@ -32,6 +32,8 @@ function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
 	/* "Play" button style prepends an inline play-icon SVG before the label. */
 	register_block_style( 'core/button', array( 'name' => 'play', 'label' => __( 'Play', 'bozzies' ) ) );
+	/* "Large" button style adds extra padding — Astro's .btn--purple CTA. */
+	register_block_style( 'core/button', array( 'name' => 'large', 'label' => __( 'Large', 'bozzies' ) ) );
 }
 
 add_action( 'init', 'bozzies_register_pattern_categories', 9 );

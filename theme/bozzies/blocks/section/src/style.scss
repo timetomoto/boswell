@@ -92,8 +92,8 @@
 	/* Buttons on paper / gold grounds — the ground <a> rule above would tint
 	 * button text blue (link) or link-hover; override so the button keeps its
 	 * theme.json --paper text on --purple background. Underline from gold
-	 * links is cleared here too. Sample__cta padding = 1rem × 2rem (Astro's
-	 * --space-4 × --space-6); btn--purple padding = 0.75rem × 2rem. */
+	 * links is cleared here too. Sizing lives on the "Play" / "Large" button
+	 * styles, not on the ground. */
 	&.ground-paper .wp-block-button .wp-block-button__link,
 	&.ground-paper .wp-block-button .wp-element-button,
 	&.ground-gold  .wp-block-button .wp-block-button__link,
@@ -109,12 +109,6 @@
 		background: var(--wp--preset--color--oxblood);
 		border-color: var(--wp--preset--color--oxblood);
 		text-decoration: none;
-	}
-	&.ground-paper .wp-block-button .wp-block-button__link {
-		padding: var(--wp--preset--spacing--m) var(--wp--preset--spacing--xl);
-	}
-	&.ground-gold .wp-block-button .wp-block-button__link {
-		padding: var(--wp--preset--spacing--s) var(--wp--preset--spacing--xl);
 	}
 }
 
@@ -144,19 +138,15 @@
 .wp-block-bozzies-section > .wp-block-bozzies-section__inner > .is-style-eyebrow + :is(.wp-block-heading, h1, h2, h3) {
 	margin-block-start: var(--wp--preset--spacing--s);
 }
-/* Heading → body: --space-3 on paper/purple/ink (playlist blurb, voices),
- * --space-4 on gold (donate body). Sample body uses --space-4 as well —
- * covered by the paper-ground rule when using a following blurb + body
- * pair; for the home page the sample section has a single lead paragraph,
- * so a --space-3 works. */
+/* Heading → paragraph rhythm: default --space-3 (0.75rem). Individual
+ * paragraphs can widen this in-editor via the block's own top-margin
+ * setting when they need it. Not scoped to any ground. */
 .wp-block-bozzies-section > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) + p {
 	margin-block-start: var(--wp--preset--spacing--s);
 }
-.wp-block-bozzies-section.ground-gold > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) + p {
-	margin-block-start: var(--wp--preset--spacing--m);
-}
-/* Body → CTA (Buttons block): --space-6 (2rem) on paper + gold. */
-.wp-block-bozzies-section:is(.ground-paper, .ground-gold) > .wp-block-bozzies-section__inner > .wp-block-buttons {
+/* Body → CTA rhythm: --space-6 (2rem). Applies to any section that has a
+ * Buttons block among its top-level children, regardless of ground. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .wp-block-buttons {
 	margin-block-start: var(--wp--preset--spacing--xl);
 }
 /* Intro-style lede: display font, snug leading, --ink colour, distinct from
@@ -186,28 +176,11 @@
 	line-height: var(--wp--custom--line-height--loose);
 }
 
-/* Section H2 typography defaults per ground — Astro's home page sets h2 to
- * font-weight 300 (already applied above) with a slightly softer clamp than
- * the theme.json global; use ground defaults so any paper/purple section
- * gets the "playlist / voices / sample" H2 sizing and any gold section gets
- * the smaller "donate teaser" sizing. */
-.wp-block-bozzies-section:is(.ground-paper, .ground-purple) > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
-	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--6, 3.815rem));
+/* Heading sizes on section titles are chosen per heading via the font-size
+ * preset picker (Section title / Section title medium / Section title small
+ * in theme.json) — never derived from ground or backdrop. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
 	letter-spacing: var(--wp--custom--letter-spacing--tight);
-}
-.wp-block-bozzies-section.ground-gold > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
-	font-size: clamp(var(--wp--preset--font-size--large, 1.953rem), 2.5vw + 0.4rem, var(--wp--custom--step--5, 3.052rem));
-}
-
-/* Sections that carry the staves backdrop are our "sample" pattern in the
- * home page: smaller top of the h2 clamp and extra bottom padding so the
- * "Play Lesson" CTA breathes. Keyed on the backdrop class so the treatment
- * follows the pattern, not a per-page id. */
-.wp-block-bozzies-section.has-backdrop-staves > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
-	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--5, 3.052rem));
-}
-.wp-block-bozzies-section.has-backdrop-staves {
-	padding-bottom: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--9, 6rem));
 }
 
 .wp-block-bozzies-section.has-width-container > .wp-block-bozzies-section__inner {
@@ -224,10 +197,21 @@
 }
 
 /* --- Vertical rhythm ---------------------------------------------------- */
-.wp-block-bozzies-section.has-spacing-standard  { padding-block: clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl)); }
-.wp-block-bozzies-section.has-spacing-compact   { padding-block: clamp(var(--wp--preset--spacing--s), 1.4vw, var(--wp--preset--spacing--l)); }
-.wp-block-bozzies-section.has-spacing-spacious  { padding-block: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--10, 8rem)); }
-.wp-block-bozzies-section.has-spacing-none      { padding-block: 0; }
+.wp-block-bozzies-section.has-spacing-standard      { padding-block: clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl)); }
+.wp-block-bozzies-section.has-spacing-compact       { padding-block: clamp(var(--wp--preset--spacing--s), 1.4vw, var(--wp--preset--spacing--l)); }
+.wp-block-bozzies-section.has-spacing-spacious      { padding-block: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--10, 8rem)); }
+.wp-block-bozzies-section.has-spacing-none          { padding-block: 0; }
+/* "Roomy bottom": standard top padding, extra padding below — for sections
+ * that end in a CTA button that needs breathing room before the next section
+ * begins. Matches Astro's .sample-section padding: standard top +
+ * clamp(--space-8, 6vw, --space-9) bottom. Chosen over the symmetric
+ * "spacious" option because "spacious" also pushes the top of the content
+ * down, and over a raw .has-backdrop-staves override because padding must
+ * be a Section-level spacing choice, not a byproduct of picking a pattern. */
+.wp-block-bozzies-section.has-spacing-roomy-bottom {
+	padding-block-start: clamp(var(--wp--preset--spacing--m), 2vw, var(--wp--preset--spacing--xl));
+	padding-block-end:   clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--9, 6rem));
+}
 
 /* --- Heading width ------------------------------------------------------ */
 /* Applied to the direct-descendant headings within the inner. Nested column

@@ -32,21 +32,21 @@
 
 <!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"vinyl","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Music Playlist</p><!-- /wp:paragraph -->
-<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Hear the Boswell Sound</h2><!-- /wp:heading -->
+<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"section-title"} --><h2 class="wp-block-heading has-text-align-center has-section-title-font-size">Hear the Boswell Sound</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">The Boswell Sisters Collection Volume One.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">[Playlist player: added in task 8]</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
 
 <!-- wp:bozzies/section {"backgroundStyle":"purple","backdrop":"notes","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">In Their Words</p><!-- /wp:paragraph -->
-<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">What the world has said about the Boswells</h2><!-- /wp:heading -->
+<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"section-title"} --><h2 class="wp-block-heading has-text-align-center has-section-title-font-size">What the world has said about the Boswells</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">[Quotes carousel: added in task 8]</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
 
-<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","width":"narrow","headingWidth":"reading","align":"full"} -->
+<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","width":"narrow","headingWidth":"reading","spacing":"roomy-bottom","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Sample the Sound</p><!-- /wp:paragraph -->
-<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Cynthia Lucas explains what makes the Boswells tick</h2><!-- /wp:heading -->
-<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">A five-part audio series narrated by one of the best-known Boswell historians. Start with Lesson 1 — The Blend.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"section-title-medium"} --><h2 class="wp-block-heading has-text-align-center has-section-title-medium-font-size">Cynthia Lucas explains what makes the Boswells tick</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|m"}}}} --><p class="has-text-align-center" style="margin-top:var(--wp--preset--spacing--m)">A five-part audio series narrated by one of the best-known Boswell historians. Start with Lesson 1 — The Blend.</p><!-- /wp:paragraph -->
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons"><!-- wp:button {"className":"is-style-play"} --><div class="wp-block-button is-style-play"><a class="wp-block-button__link wp-element-button" href="/media/lessons/lesson-1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
 <!-- /wp:buttons -->
@@ -54,9 +54,9 @@
 
 <!-- wp:bozzies/section {"backgroundStyle":"gold","backdrop":"diamond-grid","width":"narrow","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Support the Work</p><!-- /wp:paragraph -->
-<!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Help keep the Boswells' legacy alive.</h2><!-- /wp:heading -->
-<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">Bozzies.org is dedicated to preserving the Boswell Sisters' recordings, research, and public memory. Every contribution keeps us Bozzing.</p><!-- /wp:paragraph -->
+<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"section-title-small"} --><h2 class="wp-block-heading has-text-align-center has-section-title-small-font-size">Help keep the Boswells' legacy alive.</h2><!-- /wp:heading -->
+<!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|m"}}}} --><p class="has-text-align-center" style="margin-top:var(--wp--preset--spacing--m)">Bozzies.org is dedicated to preserving the Boswell Sisters' recordings, research, and public memory. Every contribution keeps us Bozzing.</p><!-- /wp:paragraph -->
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
-<div class="wp-block-buttons"><!-- wp:button --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#">Donate</a></div><!-- /wp:button --></div>
+<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-large"} --><div class="wp-block-button is-style-large"><a class="wp-block-button__link wp-element-button" href="#">Donate</a></div><!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <!-- /wp:bozzies/section -->

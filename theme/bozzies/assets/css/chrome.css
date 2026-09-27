@@ -693,16 +693,28 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
- * "Play" button style — a core/button block variation. Registered as
- * is-style-play in functions.php so authors can pick it from the button
- * style panel; here we inject the play-icon SVG via ::before so the mark
- * matches Astro's inline SVG pixel-for-pixel, and lay the button out with
- * inline-flex + gap so the icon sits centred with the label.
+ * Button style variations — decoupled from Section ground so choosing a
+ * background never changes the button's padding.
+ *
+ * "Large" (is-style-large): 0.75rem × 2rem padding — for a plain-text CTA
+ * button that needs more room than the theme default (0.5rem × 1rem).
+ * Matches Astro's .btn--purple (Donate teaser CTA).
+ *
+ * "Play"  (is-style-play): 1rem × 2rem padding + inline play-icon SVG
+ * prepended via ::before. Matches Astro's .sample__cta.
+ *
+ * A button gets one style or the other, not both — WP block-style
+ * variations are mutually exclusive by design, so there is no way to
+ * accidentally combine them.
  * ========================================================================= */
+.wp-block-button.is-style-large .wp-block-button__link {
+	padding: var(--wp--preset--spacing--s) var(--wp--preset--spacing--xl);
+}
 .wp-block-button.is-style-play .wp-block-button__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wp--preset--spacing--s);
+	padding: var(--wp--preset--spacing--m) var(--wp--preset--spacing--xl);
 }
 .wp-block-button.is-style-play .wp-block-button__link::before {
 	content: '';

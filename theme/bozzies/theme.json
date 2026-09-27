@@ -98,7 +98,10 @@
 				{ "slug": "lead",    "name": "Lead",    "size": "1.25rem" },
 				{ "slug": "large",   "name": "Large",   "size": "1.953rem" },
 				{ "slug": "x-large", "name": "X-Large", "size": "3.052rem" },
-				{ "slug": "display", "name": "Display", "size": "5.96rem" }
+				{ "slug": "display", "name": "Display", "size": "5.96rem" },
+				{ "slug": "section-title",        "name": "Section title",        "size": "clamp(2.441rem, 3.5vw + 0.3rem, 3.815rem)" },
+				{ "slug": "section-title-medium", "name": "Section title medium", "size": "clamp(2.441rem, 3.5vw + 0.3rem, 3.052rem)" },
+				{ "slug": "section-title-small",  "name": "Section title small",  "size": "clamp(1.953rem, 2.5vw + 0.4rem, 3.052rem)" }
 			]
 		},
 		"spacing": {
