@@ -26,6 +26,7 @@ $defaults = array(
 	'heroFrame'           => false,
 	'imageGrayscale'      => false,
 	'imageZoom'           => false,
+	'heroPhoto'           => false,
 );
 $attrs = array_merge( $defaults, $attrs );
 
@@ -40,9 +41,11 @@ $is_custom_bg  = 'custom' === $attrs['backgroundStyle'];
 $has_image     = is_array( $attrs['backgroundImage'] ) && ! empty( $attrs['backgroundImage']['url'] );
 $has_backdrop  = 'none' !== $attrs['backdrop'];
 
-// Detect the Astro-hero variant on className.
+// Detect the Astro-hero variant. Two triggers exist so both new content
+// (block-editor toggle → heroPhoto=true) and imported content (className
+// carrying `is-hero-photo`) get the same DOM.
 $user_class    = isset( $attributes['className'] ) ? (string) $attributes['className'] : '';
-$is_hero_photo = false !== strpos( $user_class, 'is-hero-photo' );
+$is_hero_photo = ! empty( $attrs['heroPhoto'] ) || false !== strpos( $user_class, 'is-hero-photo' );
 
 $align_attr = isset( $attributes['align'] ) && $attributes['align'] ? $attributes['align'] : 'full';
 $classes = array(
@@ -62,7 +65,11 @@ $classes = array(
 // On the Astro-hero variant, also emit Astro's own class names on the
 // outer <section> so the ported hero.css applies directly. Height comes
 // from `hero--medium` (Astro's Sisters/Media/Press/About/Lessons value).
+// `is-hero-photo` is always added on this branch (the front rule
+// `.wp-block-bozzies-section.is-hero-photo { padding-block: 0 }` needs
+// it) even when the trigger came from the heroPhoto boolean.
 if ( $is_hero_photo ) {
+	$classes[] = 'is-hero-photo';
 	$classes[] = 'hero';
 	$classes[] = 'hero--full-bleed';
 	$classes[] = 'hero--medium';
@@ -93,9 +100,15 @@ if ( $has_image && ! $is_hero_photo ) {
 $anchor = isset( $attrs['anchor'] ) && $attrs['anchor'] ? ' id="' . esc_attr( $attrs['anchor'] ) . '"' : '';
 $style_attr = $style_parts ? ' style="' . esc_attr( implode( ';', $style_parts ) ) . '"' : '';
 
-// Preserve any additional className added via customClassName.
+// Preserve any additional className added via customClassName. Skip
+// `is-hero-photo` because the hero branch adds it above; otherwise it
+// would appear twice on newly-added photo heroes that import content
+// merged both triggers.
 if ( isset( $attributes['className'] ) && $attributes['className'] ) {
-	$class_str .= ' ' . esc_attr( $attributes['className'] );
+	$extra = trim( preg_replace( '/\bis-hero-photo\b/', '', (string) $attributes['className'] ) );
+	if ( $extra !== '' ) {
+		$class_str .= ' ' . esc_attr( $extra );
+	}
 }
 
 // Astro hero corner SVGs (verbatim from Hero.astro).

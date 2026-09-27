@@ -18,7 +18,8 @@ import {
 	BaseControl,
 	__experimentalUnitControl as UnitControl, // eslint-disable-line
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
+import { createBlock } from '@wordpress/blocks';
 
 const GROUND_OPTIONS = [
 	{ label: __( 'Paper', 'bozzies' ),        value: 'paper' },
@@ -119,6 +120,69 @@ function resolvedTextColor( attrs ) {
 	return GROUND_TEXT[ attrs.backgroundStyle ] || GROUND_TEXT.paper;
 }
 
+// Astro's Hero.astro corner SVGs (unchanged).
+const heroCornerPaths = {
+	tl: [ 'M0 22 L0 0 L22 0', 'M6 6 L6 16 M6 6 L16 6' ],
+	tr: [ 'M38 0 L60 0 L60 22', 'M54 6 L54 16 M54 6 L44 6' ],
+	bl: [ 'M0 38 L0 60 L22 60', 'M6 54 L6 44 M6 54 L16 54' ],
+	br: [ 'M38 60 L60 60 L60 38', 'M54 54 L54 44 M54 54 L44 54' ],
+};
+function HeroCorner( { variant } ) {
+	const [ outline, inline ] = heroCornerPaths[ variant ];
+	return (
+		<svg
+			className={ `hero__frame-corner hero__frame-corner--${ variant }` }
+			viewBox="0 0 60 60"
+		>
+			<g fill="none" stroke="currentColor" strokeWidth="1">
+				<path d={ outline } />
+				<path d={ inline } opacity="0.55" />
+			</g>
+		</svg>
+	);
+}
+function HeroGlyph() {
+	return (
+		<div className="hero__glyph" aria-hidden="true">
+			<svg viewBox="0 0 80 20">
+				<g fill="none" stroke="currentColor" strokeWidth="0.7">
+					<path d="M0 10 L28 10" />
+					<path d="M52 10 L80 10" />
+					<g transform="translate(40 10)">
+						<path d="M-6 0 L-2 -4 L2 0 L-2 4 Z" />
+						<path d="M-10 0 L-6 -4 M6 4 L10 0" opacity="0.7" />
+						<circle cx="0" cy="0" r="1.4" fill="currentColor" stroke="none" />
+					</g>
+				</g>
+			</svg>
+		</div>
+	);
+}
+
+// Attribute defaults set when the owner turns Photo hero on. Anything the
+// owner already customised (e.g. a lighter overlay strength) is preserved —
+// these only fire when a value hasn't been set to a non-default.
+const HERO_PHOTO_ATTR_DEFAULTS = {
+	backgroundStyle:  'ink',
+	heroFrame:        true,
+	imageGrayscale:   true,
+	imageZoom:        true,
+	spacing:          'spacious',
+	width:            'container',
+	headingWidth:     'container',
+	overlayStrength:  55,
+};
+
+// Rewrite an existing paragraph/heading className to include the requested
+// Astro hero class, preserving any classes the owner added (e.g. alignment).
+function ensureClass( existing, needed ) {
+	const have = ( existing || '' ).split( /\s+/ ).filter( Boolean );
+	for ( const c of needed.split( /\s+/ ).filter( Boolean ) ) {
+		if ( ! have.includes( c ) ) have.push( c );
+	}
+	return have.join( ' ' );
+}
+
 export default function Edit( { attributes, setAttributes, clientId } ) {
 	const {
 		backgroundStyle,
@@ -135,11 +199,24 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		heroFrame,
 		imageGrayscale,
 		imageZoom,
+		heroPhoto,
+		className,
 	} = attributes;
 
 	const hasImage = !! ( backgroundImage && backgroundImage.url );
 	const hasBackdrop = backdrop !== 'none';
 	const isCustomBg = backgroundStyle === 'custom';
+
+	// Photo hero is on when either the boolean attribute is true, or the
+	// legacy `is-hero-photo` className is on the block (imported content).
+	const isPhotoHero = !! heroPhoto || ( className || '' ).indexOf( 'is-hero-photo' ) !== -1;
+
+	// Read innerBlocks + dispatchers for the pre-fill/annotate flow.
+	const innerBlocks = useSelect(
+		( select ) => select( 'core/block-editor' ).getBlocks( clientId ),
+		[ clientId ]
+	);
+	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
 	const groundClass = isCustomBg ? 'ground-custom' : `ground-${ backgroundStyle }`;
 	const backdropClass = hasBackdrop ? `has-backdrop-${ backdrop }` : '';
@@ -150,6 +227,9 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const imageClass = hasImage ? 'has-bg-image' : '';
 	const grayscaleClass = hasImage && imageGrayscale ? 'has-image-grayscale' : '';
 	const zoomClass = hasImage && imageZoom ? 'has-image-zoom' : '';
+	const heroPhotoOuter = isPhotoHero
+		? 'is-hero-photo hero hero--full-bleed hero--medium hero--center'
+		: '';
 
 	// CSS custom properties passed as inline style so front + editor share source of truth.
 	const inlineStyle = {};
@@ -160,7 +240,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		const bd = backdropColor || BACKDROP_DEFAULT_COLOR[ backdrop ];
 		inlineStyle[ '--backdrop-color' ] = bd;
 	}
-	if ( hasImage ) {
+	if ( hasImage && ! isPhotoHero ) {
 		inlineStyle[ '--bozzies-section-image' ] = `url("${ backgroundImage.url }")`;
 		inlineStyle[ '--bozzies-section-focal' ] = `${ Math.round( ( backgroundFocalPoint.x ?? 0.5 ) * 100 ) }% ${ Math.round( ( backgroundFocalPoint.y ?? 0.5 ) * 100 ) }%`;
 		inlineStyle[ '--bozzies-section-overlay' ] = overlayColor;
@@ -178,6 +258,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		imageClass,
 		grayscaleClass,
 		zoomClass,
+		heroPhotoOuter,
 	]
 		.filter( Boolean )
 		.join( ' ' );
@@ -185,11 +266,10 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const blockProps = useBlockProps( {
 		className: wrapperClasses,
 		style: inlineStyle,
+		'data-has-image': hasImage ? 'true' : 'false',
 	} );
 
 	// Contrast + AA warning.
-	// Worst-case image is a fully white photo; if the overlay + text pair is
-	// AA on that, it is AA on anything darker.
 	const bg = resolvedGroundBg( attributes );
 	const text = resolvedTextColor( attributes );
 	const groundContrast = contrastRatio( bg, text );
@@ -199,7 +279,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const overlayContrast = overlayEffectiveBg ? contrastRatio( overlayEffectiveBg, text ) : null;
 	const overlayBelowAA = hasImage && overlayContrast !== null && overlayContrast < 4.5;
 
-	// InnerBlocks setup — no fixed template, let variations supply it.
 	const innerBlocksProps = {
 		renderAppender: InnerBlocks.ButtonBlockAppender,
 	};
@@ -211,6 +290,148 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				: null,
 		} );
 	};
+
+	// When the owner turns Photo hero ON:
+	//   • Apply the sensible defaults (ink ground, corner brackets, grayscale,
+	//     slow zoom, spacious spacing) — but only where the current value
+	//     matches the block's own default, so custom values aren't clobbered.
+	//   • If innerBlocks is empty, insert eyebrow/h1/subtitle placeholders
+	//     already carrying Astro's class names.
+	//   • If innerBlocks already contains typed content, re-class it in place:
+	//     the first heading becomes an h1.hero__title (preserving text), the
+	//     first paragraph after it becomes p.hero__subtitle. An existing
+	//     is-style-eyebrow paragraph gets .eyebrow.hero__eyebrow.
+	// Turning Photo hero OFF leaves inner blocks alone — classes are inert
+	// without the outer .hero wrapper, and the owner can toggle back on
+	// without losing anything.
+	const onTogglePhotoHero = ( on ) => {
+		if ( ! on ) {
+			setAttributes( { heroPhoto: false } );
+			return;
+		}
+		const patch = { heroPhoto: true };
+		if ( backgroundStyle === 'paper' ) patch.backgroundStyle = HERO_PHOTO_ATTR_DEFAULTS.backgroundStyle;
+		if ( heroFrame === false )         patch.heroFrame = true;
+		if ( imageGrayscale === false )    patch.imageGrayscale = true;
+		if ( imageZoom === false )         patch.imageZoom = true;
+		if ( spacing === 'standard' )      patch.spacing = HERO_PHOTO_ATTR_DEFAULTS.spacing;
+		if ( overlayStrength === 70 )      patch.overlayStrength = HERO_PHOTO_ATTR_DEFAULTS.overlayStrength;
+		setAttributes( patch );
+
+		if ( ! innerBlocks || innerBlocks.length === 0 ) {
+			const eyebrow = createBlock( 'core/paragraph', {
+				content:   __( 'Eyebrow', 'bozzies' ),
+				className: 'eyebrow hero__eyebrow',
+			} );
+			const heading = createBlock( 'core/heading', {
+				level:     1,
+				content:   __( 'Page title', 'bozzies' ),
+				className: 'hero__title',
+			} );
+			const subtitle = createBlock( 'core/paragraph', {
+				content:   __( 'Subtitle', 'bozzies' ),
+				className: 'hero__subtitle',
+			} );
+			replaceInnerBlocks( clientId, [ eyebrow, heading, subtitle ], false );
+			return;
+		}
+
+		// Existing content — annotate in place.
+		let heroTitleAssigned = false;
+		let heroSubtitleAssigned = false;
+		for ( const block of innerBlocks ) {
+			if ( ! heroTitleAssigned && block.name === 'core/heading' ) {
+				updateBlockAttributes( block.clientId, {
+					level:     1,
+					className: ensureClass( block.attributes.className, 'hero__title' ),
+				} );
+				heroTitleAssigned = true;
+				continue;
+			}
+			if ( block.name === 'core/paragraph' ) {
+				const hasEyebrowStyle = ( block.attributes.className || '' ).includes( 'is-style-eyebrow' );
+				if ( hasEyebrowStyle ) {
+					updateBlockAttributes( block.clientId, {
+						className: ensureClass( block.attributes.className, 'eyebrow hero__eyebrow' ),
+					} );
+					continue;
+				}
+				if ( heroTitleAssigned && ! heroSubtitleAssigned ) {
+					updateBlockAttributes( block.clientId, {
+						className: ensureClass( block.attributes.className, 'hero__subtitle' ),
+					} );
+					heroSubtitleAssigned = true;
+					continue;
+				}
+			}
+		}
+		// If the owner typed only paragraphs (no heading), promote the first
+		// one to the title — Astro's hero always has an h1, and a paragraph-only
+		// hero would render without a title.
+		if ( ! heroTitleAssigned ) {
+			const firstPara = innerBlocks.find( ( b ) => b.name === 'core/paragraph' );
+			if ( firstPara ) {
+				const replacementHeading = createBlock( 'core/heading', {
+					level:     1,
+					content:   firstPara.attributes.content || __( 'Page title', 'bozzies' ),
+					className: ensureClass( firstPara.attributes.className, 'hero__title' ),
+				} );
+				const rest = innerBlocks.filter( ( b ) => b.clientId !== firstPara.clientId );
+				replaceInnerBlocks( clientId, [ replacementHeading, ...rest ], false );
+			}
+		}
+	};
+
+	// --- Editor preview -------------------------------------------------
+	// When Photo hero is ON, render Astro's exact DOM shape so the block
+	// looks identical inside the editor iframe. When OFF, keep the original
+	// __image / __overlay / __backdrop / __frame / __inner layers so
+	// non-hero sections stay unchanged.
+	const heroSection = (
+		<section { ...blockProps }>
+			{ hasImage && (
+				<div className="hero__image-wrap" aria-hidden="true">
+					<img
+						className="hero__image"
+						src={ backgroundImage.url }
+						alt={ backgroundImage.alt || '' }
+					/>
+					<div className="hero__tint" />
+					<div className="hero__scrim" />
+				</div>
+			) }
+			<div className="hero__frame" aria-hidden="true">
+				<HeroCorner variant="tl" />
+				<HeroCorner variant="tr" />
+				<HeroCorner variant="bl" />
+				<HeroCorner variant="br" />
+			</div>
+			<div className="hero__content container">
+				<InnerBlocks { ...innerBlocksProps } />
+				<HeroGlyph />
+			</div>
+		</section>
+	);
+
+	const regularSection = (
+		<section { ...blockProps }>
+			{ hasImage && (
+				<div className="wp-block-bozzies-section__image" aria-hidden="true" />
+			) }
+			{ hasImage && (
+				<div className="wp-block-bozzies-section__overlay" aria-hidden="true" />
+			) }
+			{ hasBackdrop && (
+				<div className="wp-block-bozzies-section__backdrop" aria-hidden="true" />
+			) }
+			{ heroFrame && (
+				<div className="wp-block-bozzies-section__frame" aria-hidden="true" />
+			) }
+			<div className="wp-block-bozzies-section__inner">
+				<InnerBlocks { ...innerBlocksProps } />
+			</div>
+		</section>
+	);
 
 	return (
 		<>
@@ -340,7 +561,17 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 					/>
 				</PanelBody>
 
-				<PanelBody title={ __( 'Hero options', 'bozzies' ) } initialOpen={ false }>
+				<PanelBody title={ __( 'Hero options', 'bozzies' ) } initialOpen>
+					<ToggleControl
+						label={ __( 'Photo hero', 'bozzies' ) }
+						help={ __(
+							'Full-bleed hero with the picked image, purple wash, corner brackets and accent glyph. Adds an eyebrow, an h1 title, and a subtitle if the section is empty; adds hero classes to your existing heading and paragraph if it is not.',
+							'bozzies'
+						) }
+						checked={ isPhotoHero }
+						onChange={ onTogglePhotoHero }
+						__nextHasNoMarginBottom
+					/>
 					<ToggleControl
 						label={ __( 'Corner brackets', 'bozzies' ) }
 						checked={ heroFrame }
@@ -365,23 +596,7 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				</PanelBody>
 			</InspectorControls>
 
-			<section { ...blockProps }>
-				{ hasImage && (
-					<div className="wp-block-bozzies-section__image" aria-hidden="true" />
-				) }
-				{ hasImage && (
-					<div className="wp-block-bozzies-section__overlay" aria-hidden="true" />
-				) }
-				{ hasBackdrop && (
-					<div className="wp-block-bozzies-section__backdrop" aria-hidden="true" />
-				) }
-				{ heroFrame && (
-					<div className="wp-block-bozzies-section__frame" aria-hidden="true" />
-				) }
-				<div className="wp-block-bozzies-section__inner">
-					<InnerBlocks { ...innerBlocksProps } />
-				</div>
-			</section>
+			{ isPhotoHero ? heroSection : regularSection }
 		</>
 	);
 }

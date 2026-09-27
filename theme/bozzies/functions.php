@@ -45,6 +45,13 @@ function bozzies_register_pattern_categories() {
 		'label'       => __( 'Boswell', 'bozzies' ),
 		'description' => __( 'Patterns tuned to the Boswell Sisters editorial design.', 'bozzies' ),
 	) );
+	// Owner-facing section patterns are grouped here so the block inserter
+	// shows one obvious "Bozzies sections" heading instead of the generic
+	// "Boswell" label.
+	register_block_pattern_category( 'bozzies-sections', array(
+		'label'       => __( 'Bozzies sections', 'bozzies' ),
+		'description' => __( 'Full-bleed section layouts built for this site — heroes, card grids, quote blocks.', 'bozzies' ),
+	) );
 }
 
 add_action( 'init', 'bozzies_register_theme_blocks' );
