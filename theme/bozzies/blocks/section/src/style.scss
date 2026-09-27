@@ -33,29 +33,89 @@
 		color: var(--bozzies-section-text, var(--wp--custom--color--text-on-paper));
 	}
 
-	/* Heading + link colours inherit from ground text — but headings on ink/purple
-	 * grounds should not fall back to a global dark color. */
-	&.ground-ink .wp-block-heading,
-	&.ground-ink h1, &.ground-ink h2, &.ground-ink h3, &.ground-ink h4, &.ground-ink h5, &.ground-ink h6 {
+	/* Heading colours per ground — Astro paints display headings with the pure
+	 * palette colour (--ink / --paper-warm) rather than the softer body-text
+	 * colour, so mirror that here instead of falling through to the ground's
+	 * default text color. Also weight 300 for h2/h3 (Astro's home page uses a
+	 * lighter weight for all section titles). */
+	&.ground-paper :is(.wp-block-heading, h1, h2, h3, h4, h5, h6) {
+		color: var(--wp--preset--color--ink);
+	}
+	&.ground-ink :is(.wp-block-heading, h1, h2, h3, h4, h5, h6) {
 		color: var(--wp--custom--color--text-on-ink);
 	}
-	&.ground-purple .wp-block-heading,
-	&.ground-purple h1, &.ground-purple h2, &.ground-purple h3, &.ground-purple h4, &.ground-purple h5, &.ground-purple h6 {
-		color: var(--wp--custom--color--text-on-purple);
+	&.ground-purple :is(.wp-block-heading, h1, h2, h3, h4, h5, h6) {
+		color: var(--wp--preset--color--paper-warm);
 	}
-	&.ground-paper .wp-block-heading,
-	&.ground-paper h1, &.ground-paper h2, &.ground-paper h3, &.ground-paper h4, &.ground-paper h5, &.ground-paper h6 {
+	&.ground-gold :is(.wp-block-heading, h1, h2, h3, h4, h5, h6) {
+		color: var(--wp--preset--color--ink);
+	}
+	&.ground-paper :is(h2, h3),
+	&.ground-purple :is(h2, h3),
+	&.ground-gold :is(h2, h3) {
+		font-weight: 300;
+	}
+
+	/* Body text on paper (h2/h3 already covered above): Astro uses --ink for
+	 * playlist blurb, sample body, donate body — not --text-on-paper. Apply
+	 * ink to any direct paragraph child of the section inner that isn't an
+	 * eyebrow. Paragraphs following a .is-style-lede opt back down to the
+	 * softer --text-on-paper (Astro's .intro__body colour). */
+	&.ground-paper > .wp-block-bozzies-section__inner > p:not(.is-style-eyebrow) {
+		color: var(--wp--preset--color--ink);
+	}
+	&.ground-paper > .wp-block-bozzies-section__inner > .is-style-lede ~ p {
 		color: var(--wp--custom--color--text-on-paper);
 	}
-	&.ground-gold .wp-block-heading,
-	&.ground-gold h1, &.ground-gold h2, &.ground-gold h3, &.ground-gold h4, &.ground-gold h5, &.ground-gold h6 {
+	&.ground-gold > .wp-block-bozzies-section__inner > p:not(.is-style-eyebrow) {
 		color: var(--wp--preset--color--ink);
 	}
 
+	/* Eyebrow colour per ground — the theme.json eyebrow variation defaults to
+	 * brass, which is Astro's colour on ink grounds only. Home page eyebrows
+	 * on paper/gold are purple; on purple they are yellow-soft. */
+	&.ground-paper .is-style-eyebrow,
+	&.ground-gold  .is-style-eyebrow {
+		color: var(--wp--preset--color--purple);
+	}
+	&.ground-purple .is-style-eyebrow {
+		color: var(--wp--custom--color--yellow-soft);
+	}
+
+	/* Link colours per ground — matches Astro's --link on ivory, --link-on-dark
+	 * on dark grounds, --link-hover on gold. */
 	&.ground-paper a  { color: var(--wp--preset--color--link); }
 	&.ground-ink a    { color: var(--wp--custom--color--link-on-dark); }
 	&.ground-purple a { color: var(--wp--custom--color--link-on-dark); }
 	&.ground-gold a   { color: var(--wp--custom--color--link-hover); text-decoration: underline; }
+
+	/* Buttons on paper / gold grounds — the ground <a> rule above would tint
+	 * button text blue (link) or link-hover; override so the button keeps its
+	 * theme.json --paper text on --purple background. Underline from gold
+	 * links is cleared here too. Sample__cta padding = 1rem × 2rem (Astro's
+	 * --space-4 × --space-6); btn--purple padding = 0.75rem × 2rem. */
+	&.ground-paper .wp-block-button .wp-block-button__link,
+	&.ground-paper .wp-block-button .wp-element-button,
+	&.ground-gold  .wp-block-button .wp-block-button__link,
+	&.ground-gold  .wp-block-button .wp-element-button {
+		color: var(--wp--preset--color--paper);
+		text-decoration: none;
+	}
+	&.ground-paper .wp-block-button .wp-block-button__link:hover,
+	&.ground-paper .wp-block-button .wp-block-button__link:focus-visible,
+	&.ground-gold  .wp-block-button .wp-block-button__link:hover,
+	&.ground-gold  .wp-block-button .wp-block-button__link:focus-visible {
+		color: var(--wp--preset--color--paper);
+		background: var(--wp--preset--color--oxblood);
+		border-color: var(--wp--preset--color--oxblood);
+		text-decoration: none;
+	}
+	&.ground-paper .wp-block-button .wp-block-button__link {
+		padding: var(--wp--preset--spacing--m) var(--wp--preset--spacing--xl);
+	}
+	&.ground-gold .wp-block-button .wp-block-button__link {
+		padding: var(--wp--preset--spacing--s) var(--wp--preset--spacing--xl);
+	}
 }
 
 /* --- Inner container widths --------------------------------------------- */
@@ -72,13 +132,82 @@
  * (Group/Cover with is-layout-flow / -constrained). The section inner isn't
  * one, so browser-default paragraph margins (1em top/bottom) leak in. Reset
  * that, then apply a controlled block-gap between direct children so the
- * section's inner rhythm matches Astro's back-to-back children (which have
- * per-element margin-top values applied by class selectors). */
+ * section's inner rhythm matches Astro's per-element margin-top values. */
 .wp-block-bozzies-section > .wp-block-bozzies-section__inner > * {
 	margin-block: 0;
 }
 .wp-block-bozzies-section > .wp-block-bozzies-section__inner > * + * {
 	margin-block-start: var(--wp--style--block-gap, 1rem);
+}
+/* Astro's eyebrow → heading rhythm: --space-3 (0.75rem) top on the heading
+ * that follows an eyebrow. Applies to any section regardless of ground. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .is-style-eyebrow + :is(.wp-block-heading, h1, h2, h3) {
+	margin-block-start: var(--wp--preset--spacing--s);
+}
+/* Heading → body: --space-3 on paper/purple/ink (playlist blurb, voices),
+ * --space-4 on gold (donate body). Sample body uses --space-4 as well —
+ * covered by the paper-ground rule when using a following blurb + body
+ * pair; for the home page the sample section has a single lead paragraph,
+ * so a --space-3 works. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) + p {
+	margin-block-start: var(--wp--preset--spacing--s);
+}
+.wp-block-bozzies-section.ground-gold > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h1, h2, h3) + p {
+	margin-block-start: var(--wp--preset--spacing--m);
+}
+/* Body → CTA (Buttons block): --space-6 (2rem) on paper + gold. */
+.wp-block-bozzies-section:is(.ground-paper, .ground-gold) > .wp-block-bozzies-section__inner > .wp-block-buttons {
+	margin-block-start: var(--wp--preset--spacing--xl);
+}
+/* Intro-style lede: display font, snug leading, --ink colour, distinct from
+ * the ground's default body colour. Follow with --space-5 (1.5rem) top on
+ * subsequent paragraphs (Astro's .intro__body margin-top). */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .is-style-lede {
+	font-family: var(--wp--preset--font-family--display) !important;
+	font-weight: 400 !important;
+	font-size: clamp(var(--wp--preset--font-size--large, 1.953rem), 2.5vw + 0.4rem, var(--wp--custom--step--4, 2.441rem)) !important;
+	line-height: var(--wp--custom--line-height--snug) !important;
+	color: var(--wp--preset--color--ink);
+	margin-block-start: var(--wp--preset--spacing--m);   /* --space-4 = 1rem */
+}
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .is-style-lede + p {
+	margin-block-start: var(--wp--preset--spacing--l);   /* --space-5 = 1.5rem */
+}
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .is-style-lede + p + p {
+	margin-block-start: var(--wp--preset--spacing--l);
+}
+/* Astro's per-paragraph rhythm on intro__body uses --space-5 (1.5rem) between
+ * successive lede-adjacent paragraphs. */
+
+/* Body paragraphs directly inside a paper/purple section (no lede) use the
+ * "lead" font-size Astro applies (var(--step-1)) and looser leading. */
+.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .bozzies-para-body {
+	font-size: var(--wp--preset--font-size--lead);
+	line-height: var(--wp--custom--line-height--loose);
+}
+
+/* Section H2 typography defaults per ground — Astro's home page sets h2 to
+ * font-weight 300 (already applied above) with a slightly softer clamp than
+ * the theme.json global; use ground defaults so any paper/purple section
+ * gets the "playlist / voices / sample" H2 sizing and any gold section gets
+ * the smaller "donate teaser" sizing. */
+.wp-block-bozzies-section:is(.ground-paper, .ground-purple) > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
+	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--6, 3.815rem));
+	letter-spacing: var(--wp--custom--letter-spacing--tight);
+}
+.wp-block-bozzies-section.ground-gold > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
+	font-size: clamp(var(--wp--preset--font-size--large, 1.953rem), 2.5vw + 0.4rem, var(--wp--custom--step--5, 3.052rem));
+}
+
+/* Sections that carry the staves backdrop are our "sample" pattern in the
+ * home page: smaller top of the h2 clamp and extra bottom padding so the
+ * "Play Lesson" CTA breathes. Keyed on the backdrop class so the treatment
+ * follows the pattern, not a per-page id. */
+.wp-block-bozzies-section.has-backdrop-staves > .wp-block-bozzies-section__inner > :is(.wp-block-heading, h2) {
+	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--5, 3.052rem));
+}
+.wp-block-bozzies-section.has-backdrop-staves {
+	padding-bottom: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--9, 6rem));
 }
 
 .wp-block-bozzies-section.has-width-container > .wp-block-bozzies-section__inner {

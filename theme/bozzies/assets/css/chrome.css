@@ -220,23 +220,50 @@ header.wp-block-template-part {
 	transform: scaleX(1);
 }
 
-/* Mobile navigation overlay: paper ground (matches the sticky header) */
-.site-header__nav.has-modal-open .wp-block-navigation__responsive-container.is-menu-open {
-	background: var(--wp--preset--color--paper);
-	color: var(--wp--custom--color--text-on-paper);
+/* Force the WP core/navigation block to render its items inline at every
+ * viewport, matching Astro's mobile behaviour. overlayMenu="never" in the
+ * block markup handles most of it; these belt-and-braces rules cover WP
+ * builds that still ship the responsive-container container/toggle CSS. */
+.site-header__nav .wp-block-navigation__responsive-container-open {
+	display: none !important;
 }
-.site-header__nav .wp-block-navigation__responsive-container-open,
-.site-header__nav .wp-block-navigation__responsive-container-close {
-	color: var(--wp--preset--color--ink);
+.site-header__nav .wp-block-navigation__responsive-container {
+	display: block !important;
+	position: static !important;
+	background: transparent !important;
+	padding: 0 !important;
+}
+.site-header__nav .wp-block-navigation__responsive-container-content {
+	display: flex;
+	align-items: center;
 }
 
 @media (max-width: 900px) {
+	/* Header stacks: mark on top, nav + Donate row below (Astro's mobile
+	 * treatment). The mark is still a flex row with sub-line beneath. */
 	.site-header__inner {
 		flex-direction: column;
 		align-items: flex-start;
 		gap: var(--wp--preset--spacing--s);
 	}
+	/* Actions row: nav items and Donate stay on the same visual row and
+	 * wrap together — Astro's .site-nav__list flex-wrap: wrap treatment. */
+	.site-header__actions {
+		flex-wrap: wrap;
+		row-gap: var(--wp--preset--spacing--s);
+		column-gap: var(--wp--preset--spacing--l);
+		width: 100%;
+	}
+	.site-header__nav .wp-block-navigation__container {
+		flex-wrap: wrap;
+		row-gap: var(--wp--preset--spacing--s);
+		column-gap: var(--wp--preset--spacing--l);
+	}
 	.site-header__nav .wp-block-navigation-item__content {
+		font-size: var(--wp--custom--step--minus-2);
+		padding-block: var(--wp--preset--spacing--xs);
+	}
+	.site-header__donate .wp-block-button__link {
 		font-size: var(--wp--custom--step--minus-2);
 	}
 }
@@ -500,10 +527,15 @@ header.wp-block-template-part {
 	isolation: isolate;
 	overflow: hidden;
 }
-.has-backdrop-vinyl > *,
-.has-backdrop-staves > *,
-.has-backdrop-notes > *,
-.has-backdrop-diamond-grid > * {
+/* Position + z-index setup for content children ABOVE the ::after backdrop
+ * layer. Scoped away from the Section block: that block renders its backdrop
+ * via a dedicated __backdrop child, so applying "position: relative" to all
+ * children here would collapse the __backdrop (position: absolute; inset:0)
+ * to height: 0 and hide the pattern entirely. */
+.has-backdrop-vinyl:not(.wp-block-bozzies-section) > *,
+.has-backdrop-staves:not(.wp-block-bozzies-section) > *,
+.has-backdrop-notes:not(.wp-block-bozzies-section) > *,
+.has-backdrop-diamond-grid:not(.wp-block-bozzies-section) > * {
 	position: relative;
 	z-index: 1;
 }
@@ -583,116 +615,13 @@ header.wp-block-template-part {
 	margin-inline: auto;
 }
 
-/* ============================================================================
- * Home page: per-section font-size + margin rules that mirror the Astro
- * home page's per-section CSS (index.astro <style>). Applied via the
- * section's WP anchor (rendered as HTML id) so authors can move sections
- * around without breaking layout. Keys:
- *   #home-intro     — intro on paper
- *   #home-playlist  — playlist on paper with vinyl backdrop
- *   #home-voices    — voices on purple with notes backdrop
- *   #home-sample    — sample on paper with staves backdrop
- *   #home-donate    — donate on gold with diamond-grid backdrop
- * ========================================================================= */
-/* Intro lede (matches Astro's .intro__lede). Font-size clamp min matches
- * Astro's --step-3 (== --wp--preset--font-size--large, 1.953rem) so the
- * mobile floor is identical; max matches --step-4. Colour is --ink to
- * match Astro exactly; intro__body paragraphs remain --text-on-paper. */
-#home-intro .wp-block-bozzies-section__inner > .has-large-font-size {
-	font-family: var(--wp--preset--font-family--display) !important;
-	font-weight: 400 !important;
-	font-size: clamp(var(--wp--preset--font-size--large, 1.953rem), 2.5vw + 0.4rem, var(--wp--custom--step--4, 2.441rem)) !important;
-	line-height: var(--wp--custom--line-height--snug) !important;
-	color: var(--wp--preset--color--ink);
-}
-#home-intro .wp-block-bozzies-section__inner > p:not(.has-large-font-size) {
-	font-size: var(--wp--preset--font-size--lead);
-	line-height: var(--wp--custom--line-height--loose);
-}
-#home-playlist .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-voices .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-sample .wp-block-bozzies-section__inner > .wp-block-heading {
-	font-family: var(--wp--preset--font-family--display);
-	font-weight: 300;
-	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--6, 3.815rem));
-	letter-spacing: var(--wp--custom--letter-spacing--tight);
-}
-#home-donate .wp-block-bozzies-section__inner > .wp-block-heading {
-	font-family: var(--wp--preset--font-family--display);
-	font-weight: 300;
-	font-size: clamp(var(--wp--preset--font-size--large, 1.953rem), 2.5vw + 0.4rem, var(--wp--custom--step--5, 3.052rem));
-}
-#home-sample .wp-block-bozzies-section__inner > .wp-block-heading {
-	font-size: clamp(var(--wp--custom--step--4, 2.441rem), 3.5vw + 0.3rem, var(--wp--custom--step--5, 3.052rem));
-}
-/* Astro's .sample-section keeps the default .section top padding but adds
- * a larger bottom padding (clamp(--space-8, 6vw, --space-9)). Reproduce that
- * shape here without switching the whole section to spacious spacing. */
-#home-sample {
-	padding-bottom: clamp(var(--wp--custom--space--8, 4rem), 6vw, var(--wp--custom--space--9, 6rem));
-}
-
-/* Per-section text colours — Astro uses --ink (not --text-on-paper) on the
- * playlist blurb, sample body/title, donate body/title and both paper-ground
- * h2s. The voices h2 on purple uses --paper-warm (not --text-on-purple). */
-#home-playlist .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-sample .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-donate .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-playlist .wp-block-bozzies-section__inner > p:not(.is-style-eyebrow),
-#home-sample .wp-block-bozzies-section__inner > p:not(.is-style-eyebrow),
-#home-donate .wp-block-bozzies-section__inner > p:not(.is-style-eyebrow) {
-	color: var(--wp--preset--color--ink);
-}
-#home-voices .wp-block-bozzies-section__inner > .wp-block-heading {
-	color: var(--wp--preset--color--paper-warm);
-}
-
-/* Per-section inner rhythm — mirrors Astro's per-element margin-top values on
- * the home page. Applied on top of the section block's default block-gap so
- * only the elements that need a different rhythm get one. All values here
- * come from Astro's index.astro <style> block, expressed in the same
- * --space-N tokens that resolve to identical rem sizes. */
-
-/* Intro: lede has --space-4 (1rem) top margin, both body paras have --space-5
- * (1.5rem) top margin from Astro. */
-#home-intro > .wp-block-bozzies-section__inner > .has-large-font-size {
-	margin-block-start: var(--wp--preset--spacing--m);   /* 1rem  */
-}
-#home-intro > .wp-block-bozzies-section__inner > p:not(.has-large-font-size):not(.is-style-eyebrow) {
-	margin-block-start: var(--wp--preset--spacing--l);   /* 1.5rem */
-}
-
-/* Playlist / Voices / Sample: heading has --space-3 (0.75rem) top from its
- * eyebrow. Donate: heading has --space-4 (1rem). Playlist blurb: --space-3.
- * Sample body / Donate body: --space-4. CTA buttons use the block below. */
-#home-playlist > .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-voices  > .wp-block-bozzies-section__inner > .wp-block-heading,
-#home-sample  > .wp-block-bozzies-section__inner > .wp-block-heading {
-	margin-block-start: var(--wp--preset--spacing--s);   /* 0.75rem = --space-3 */
-}
-#home-donate > .wp-block-bozzies-section__inner > .wp-block-heading {
-	margin-block-start: var(--wp--preset--spacing--m);   /* 1rem = --space-4 */
-}
-#home-playlist > .wp-block-bozzies-section__inner > .wp-block-heading + p {
-	margin-block-start: var(--wp--preset--spacing--s);   /* 0.75rem = --space-3 */
-}
-#home-sample > .wp-block-bozzies-section__inner > .wp-block-heading + p,
-#home-donate > .wp-block-bozzies-section__inner > .wp-block-heading + p {
-	margin-block-start: var(--wp--preset--spacing--m);   /* 1rem = --space-4 */
-}
-#home-intro   > .wp-block-bozzies-section__inner > .is-style-eyebrow,
-#home-playlist > .wp-block-bozzies-section__inner > .is-style-eyebrow,
-#home-voices   > .wp-block-bozzies-section__inner > .is-style-eyebrow,
-#home-sample   > .wp-block-bozzies-section__inner > .is-style-eyebrow,
-#home-donate   > .wp-block-bozzies-section__inner > .is-style-eyebrow {
-	margin-block-start: 0;
-}
-/* Astro spaces the sample CTA (a Buttons block wrapping the Play button) and
- * the donate CTA above by --space-6 (2rem). */
-#home-sample > .wp-block-bozzies-section__inner > .wp-block-buttons,
-#home-donate > .wp-block-bozzies-section__inner > .wp-block-buttons {
-	margin-block-start: var(--wp--preset--spacing--xl); /* 2rem */
-}
+/* Per-section colour, heading, eyebrow, button, rhythm and padding rules used
+ * to live here keyed on the home page's section anchors (#home-intro etc.).
+ * They have moved into the bozzies/section block's own stylesheet, keyed on
+ * the ground class (.ground-paper / .ground-purple / .ground-gold) and on
+ * pattern classes (.has-backdrop-staves, .is-style-lede, .is-style-play), so
+ * any section that uses those grounds/patterns picks up the same treatment
+ * automatically. See theme/bozzies/blocks/section/src/style.scss. */
 
 /* ============================================================================
  * Heading-width utilities — a single set of measured widths that map to
@@ -764,33 +693,36 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
- * "Play Lesson" CTA — Astro's .sample__cta renders a 24px play-icon SVG
- * before the label text (decorative, aria-hidden). Buttons that carry the
- * bozzies-play-cta class get the SVG injected server-side by a render_block
- * filter; this rule spaces and colours the inline SVG so it inherits the
- * button label's foreground colour and sits vertically centred with the
- * text (matching Astro's inline-flex + gap layout). Astro's sample__cta
- * uses padding: var(--space-4) var(--space-6) — 18px × 36px @ 112.5% root —
- * which is larger than WordPress's default button padding.
+ * "Play" button style — a core/button block variation. Registered as
+ * is-style-play in functions.php so authors can pick it from the button
+ * style panel; here we inject the play-icon SVG via ::before so the mark
+ * matches Astro's inline SVG pixel-for-pixel, and lay the button out with
+ * inline-flex + gap so the icon sits centred with the label.
  * ========================================================================= */
-.wp-block-button.bozzies-play-cta .wp-block-button__link {
+.wp-block-button.is-style-play .wp-block-button__link {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wp--preset--spacing--s);
-	padding: var(--wp--preset--spacing--m) var(--wp--preset--spacing--xl);
 }
-.wp-block-button.bozzies-play-cta .wp-block-button__link svg {
+.wp-block-button.is-style-play .wp-block-button__link::before {
+	content: '';
+	display: block;
+	flex: 0 0 auto;
 	width: 24px;
 	height: 24px;
-	flex: 0 0 auto;
-	display: block;
-	color: currentColor;
-}
-
-/* Donate button on gold ground — Astro's .btn--purple uses padding
- * var(--space-3) var(--space-6) = 13.5px × 36px @ 112.5% root. */
-#home-donate .wp-block-button .wp-block-button__link {
-	padding: var(--wp--preset--spacing--s) var(--wp--preset--spacing--xl);
+	/* Astro's play icon: circle stroke + filled triangle. Painted via
+	 * mask-image so the icon inherits the button's text colour on any
+	 * ground (paper/purple/gold), no per-ground overrides needed. */
+	background-color: currentColor;
+	--play-icon-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='12' r='11' fill='none' stroke='%23000' stroke-width='1.4'/><path d='M9 7 L17 12 L9 17 Z' fill='%23000'/></svg>");
+	-webkit-mask-image: var(--play-icon-svg);
+	        mask-image: var(--play-icon-svg);
+	-webkit-mask-size: contain;
+	        mask-size: contain;
+	-webkit-mask-repeat: no-repeat;
+	        mask-repeat: no-repeat;
+	-webkit-mask-position: center;
+	        mask-position: center;
 }
 
 /* ============================================================================

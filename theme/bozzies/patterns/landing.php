@@ -23,7 +23,7 @@
 <!-- /wp:bozzies/section -->
 
 <!-- wp:bozzies/section {"backgroundStyle":"paper","width":"narrow","headingWidth":"reading","align":"full"} -->
-<!-- wp:paragraph {"fontSize":"large"} --><p class="has-large-font-size">The roots of rock and roll literally start here.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"className":"is-style-lede"} --><p class="is-style-lede">The roots of rock and roll literally start here.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"style":{"typography":{"fontWeight":"700"}}} --><p style="font-weight:700">Come on in and meet New Orleans' own Boswell Sisters.</p><!-- /wp:paragraph -->
 <!-- wp:paragraph --><p>Discover the velvet tones of Connie Boswell — inspiration to singers from Ella Fitzgerald to Wynonna Judd, seller of more than 75 million records, and one of America's greatest voices, delivered entirely from a wheelchair. Whether you're a nonplussed novice or a crusty old jazzbo, you'll be delighted by the sounds and stories of the Boswells.</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
@@ -43,12 +43,12 @@
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">[Quotes carousel: added in task 8]</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
 
-<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","width":"narrow","headingWidth":"reading","spacing":"spacious","align":"full"} -->
+<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","width":"narrow","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Sample the Sound</p><!-- /wp:paragraph -->
 <!-- wp:heading {"textAlign":"center","level":2} --><h2 class="wp-block-heading has-text-align-center">Cynthia Lucas explains what makes the Boswells tick</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">A five-part audio series narrated by one of the best-known Boswell historians. Start with Lesson 1 — The Blend.</p><!-- /wp:paragraph -->
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
-<div class="wp-block-buttons"><!-- wp:button {"className":"bozzies-play-cta"} --><div class="wp-block-button bozzies-play-cta"><a class="wp-block-button__link wp-element-button" href="/media/lessons/lesson-1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
+<div class="wp-block-buttons"><!-- wp:button {"className":"is-style-play"} --><div class="wp-block-button is-style-play"><a class="wp-block-button__link wp-element-button" href="/media/lessons/lesson-1/">Play Lesson 1 — The Blend</a></div><!-- /wp:button --></div>
 <!-- /wp:buttons -->
 <!-- /wp:bozzies/section -->
 

@@ -23,12 +23,15 @@ function bozzies_register_section_styles() {
 add_action( 'init', 'bozzies_register_editor_style_variations' );
 function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/paragraph', array( 'name' => 'eyebrow',       'label' => __( 'Eyebrow', 'bozzies' ) ) );
+	register_block_style( 'core/paragraph', array( 'name' => 'lede',          'label' => __( 'Lede', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline',      'label' => __( 'Hairline', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline-thin', 'label' => __( 'Hairline thin', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'jazz',          'label' => __( 'Jazz divider', 'bozzies' ) ) );
 	register_block_style( 'core/quote',     array( 'name' => 'pull-quote',    'label' => __( 'Pull quote', 'bozzies' ) ) );
 	register_block_style( 'core/group',     array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
 	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
+	/* "Play" button style prepends an inline play-icon SVG before the label. */
+	register_block_style( 'core/button', array( 'name' => 'play', 'label' => __( 'Play', 'bozzies' ) ) );
 }
 
 add_action( 'init', 'bozzies_register_pattern_categories', 9 );
@@ -71,25 +74,6 @@ function bozzies_add_editor_styles() {
 // auto-textures apostrophes and quotes into curly typographers' variants;
 // switch that off so straight quotes stay straight and match the source.
 add_filter( 'run_wptexturize', '__return_false' );
-
-/**
- * Inject Astro's play-icon SVG into buttons that carry the class
- * "bozzies-play-cta". The SVG is decorative (aria-hidden), copied verbatim
- * from Astro's src/pages/index.astro so the mark matches pixel-for-pixel.
- */
-add_filter( 'render_block_core/button', 'bozzies_inject_play_icon', 10, 2 );
-function bozzies_inject_play_icon( $block_content, $block ) {
-	$class = isset( $block['attrs']['className'] ) ? $block['attrs']['className'] : '';
-	if ( strpos( $class, 'bozzies-play-cta' ) === false ) {
-		return $block_content;
-	}
-	$svg = '<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="11" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M9 7 L17 12 L9 17 Z" fill="currentColor"/></svg>';
-	// Insert the SVG immediately after the opening anchor tag. The regex is
-	// scoped to the first .wp-block-button__link so nested markup inside the
-	// button (if any) is untouched.
-	$pattern = '/(<a\b[^>]*wp-block-button__link[^>]*>)/i';
-	return preg_replace( $pattern, '$1' . $svg, $block_content, 1 );
-}
 
 /**
  * Rewrite YouTube embed URLs to the privacy-enhanced youtube-nocookie.com
