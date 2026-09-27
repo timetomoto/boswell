@@ -220,6 +220,31 @@ Same as the original 15-step order; the inventory confirms every piece has a hom
 - Dead code sweep of `theme/bozzies/assets/css/chrome.css` — most of chrome.css can be removed after the imports run with Astro class names.
 - Group 3 audits (heads, favicon, axe, crawl, network, colour).
 
+## Rebuild queue
+REBUILD-STATUS: RUNNING
+
+- [ ] Sister cards as a proper block (bozzies/sister-cards with editable cards in the editor), replacing the Custom HTML block. Then find and replace every other Custom HTML block in all content. No Custom HTML anywhere.
+- [ ] Bio pages (Connee, Martha, Vet): Astro's exact bio-body, bio-portrait figure, facts as dt/dd, facts grid width, bio nav.
+- [ ] Hub cards: subpage cards, music teasers, release cards, lesson cards, see-also, donate teaser. Update hub content and patterns to Astro's markup.
+- [ ] Page hero for subpages, and default page.html behavior (title shown in Astro's page hero, never two titles, never missing an h1).
+- [ ] Photo hero: verify on all hubs against the new base layer.
+- [ ] Home split hero block.
+- [ ] Home page sections.
+- [ ] Pull quote.
+- [ ] Section divider.
+- [ ] Music backdrops.
+- [ ] Nav and footer.
+- [ ] Lesson pages.
+- [ ] Charts and reviews.
+- [ ] 404.
+- [ ] Playlist player block.
+- [ ] Quotes carousel block.
+- [ ] Sisters timeline block.
+- [ ] Discography search block.
+- [ ] Full re-import and text diff of every page (include the andrews-sisters markdown residue), and every page opens in the editor without warnings and survives a save unchanged.
+- [ ] Dead code sweep (CSS, PHP, patterns, templates, SVG, JS, scripts; chrome.css holds only WordPress plumbing or is gone).
+- [ ] Group 3 audits: head tags and social previews, favicon, axe on every page, crawl, network audit, color check at 1440 and 390.
+
 ## Working habits
 - Read files with `offset`/`limit` instead of loading whole files; re-read sparingly.
 - Paste full reports in chat. Never save report files to disk.
