@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/bio-body",
+	"version": "1.0.0",
+	"title": "Bio body",
+	"category": "design",
+	"icon": "id",
+	"description": "Astro's sticky-portrait bio body — <section class=\"section ground-paper bio-body\"><div class=\"container bio-body__layout\"><figure class=\"bio-portrait\">…</figure><div class=\"prose\">…</div></div></section>. Portrait image + inline-editable caption + arbitrary prose inner blocks.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"portraitId":      { "type": "number", "default": 0 },
+		"portraitUrl":     { "type": "string", "default": "" },
+		"portraitAlt":     { "type": "string", "default": "" },
+		"portraitCaption": { "type": "string", "default": "" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

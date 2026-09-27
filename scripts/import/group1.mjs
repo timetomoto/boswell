@@ -261,33 +261,18 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
   // outer bozzies/section wrapper).
   const facts_ = factsTable(facts);
 
-  // Portrait fills the left column of the sticky two-column layout; no
-  // centering (the column itself is the width constraint).
-  const portraitBlock = portrait ? image({
-    id: portrait.id, url: portrait.url, alt: portrait.alt,
-    size: 'large',
-  }) : '';
-
-  // Two-column bio body — portrait sticky on the left, article prose on the
-  // right (matches Astro's .bio-body__layout, 300px + 1fr, sticky under nav).
-  const bodyInner = `<!-- wp:group {"className":"bio-body","layout":{"type":"default"}} -->
-<div class="wp-block-group bio-body">
-<!-- wp:columns {"verticalAlignment":"top"} -->
-<div class="wp-block-columns are-vertically-aligned-top">
-<!-- wp:column {"verticalAlignment":"top","width":"300px"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:300px">
-${portraitBlock}
-</div><!-- /wp:column -->
-<!-- wp:column {"verticalAlignment":"top"} --><div class="wp-block-column is-vertically-aligned-top">
+  // Sticky-portrait bio body — the bozzies/bio-body block emits Astro's
+  // exact <section class="section ground-paper bio-body"><div class="container
+  // bio-body__layout"><figure class="bio-portrait">…</figure><div class="prose">
+  // …</div></div></section> DOM verbatim from
+  // ~/boswell-poc/src/pages/sisters/[slug].astro lines 80-96. Portrait metadata
+  // is carried on the block's attributes; the prose lives in the inner blocks.
+  const bioAttrs = portrait
+    ? { portraitId: portrait.id, portraitUrl: portrait.url, portraitAlt: portrait.alt, portraitCaption: name, align: 'full' }
+    : { align: 'full' };
+  const body = `<!-- wp:bozzies/bio-body ${JSON.stringify(bioAttrs)} -->
 ${bodyBlocks.join('\n')}
-</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->
-</div>
-<!-- /wp:group -->`;
-  const body = section(
-    { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
-    portraitBlock ? bodyInner : bodyBlocks.join('\n'),
-  );
+<!-- /wp:bozzies/bio-body -->`;
 
   // Connee has a solo-career timeline embedded on her bio page.
   const timelinePlaceholder = hasSoloTimeline ? section(

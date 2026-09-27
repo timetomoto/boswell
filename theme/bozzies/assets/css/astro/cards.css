@@ -182,6 +182,12 @@
 
 /* --- Two-column sticky-portrait bio body ---------------------------- */
 .bio-body { position: relative; }
+/* Astro's per-page .prose block in sisters/[slug].astro (line 271) adds
+ * position:relative + z-index:1 so the prose column sits above the
+ * ground-paper noise overlay. Article.css's shared .prose rule omits
+ * this because press articles don't need it; scope it to .bio-body here
+ * to match Astro's bio pages without touching article prose. */
+.bio-body .prose { position: relative; z-index: 1; }
 .bio-body__layout {
 	display: grid;
 	grid-template-columns: 300px 1fr;
