@@ -72,10 +72,22 @@ const pullQuote = (text, cite) =>
 // Card group used by sisters grid and subpage teasers.
 // variant: 'card' (dark purple fill, gold ground) or 'card-plain' (paper
 // with purple left-accent, paper ground — matches Astro's .sister-card).
+// eyebrow: plain text OR { order, nickname } — the second form renders a
+// display-face `<span class="bozzies-card-order">` next to a small-caps
+// nickname to match Astro's .sister-card__meta row.
 const card = ({ eyebrow, title, body, cta, href, className = '', variant = 'card' }) => {
   const base = `is-style-${variant}`;
+  let eyebrowBlock = '';
+  if (eyebrow && typeof eyebrow === 'object') {
+    // Space between spans so innerText yields "01 MBoz" (matches Astro's
+    // .sister-card__order + .sister-card__nickname flex row with gap).
+    const content = `<span class="bozzies-card-order">${eyebrow.order}</span> ${eyebrow.nickname}`;
+    eyebrowBlock = p(content, { className: 'is-style-eyebrow' });
+  } else if (eyebrow) {
+    eyebrowBlock = p(eyebrow, { className: 'is-style-eyebrow' });
+  }
   const inner = [
-    eyebrow ? p(eyebrow, { className: 'is-style-eyebrow' }) : '',
+    eyebrowBlock,
     h(3, title),
     body ? p(body) : '',
     buttons(button(href, cta || 'Open')),
@@ -164,7 +176,7 @@ function buildSisters(media) {
 <div class="wp-block-columns">
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '01 MBoz',
+  eyebrow: { order: '01', nickname: 'MBoz' },
   title: 'Martha Boswell',
   body: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.',
   cta: 'Read the bio',
@@ -174,7 +186,7 @@ function buildSisters(media) {
 <!-- /wp:column -->
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '02 CBoz',
+  eyebrow: { order: '02', nickname: 'CBoz' },
   title: 'Connee Boswell',
   body: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.',
   cta: 'Read the bio',
@@ -184,7 +196,7 @@ function buildSisters(media) {
 <!-- /wp:column -->
 <!-- wp:column -->
 <div class="wp-block-column">${card({
-  eyebrow: '03 VBoz',
+  eyebrow: { order: '03', nickname: 'VBoz' },
   title: 'Vet Boswell',
   body: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...',
   cta: 'Read the bio',
@@ -250,14 +262,32 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
     factsTable(facts),
   );
 
+  // Portrait fills the left column of the sticky two-column layout; no
+  // centering (the column itself is the width constraint).
   const portraitBlock = portrait ? image({
     id: portrait.id, url: portrait.url, alt: portrait.alt,
-    size: 'large', align: 'center',
+    size: 'large',
   }) : '';
 
+  // Two-column bio body — portrait sticky on the left, article prose on the
+  // right (matches Astro's .bio-body__layout, 300px + 1fr, sticky under nav).
+  const bodyInner = `<!-- wp:group {"className":"bozzies-bio-body","layout":{"type":"default"}} -->
+<div class="wp-block-group bozzies-bio-body">
+<!-- wp:columns {"verticalAlignment":"top"} -->
+<div class="wp-block-columns are-vertically-aligned-top">
+<!-- wp:column {"verticalAlignment":"top","width":"300px"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:300px">
+${portraitBlock}
+</div><!-- /wp:column -->
+<!-- wp:column {"verticalAlignment":"top"} --><div class="wp-block-column is-vertically-aligned-top">
+${bodyBlocks.join('\n')}
+</div><!-- /wp:column -->
+</div>
+<!-- /wp:columns -->
+</div>
+<!-- /wp:group -->`;
   const body = section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
-    [portraitBlock, ...bodyBlocks].filter(Boolean).join('\n'),
+    { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
+    portraitBlock ? bodyInner : bodyBlocks.join('\n'),
   );
 
   // Connee has a solo-career timeline embedded on her bio page.
@@ -315,7 +345,9 @@ function buildAbout(media) {
   const prose = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
     [
-      h(2, 'Bozzies.org is dedicated to preserving the memory of the Boswell Sisters.'),
+      // Intro line renders as a lede paragraph on Astro, not a section-title
+      // heading — use is-style-lede so it inherits the site's lead typography.
+      p('Bozzies.org is dedicated to preserving the memory of the Boswell Sisters.', { className: 'is-style-lede' }),
       p('Martha, Connee, and Vet Boswell recorded seventy-five sides between 1925 and 1936, invented the swinging vocal harmony that shaped every close-harmony group that came after, and vanished from the popular consciousness before the Second World War. This archive exists to change that.', { className: 'bozzies-para-body' }),
       p('We pull together the best Boz content available — recordings, press coverage, chart data, biographies, tribute performances, and scholarship — and present it as a living reference for anyone who wants to hear, learn, and share.', { className: 'bozzies-para-body' }),
       h(2, 'What we do'),
@@ -351,12 +383,12 @@ function buildAbout(media) {
 }
 
 function buildBioResources(media) {
-  // Astro's bio-resources hero: back-link, eyebrow "A Family Affair",
-  // title "Boz Biography", subtitle. Then a pull quote, then prose, then
-  // a single "Get the Book at Baby Bee Books" button. No extra eyebrow
-  // or duplicate heading.
+  // Astro's bio-resources hero: gold ground with yellow "A Family Affair"
+  // eyebrow + ink title, then a full-width purple pull-quote section with
+  // the notes backdrop, then a two-column body (article prose left, book
+  // cover right), then a CTA button.
   const hero = section(
-    { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
+    { backgroundStyle: 'gold', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
     [
       p(`<a href="/sisters/">← The Sisters</a>`),
       p('A Family Affair', { className: 'is-style-eyebrow' }),
@@ -365,22 +397,34 @@ function buildBioResources(media) {
     ].join('\n'),
   );
 
+  // Full-bleed purple pull-quote — matches Astro's dedicated section on this
+  // page. Uses the site pullquote treatment (chrome.css → curly quotes,
+  // uppercased brass cite, white body on ground-purple).
   const heroQuote = section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
-    quote(
+    { backgroundStyle: 'purple', backdrop: 'notes', width: 'container', headingWidth: 'reading', align: 'full' },
+    pullQuote(
       'They were special. They were unique. And although they were born elsewhere, Martha, Connie, and Helvetia &ldquo;Vet&rdquo; Boswell were pure New Orleans.',
-      '— Steve Steinberg, Offbeat Magazine',
+      'Steve Steinberg, Offbeat Magazine',
     ),
   );
 
-  const legacyImage = image({ id: media.legacy.id, url: media.legacy.url, alt: 'Boswell Legacy', size: 'large', align: 'center' });
+  // Two-column body: article prose on the left, book cover on the right
+  // (image column ~40 %). Matches Astro's `.book-body` grid.
+  const legacyImage = image({ id: media.legacy.id, url: media.legacy.url, alt: 'Boswell Legacy', size: 'large' });
+  const proseBody = p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'bozzies-para-body', fontSize: 'lead' });
 
   const prose = section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
-    [
-      legacyImage,
-      p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'bozzies-para-body', fontSize: 'lead' }),
-    ].join('\n'),
+    { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
+    `<!-- wp:columns {"verticalAlignment":"top"} -->
+<div class="wp-block-columns are-vertically-aligned-top">
+<!-- wp:column {"verticalAlignment":"top","width":"60%"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:60%">
+${proseBody}
+</div><!-- /wp:column -->
+<!-- wp:column {"verticalAlignment":"top","width":"40%"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:40%">
+${legacyImage}
+</div><!-- /wp:column -->
+</div>
+<!-- /wp:columns -->`,
   );
 
   const bookCta = section(

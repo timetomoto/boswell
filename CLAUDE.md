@@ -106,7 +106,7 @@ Commit after Sisters/About, after Media, and after Press/other pages.
 
 **Cross-cutting Group 2 work still to do (not yet started this pass):**
 - **Media hub (`/media/`), Charts, Reviews, Discography, Lessons hub, all 5 lessons** — screenshots not yet taken at 1440 / 390.
-- **Press hub (`/press/`), 5 category archives (`/press/interviews/`, `/press/reviews/`, `/press/features/`, `/press/press-releases/`, `/press/personal-notes/`), at least 6 articles covering every category, Privacy Policy, 404** — screenshots not yet taken. Order-tables (WP vs Astro row-for-row) for the press hub and each category archive still to compile.
+- **Press hub (`/press/`), 5 category archives (`/press/vintage/`, `/press/feature/`, `/press/video/`, `/press/essay/`, `/press/in-their-own-words/`), at least 6 articles covering every category, Privacy Policy, 404** — screenshots not yet taken. Order-tables (WP vs Astro row-for-row) for the press hub and each category archive still to compile.
 - **Photo-hero coverage carry-over from Group 1** — check Astro on `/media/charts/`, `/media/reviews/`, `/media/discography/`, `/media/lessons/N/` and individual article pages; if Astro shows a `heroPhoto` treatment there, apply the same via `heroPhoto()` in `scripts/import/lib.mjs` and re-run the relevant import.
 - **`/media/` inline lesson list carry-over** — add the lesson list to the `/media/` page (inline) so it matches Astro. Keep the `/media/lessons/` hub route.
 
