@@ -64,6 +64,15 @@ function bozzies_enqueue_chrome() {
 		array(),
 		$ver
 	);
+	// Astro hero CSS — verbatim port of Hero.astro's <style> plus the
+	// .eyebrow / .container rules from Astro's global.css. Owned by the
+	// section block's is-hero-photo variant.
+	wp_enqueue_style(
+		'bozzies-astro-hero',
+		$dir_uri . '/assets/css/astro/hero.css',
+		array( 'bozzies-chrome' ),
+		$ver
+	);
 }
 
 add_action( 'after_setup_theme', 'bozzies_add_editor_styles' );
@@ -72,6 +81,9 @@ function bozzies_add_editor_styles() {
 	// Group-based ground styles, backdrops, and pull-quote overrides render
 	// consistently in edit mode.
 	add_editor_style( 'assets/css/chrome.css' );
+	// Same Astro hero CSS the front uses, so the owner sees the real hero
+	// look while editing a hub page.
+	add_editor_style( 'assets/css/astro/hero.css' );
 }
 
 /**

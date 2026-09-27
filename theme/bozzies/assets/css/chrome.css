@@ -656,86 +656,12 @@ header.wp-block-template-part {
 	color: var(--wp--custom--color--yellow-soft);
 }
 
-/* ============================================================================
- * Photo hero — match Astro's `.hero--full-bleed.hero--tall` treatment.
- * - Height: `min-height: 92vh` (Astro's `.hero--tall`), clamped between a
- *   readable minimum and a maximum so it doesn't blow up on very tall
- *   viewports.
- * - Scrim: darkening top-to-bottom gradient plus a radial ink wash so the
- *   overlaid text has AA contrast on any background photo.
- * - Gold accent glyph (Astro's `.hero__glyph`): a small yellow-soft musical
- *   notes SVG rendered via `::after` as a background image, centered near
- *   the bottom of the content column.
- * ========================================================================= */
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner {
-	/* Astro's `.hero--medium` sets `min-height: 62vh` but its rendered hero
-	 * on Vercel comes in visibly shorter than 62vh at 900 px viewports
-	 * because the content is short (title + subtitle + glyph + credit) so
-	 * the min-height only fires when content is even smaller. Use a clamp
-	 * that maxes at ~520 px at 900 vh, matching the Vercel rendered height,
-	 * and let content align to the middle-bottom of the section. */
-	min-height: clamp(380px, 55vh, 520px);
-	padding-block: var(--wp--preset--spacing--xl);
-	gap: var(--wp--preset--spacing--m);
-	position: relative;
-	justify-content: center;
-}
-/* Replace the block-attribute solid ink overlay with a purple multiply-blend
- * tint on photo heroes — matches Astro's `.hero__tint` (background: purple;
- * mix-blend-mode: multiply; opacity: 0.6). Applied only on is-hero-photo so
- * every other Section that uses an image-plus-overlay keeps its own tint. */
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__overlay {
-	background-color: var(--wp--preset--color--purple);
-	mix-blend-mode: multiply;
-	opacity: 0.6;
-}
-/* Darkening scrim on top of the purple tint so the title reads AA on any
- * background photo — matches Astro's `.hero__scrim`. Rendered via ::after
- * so it stacks over the block-owned overlay. */
-.wp-block-bozzies-section.is-hero-photo::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	z-index: 2;
-	/* Lighter than Astro's `.hero__scrim` because the block already lays down
-	 * the ink `__overlay` (now retargeted to purple + multiply above) and we
-	 * don't want to double-darken the photo. A subtle top-to-bottom ink
-	 * gradient is enough for AA over the darkened title area. */
-	background:
-		linear-gradient(180deg,
-			rgba(24, 22, 21, 0.00) 0%,
-			rgba(24, 22, 21, 0.15) 55%,
-			rgba(24, 22, 21, 0.55) 100%);
-}
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > * {
-	position: relative;
-	z-index: 3;
-}
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner::after {
-	/* Astro's `.hero__glyph`: three musical notes with two side rails, painted
-	 * in bourbon-gold (#C99A2A) at 100% opacity — Astro sets
-	 * `color: var(--yellow-soft)` but the visual reads much brighter because
-	 * of the surrounding dark scrim. Use `--yellow-bright` here so the accent
-	 * pops on the darkened photo. */
-	content: '';
-	display: block;
-	width: min(160px, 32vw);
-	height: 26px;
-	margin-top: var(--wp--preset--spacing--m);
-	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 20'><g fill='none' stroke='%23C99A2A' stroke-width='0.8'><path d='M0 10 L28 10'/><path d='M52 10 L80 10'/><g transform='translate(40 10)'><path d='M-6 0 L-2 -4 L2 0 L-2 4 Z' fill='%23C99A2A' fill-opacity='0.15'/><path d='M-10 0 L-6 -4 M6 4 L10 0' opacity='0.7'/><circle cx='0' cy='0' r='1.6' fill='%23C99A2A' stroke='none'/></g></g></svg>");
-	background-repeat: no-repeat;
-	background-position: center;
-	background-size: contain;
-	opacity: 1;
-	position: relative;
-	z-index: 3;
-}
-@media (max-width: 900px) {
-	.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner {
-		min-height: clamp(340px, 50vh, 440px);
-	}
-}
+/* Photo-hero styling now comes from assets/css/astro/hero.css, which is a
+ * verbatim port of Astro's Hero.astro. The Section block's PHP render
+ * emits Astro's own class names and DOM (hero, hero--full-bleed,
+ * hero--medium, hero__image-wrap, tint, scrim, frame corners, glyph)
+ * when className contains "is-hero-photo", so nothing here should also
+ * try to style photo heroes. */
 
 /* Also lift the tall purple bio-hero / press-hero (`ground-purple` on
  * subpage-hero pattern) so it doesn't feel cramped compared to Astro's
@@ -1346,7 +1272,10 @@ header.wp-block-template-part {
 .has-hero-frame {
 	position: relative;
 }
-.has-hero-frame::before {
+/* Photo heroes (is-hero-photo) render their own real .hero__frame SVGs in
+ * PHP so Astro's hero CSS can style them; suppress this decorative
+ * background-only version for that branch to avoid double corners. */
+.has-hero-frame:not(.is-hero-photo)::before {
 	content: '';
 	position: absolute;
 	inset: clamp(0.75rem, 2vw, 2rem);

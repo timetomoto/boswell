@@ -335,64 +335,12 @@
 }
 
 /* --- Full-bleed photo hero (is-hero-photo) ------------------------------
- * Matches Astro's Hero.astro full-bleed variant: a tall dark section with a
- * background photo, corner brackets, and centered title + subtitle overlaid
- * on the image. The photo comes from the Section block's own background
- * image + overlay controls; this variant only sets the layout (tall min-
- * height, centered flex-column) and the optional credit line treatment.
+ * Styling for is-hero-photo now lives in assets/css/astro/hero.css, which
+ * is a verbatim port of Astro's Hero.astro. The Section block's PHP
+ * render emits Astro's own class names + DOM (hero, hero--full-bleed,
+ * hero--medium, hero__image-wrap, tint, scrim, frame corners, glyph) so
+ * that CSS applies directly.
  * ---------------------------------------------------------------------- */
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner {
-	min-height: clamp(360px, 62vh, 640px);
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-}
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > .wp-block-heading {
-	color: var(--wp--custom--color--text-on-ink);
-	max-width: 20ch;
-	font-family: var(--wp--preset--font-family--display);
-	font-weight: 300;
-	font-size: clamp(var(--wp--custom--step--6, 3.815rem), 8vw, var(--wp--preset--font-size--display));
-	line-height: 1;
-	letter-spacing: var(--wp--custom--letter-spacing--tight);
-	margin-inline: auto;
-}
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > .bozzies-hero-subtitle {
-	color: var(--wp--custom--color--text-on-ink);
-	max-width: 44ch;
-	margin-inline: auto;
-	line-height: var(--wp--custom--line-height--normal);
-}
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > .bozzies-hero-credit {
-	position: absolute;
-	bottom: var(--wp--preset--spacing--s);
-	right: var(--wp--preset--spacing--l);
-	margin: 0;
-	max-width: none;
-	font-family: var(--wp--preset--font-family--ui);
-	font-size: var(--wp--custom--step--minus-2);
-	color: rgba(237, 230, 214, 0.75);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-	z-index: 4;
-}
-/* Eyebrow on photo hero — yellow-soft (Astro's --yellow-soft) for contrast. */
-.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > .is-style-eyebrow {
-	color: var(--wp--custom--color--yellow-soft);
-	margin-inline: auto;
-}
-@media (max-width: 900px) {
-	.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner > .bozzies-hero-credit {
-		position: static;
-		text-align: center;
-		margin-top: var(--wp--preset--spacing--m);
-	}
-	.wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner {
-		min-height: clamp(320px, 55vh, 480px);
-	}
-}
 
 /* --- Hero split layout (Columns child of Hero split variation) ---------- */
 .wp-block-bozzies-section.has-width-edge {

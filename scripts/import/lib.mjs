@@ -185,10 +185,12 @@ export function escAttr(s) {
 
 // Full-bleed photo hero — used for the hub pages that Astro renders with
 // title + subtitle overlaid on a photo (About, Sisters, Media, Press,
-// Lessons). Emits a bozzies/section block with the photo as background,
-// dark ground, corner brackets, Ken Burns + grayscale, and the layout
-// class `is-hero-photo` (see blocks/section/src/style.scss for the
-// centered flex layout and credit-line positioning).
+// Lessons). Emits a bozzies/section block with `is-hero-photo` on it; the
+// section's PHP render adds Astro's own class names (hero, hero--full-bleed,
+// hero--medium, hero--center) and DOM structure (hero__image-wrap, tint,
+// scrim, frame corners, hero__content container, hero__glyph) so the ported
+// Astro hero CSS (assets/css/astro/hero.css) applies directly. Inner blocks
+// use Astro's class names for the eyebrow, title, and subtitle.
 //
 // opts = { media: {id,url,alt}, title, subtitle, credit, eyebrow }
 export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
@@ -211,10 +213,10 @@ export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
     className: 'is-hero-photo',
   };
   const inner = [
-    eyebrow ? `<!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} --><p class="is-style-eyebrow has-text-align-center">${eyebrow}</p><!-- /wp:paragraph -->` : '',
-    `<!-- wp:heading {"level":1,"textAlign":"center"} --><h1 class="wp-block-heading has-text-align-center">${title}</h1><!-- /wp:heading -->`,
-    subtitle ? `<!-- wp:paragraph {"align":"center","fontSize":"lead","className":"bozzies-hero-subtitle"} --><p class="has-text-align-center has-lead-font-size bozzies-hero-subtitle">${subtitle}</p><!-- /wp:paragraph -->` : '',
-    credit ? `<!-- wp:paragraph {"align":"center","className":"bozzies-hero-credit"} --><p class="has-text-align-center bozzies-hero-credit">${credit}</p><!-- /wp:paragraph -->` : '',
+    eyebrow ? `<!-- wp:paragraph {"className":"eyebrow hero__eyebrow"} --><p class="eyebrow hero__eyebrow">${eyebrow}</p><!-- /wp:paragraph -->` : '',
+    `<!-- wp:heading {"level":1,"className":"hero__title"} --><h1 class="wp-block-heading hero__title">${title}</h1><!-- /wp:heading -->`,
+    subtitle ? `<!-- wp:paragraph {"className":"hero__subtitle"} --><p class="hero__subtitle">${subtitle}</p><!-- /wp:paragraph -->` : '',
+    credit ? `<!-- wp:paragraph {"className":"hero__credit"} --><p class="hero__credit">${credit}</p><!-- /wp:paragraph -->` : '',
   ].filter(Boolean).join('\n');
   return `<!-- wp:bozzies/section ${JSON.stringify(attrs)} -->\n${inner}\n<!-- /wp:bozzies/section -->`;
 }

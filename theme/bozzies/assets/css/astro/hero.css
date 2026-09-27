@@ -1,0 +1,213 @@
+/* -----------------------------------------------------------------------
+ * Astro hero — verbatim port of ~/boswell-poc/src/components/Hero.astro
+ * (component <style>) plus the .eyebrow and .container rules from
+ * ~/boswell-poc/src/styles/global.css.
+ *
+ * The only edits made against the Astro source are:
+ *  1. The Astro CSS token names (--purple, --ink, --font-display, --step-N,
+ *     --space-N, …) are declared once at the top of this file with values
+ *     that re-export the theme's WordPress custom-property tokens
+ *     (--wp--preset--*, --wp--custom--*). That keeps the owner's palette
+ *     picker in charge of brand colours while everything else in the file
+ *     matches the Astro source byte-for-byte.
+ *  2. `.hero__title` gains `.wp-block-heading` in the WP DOM (core/heading
+ *     adds it automatically). Both classes are targeted where needed so
+ *     ordinary WP heading defaults don't overwrite Astro's values.
+ *
+ * No other selector was renamed or altered.
+ * -------------------------------------------------------------------- */
+
+/* --- Token aliases: re-export WP theme tokens under Astro names -------- */
+.hero,
+.hero *,
+.eyebrow,
+.container {
+	/* Grounds (owner-changeable via the WP palette). */
+	--ink: var(--wp--preset--color--ink);
+	--paper: var(--wp--preset--color--paper);
+	--purple: var(--wp--preset--color--purple);
+
+	/* Accents. */
+	--yellow-soft: var(--wp--custom--color--yellow-soft);
+	--brass: var(--wp--preset--color--brass);
+
+	/* Text on grounds. */
+	--text-on-ink: var(--wp--custom--color--text-on-ink);
+	--text-on-ink-muted: var(--wp--custom--color--text-on-ink-muted);
+
+	/* Type stacks. */
+	--font-display: var(--wp--preset--font-family--display);
+	--font-body:    var(--wp--preset--font-family--body);
+	--font-ui:      var(--wp--preset--font-family--ui);
+	--font-accent:  var(--wp--preset--font-family--accent);
+
+	/* Type scale (constants — not exposed to the owner). */
+	--step--2: 0.694rem;
+	--step--1: 0.833rem;
+	--step-0:  1rem;
+	--step-1:  1.25rem;
+	--step-2:  1.563rem;
+	--step-3:  1.953rem;
+	--step-4:  2.441rem;
+	--step-5:  3.052rem;
+	--step-6:  3.815rem;
+	--step-7:  4.768rem;
+	--step-8:  5.96rem;
+
+	/* Leading + tracking. */
+	--leading-tight:  1.08;
+	--leading-snug:   1.24;
+	--leading-normal: 1.55;
+	--leading-loose:  1.7;
+	--track-tight: -0.02em;
+	--track-normal: 0;
+	--track-caps:  0.14em;
+
+	/* Spacing scale. */
+	--space-1: 0.25rem;
+	--space-2: 0.5rem;
+	--space-3: 0.75rem;
+	--space-4: 1rem;
+	--space-5: 1.5rem;
+	--space-6: 2rem;
+	--space-7: 3rem;
+	--space-8: 4rem;
+	--space-9: 6rem;
+
+	/* Layout + motion. */
+	--measure-max: 84rem;
+	--ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* --- global.css: reset for elements inside .hero (unchanged from Astro
+ *     ~/boswell-poc/src/styles/global.css lines 27-32). WordPress does
+ *     not apply these globally, so scope them under .hero. ------------- */
+.hero,
+.hero *,
+.hero *::before,
+.hero *::after { box-sizing: border-box; }
+
+/* :where() so the reset carries no specificity — Astro's global reset comes
+ * from a separate stylesheet loaded before the scoped hero styles, so
+ * .hero__title / .hero__subtitle (0-1-0) can override plain `p { margin: 0 }`
+ * (0-0-1) purely by cascade. Using :is() here would raise the reset's
+ * specificity above the scoped rules and kill the subtitle's auto margins. */
+.hero :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, ul, ol, dl, dd) { margin: 0; }
+.hero :where(img, picture, svg, video) { display: block; max-width: 100%; }
+.hero p + p { margin-top: var(--space-4); }
+
+/* --- WP adjustment: the Section block adds vertical padding to any
+ *     section via `has-spacing-*`. Astro's `.hero` has no padding —
+ *     block-axis spacing lives on `.hero__content`. Zero the outer
+ *     padding on the is-hero-photo variant so Astro's rhythm survives. */
+.wp-block-bozzies-section.is-hero-photo { padding-block: 0; }
+
+/* --- global.css: .eyebrow (unchanged) ---------------------------------- */
+.eyebrow {
+	display: inline-block;
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--brass);
+}
+
+/* --- global.css: .container (unchanged) -------------------------------- */
+.container {
+	width: 100%;
+	max-width: var(--measure-max);
+	margin-inline: auto;
+	padding-inline: clamp(var(--space-5), 4vw, var(--space-8));
+}
+
+/* --- Hero.astro <style> (unchanged) ------------------------------------ */
+.hero {
+	position: relative;
+	background: var(--ink);
+	color: var(--text-on-ink);
+	overflow: hidden;
+	isolation: isolate;
+}
+.hero--tall   { min-height: 92vh; display: grid; align-items: end; }
+.hero--medium { min-height: 62vh; display: grid; align-items: end; }
+.hero--short  { min-height: 42vh; display: grid; align-items: end; }
+
+/* --- FULL-BLEED layout ------------------------------------------------- */
+.hero__image-wrap { position: absolute; inset: 0; z-index: 0; }
+.hero__image {
+	width: 100%; height: 100%; object-fit: cover; object-position: center;
+	filter: grayscale(0.6) contrast(1.05) brightness(0.9);
+	animation: heroKen 40s var(--ease-out-quart) both;
+}
+.hero__tint {
+	position: absolute; inset: 0;
+	background: var(--purple);
+	mix-blend-mode: multiply;
+	opacity: 0.6;
+}
+.hero__scrim {
+	position: absolute; inset: 0;
+	background:
+		linear-gradient(180deg, rgba(24,22,21,0.10) 0%, rgba(24,22,21,0.45) 55%, rgba(24,22,21,0.88) 100%),
+		radial-gradient(60% 80% at 30% 40%, rgba(24,22,21,0) 0%, rgba(24,22,21,0.3) 100%);
+}
+.hero__content {
+	position: relative; z-index: 1;
+	padding-block: var(--space-8);
+	max-width: var(--measure-max);
+	text-align: center;
+}
+.hero--left .hero__content { text-align: left; }
+.hero__eyebrow { color: var(--yellow-soft); margin-bottom: var(--space-4); }
+.hero__title,
+.hero__title.wp-block-heading {   /* WP core/heading adds .wp-block-heading */
+	font-family: var(--font-display);
+	font-weight: 300;
+	font-size: clamp(var(--step-6), 8vw, var(--step-8));
+	line-height: 0.98;
+	letter-spacing: var(--track-tight);
+	max-width: 14ch;
+	margin-inline: auto;
+	color: var(--text-on-ink);
+}
+.hero--left .hero__title { margin-inline: 0; }
+.hero__subtitle {
+	margin-top: var(--space-5);
+	font-family: var(--font-body);
+	font-size: clamp(var(--step-1), 1.5vw + 0.4rem, var(--step-2));
+	color: var(--text-on-ink-muted);
+	max-width: 44ch;
+	margin-inline: auto;
+	line-height: var(--leading-snug);
+}
+.hero--left .hero__subtitle { margin-inline: 0; }
+.hero__credit {
+	position: absolute; bottom: var(--space-3); right: var(--space-4);
+	font-family: var(--font-ui); font-size: var(--step--2);
+	color: var(--text-on-ink-muted); z-index: 2;
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	max-width: none;
+}
+
+/* Corner frames — sit inside the whole hero (full-bleed) */
+.hero__frame { position: absolute; inset: clamp(var(--space-3), 2vw, var(--space-6)); z-index: 3; pointer-events: none; color: var(--yellow-soft); }
+.hero__frame-corner { position: absolute; width: 88px; height: 88px; opacity: 0.75; }
+.hero__frame-corner--tl { top: 0; left: 0; }
+.hero__frame-corner--tr { top: 0; right: 0; }
+.hero__frame-corner--bl { bottom: 0; left: 0; }
+.hero__frame-corner--br { bottom: 0; right: 0; }
+
+/* Deco glyph under the subtitle */
+.hero__glyph { margin-top: var(--space-6); display: flex; color: var(--yellow-soft); opacity: 0.85; }
+.hero__glyph svg { width: min(140px, 30vw); height: auto; }
+.hero--full-bleed .hero__glyph { justify-content: center; }
+.hero--left .hero__glyph { justify-content: flex-start; }
+
+@keyframes heroKen {
+	from { transform: scale(1.06); }
+	to   { transform: scale(1.0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	.hero__image, .hero__image--split { animation: none; }
+}
