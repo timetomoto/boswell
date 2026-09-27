@@ -22,11 +22,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUT_ROOT = resolve(__dirname, '../../_screens');
 
 const group = process.argv[2];
-const routes = process.argv.slice(3);
-if (!group || routes.length === 0) {
-  console.error('usage: node scripts/import/verify.mjs <group> <route> [...]');
+// Routes may be a plain path or "wpPath=astroPath" if they diverge.
+const routeArgs = process.argv.slice(3);
+if (!group || routeArgs.length === 0) {
+  console.error('usage: node scripts/import/verify.mjs <group> <wpRoute[=astroRoute]> [...]');
   process.exit(2);
 }
+const routes = routeArgs.map(r => {
+  const [wp, astro] = r.split('=');
+  return { wp, astro: astro || wp };
+});
 
 const outDir = `${OUT_ROOT}/task-9-${group}`;
 mkdirSync(outDir, { recursive: true });
@@ -113,26 +118,26 @@ async function main() {
 
   const report = { group, routes: [] };
 
-  for (const route of routes) {
-    const slug = route.replace(/^\/+|\/+$/g, '').replace(/\//g, '__') || 'home';
-    console.log(`\n=== ${route}`);
+  for (const { wp: wpRoute, astro: astroRoute } of routes) {
+    const slug = wpRoute.replace(/^\/+|\/+$/g, '').replace(/\//g, '__') || 'home';
+    console.log(`\n=== ${wpRoute}${astroRoute !== wpRoute ? ` (astro=${astroRoute})` : ''}`);
 
     // Visible-text diff.
-    await page.goto(`${ASTRO}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(`${ASTRO}${astroRoute}`, { waitUntil: 'networkidle', timeout: 30000 });
     const astroText = await visibleText(page);
-    await page.goto(`${WP}${route}`, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(`${WP}${wpRoute}`, { waitUntil: 'networkidle', timeout: 30000 });
     const wpText = await visibleText(page);
     const diff = tokenDiff(astroText, wpText);
     console.log(`  text: astro=${diff.lenA} tok, wp=${diff.lenB} tok, onlyAstro=${diff.onlyAstroCount}, onlyWP=${diff.onlyWPCount}`);
 
     // Screenshots at 1440 + 390.
     for (const vw of [1440, 390]) {
-      await grabScreenshot(page, `${ASTRO}${route}`, vw, `${outDir}/${slug}-astro-${vw}.png`);
-      await grabScreenshot(page, `${WP}${route}`, vw, `${outDir}/${slug}-wp-${vw}.png`);
+      await grabScreenshot(page, `${ASTRO}${astroRoute}`, vw, `${outDir}/${slug}-astro-${vw}.png`);
+      await grabScreenshot(page, `${WP}${wpRoute}`, vw, `${outDir}/${slug}-wp-${vw}.png`);
     }
     console.log(`  screenshots: ${slug}-{astro,wp}-{1440,390}.png`);
 
-    report.routes.push({ route, diff });
+    report.routes.push({ wp: wpRoute, astro: astroRoute, diff });
   }
 
   await browser.close();
