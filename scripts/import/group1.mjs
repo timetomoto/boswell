@@ -167,45 +167,21 @@ function buildSisters(media) {
     ].join('\n'),
   );
 
+  // Astro's sisters hub cards are wrapped in `.sisters-cards` grid with each
+  // card as `<article class="sister-card"><a class="sister-card__link">…`.
+  // Emit that DOM as a group + core/html so the CSS from astro/cards.css
+  // applies verbatim.
+  const sisterCard = ({ order, nickname, name, quote, href }) => `<li class="sister-card"><a class="sister-card__link" href="${href}"><div class="sister-card__meta"><span class="sister-card__order">${order}</span> <span class="sister-card__nickname">${nickname}</span></div><h3 class="sister-card__name">${name}</h3><p class="sister-card__quote">${quote}</p><span class="sister-card__cta">Read the bio <svg width="20" height="10" viewBox="0 0 20 10" fill="none"><path d="M0 5 H17 M13 1 L17 5 L13 9" stroke="currentColor" stroke-width="1" fill="none"/></svg></span></a></li>`;
   const sistersGrid = section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
     [
-      p('Meet the Sisters', { className: 'is-style-eyebrow' }),
+      p('Meet the Sisters', { className: 'is-style-eyebrow sisters-grid__eyebrow' }),
       h(2, 'Martha, Connie and Vet', { fontSize: 'section-title' }),
-      `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '01', nickname: 'MBoz' },
-  title: 'Martha Boswell',
-  body: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.',
-  cta: 'Read the bio',
-  href: '/sisters/martha/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '02', nickname: 'CBoz' },
-  title: 'Connee Boswell',
-  body: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.',
-  cta: 'Read the bio',
-  href: '/sisters/connee/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '03', nickname: 'VBoz' },
-  title: 'Vet Boswell',
-  body: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...',
-  cta: 'Read the bio',
-  href: '/sisters/vet/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
+      `<!-- wp:html --><ul class="sisters-cards" role="list">
+${sisterCard({ order: '01', nickname: 'MBoz', name: 'Martha Boswell', quote: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.', href: '/sisters/martha/' })}
+${sisterCard({ order: '02', nickname: 'CBoz', name: 'Connee Boswell', quote: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.', href: '/sisters/connee/' })}
+${sisterCard({ order: '03', nickname: 'VBoz', name: 'Vet Boswell', quote: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...', href: '/sisters/vet/' })}
+</ul><!-- /wp:html -->`,
     ].join('\n'),
   );
 

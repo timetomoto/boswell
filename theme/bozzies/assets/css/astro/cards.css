@@ -86,7 +86,12 @@
 	text-transform: uppercase;
 	color: var(--text-on-paper-muted);
 }
-.sister-card__name {
+/* .sister-card__name is a <h3>; the Section block scss has
+ * `.ground-paper :is(h2, h3) { font-weight: 300 }` (0-2-1) that would
+ * override this. Bump the selector to 0-2-0 so the ported weight of
+ * 400 wins on paper grounds. */
+.sister-card__name,
+.sister-card .sister-card__name {
 	font-family: var(--font-display);
 	font-size: clamp(var(--step-3), 2vw, var(--step-4));
 	font-weight: 400;
@@ -94,6 +99,15 @@
 	line-height: 1;
 	color: var(--ink);
 }
+
+/* Section block inner-rhythm rule adds `margin-block-start: 1rem` on
+ * every non-first child of a bozzies/section inner. `.sisters-cards`
+ * follows an h2 and picks that up. Reset with a compound selector so
+ * the specificity (0-2-1) matches the Section block's rule and later
+ * cascade wins. */
+.wp-block-bozzies-section.ground-paper .sisters-cards,
+.sisters-cards { margin-top: 0; padding: 0; list-style: none; }
+.wp-block-bozzies-section.ground-paper .sister-card h3.sister-card__name { font-weight: 400; }
 .sister-card__quote {
 	font-family: var(--font-ui);
 	font-style: italic;
