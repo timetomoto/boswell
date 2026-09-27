@@ -117,7 +117,7 @@
 			"customSpacingSize": true,
 			"padding": true,
 			"margin": true,
-			"blockGap": true,
+			"blockGap": null,
 			"units": ["px", "em", "rem", "vh", "vw", "%"],
 			"defaultSpacingSizes": false,
 			"spacingSizes": [
@@ -217,9 +217,7 @@
 			"fontWeight": "400",
 			"lineHeight": "var(--wp--custom--line-height--loose)"
 		},
-		"spacing": {
-			"blockGap": "var(--wp--preset--spacing--m)"
-		},
+		"spacing": {},
 		"elements": {
 			"h1": {
 				"typography": {

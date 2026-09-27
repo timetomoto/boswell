@@ -83,7 +83,8 @@ Every component port ships four passes before commit:
 - `b59500f` astro-rebuild base layer: port global.css, add Instrument Serif, disable WP layout CSS
 - `fdae892` astro-rebuild article list: port article-list / article-row / article-hero / page-hero / article-nav / prose / video-embed CSS; rewrite category.html + single.html; rewrite post-navigation filter
 - `d04714c` astro-rebuild cards (sisters): port sister-card / subpage-card / bio-body / bio-portrait / facts / bio-timeline / bio-nav
-- **THIS commit** — astro-rebuild cards (media/press): append release-card / lesson-card / music-teaser / see-also from press/index.astro + media/index.astro + media/charts.astro to cards.css. All card families now covered.
+- `ac5cfd4` astro-rebuild cards (media/press): append release-card / lesson-card / music-teaser / see-also
+- **THIS commit** — astro-rebuild base layer II: disable remaining WP layout output. `theme.json` `settings.spacing.blockGap: null` disables the `:root :where(.is-layout-flow) > * { margin-block-start }` and `:root :where(.is-layout-constrained) > * { margin-block-start }` rules and stops emitting `--wp--style--block-gap`. `styles.spacing` (top-level) blockGap removed to kill the `:where(.wp-site-blocks) > * { margin-block-start }` rule. Templates + parts switched from `layout.type: constrained` to `default` so WP does not put `.is-layout-constrained` on template groups (which would cap children at 42rem via `.is-layout-constrained > *:not(.alignwide,.alignfull) { max-width: content-size }`). What remains in WP output: `.is-layout-flex/grid { gap: 0.5em }` (only fires on core Columns block, which our patterns will supersede), `body { padding: 0 }`, element heading styles (overridden by astro/global.css `.wp-site-blocks h1..h6`).
 
 **Build order — one commit per step, riskiest first:**
 
