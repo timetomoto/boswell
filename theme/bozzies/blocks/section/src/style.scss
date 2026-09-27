@@ -169,12 +169,11 @@
 /* Astro's per-paragraph rhythm on intro__body uses --space-5 (1.5rem) between
  * successive lede-adjacent paragraphs. */
 
-/* Body paragraphs directly inside a paper/purple section (no lede) use the
- * "lead" font-size Astro applies (var(--step-1)) and looser leading. */
-.wp-block-bozzies-section > .wp-block-bozzies-section__inner > .bozzies-para-body {
-	font-size: var(--wp--preset--font-size--lead);
-	line-height: var(--wp--custom--line-height--loose);
-}
+/* .bozzies-para-body is a width utility only (58ch cap on max-width, defined
+ * in chrome.css). Font-size for larger prose is set per-paragraph via the
+ * "Lead" font-size preset in the editor — Astro uses the base body size for
+ * sample and donate body text, and only bumps to --step-1 (Lead) inside the
+ * intro's lede paragraphs. */
 
 /* Heading sizes on section titles are chosen per heading via the font-size
  * preset picker (Section title / Section title medium / Section title small

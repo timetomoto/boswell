@@ -651,7 +651,17 @@ header.wp-block-template-part {
 }
 
 /* ============================================================================
- * Eyebrow colour per ground — Astro's home page has purple eyebrows on paper
+ * Eyebrow layout — Astro's .eyebrow is display: inline-block, which makes
+ * the element sit on a line-box baseline inside its centered parent, adding
+ * a small (~3px) leading gap above the eyebrow that a plain block-level
+ * paragraph doesn't have. Mirror that here so eyebrow-topped sections start
+ * their content at the same y-offset as Astro.
+ * ========================================================================= */
+.is-style-eyebrow {
+	display: inline-block;
+}
+
+/* Eyebrow colour per ground — Astro's home page has purple eyebrows on paper
  * and gold grounds (Music Playlist, Sample the Sound, Support the Work), and
  * a yellow-soft eyebrow on the purple voices section. The default eyebrow
  * variation in theme.json is brass, which is what unclassed grounds inherit.

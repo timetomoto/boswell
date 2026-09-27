@@ -24,8 +24,8 @@
 
 <!-- wp:bozzies/section {"backgroundStyle":"paper","width":"narrow","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-lede"} --><p class="is-style-lede">The roots of rock and roll literally start here.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph {"style":{"typography":{"fontWeight":"700"}}} --><p style="font-weight:700">Come on in and meet New Orleans' own Boswell Sisters.</p><!-- /wp:paragraph -->
-<!-- wp:paragraph --><p>Discover the velvet tones of Connie Boswell — inspiration to singers from Ella Fitzgerald to Wynonna Judd, seller of more than 75 million records, and one of America's greatest voices, delivered entirely from a wheelchair. Whether you're a nonplussed novice or a crusty old jazzbo, you'll be delighted by the sounds and stories of the Boswells.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"style":{"typography":{"fontWeight":"700"}},"fontSize":"lead"} --><p class="has-lead-font-size" style="font-weight:700">Come on in and meet New Orleans' own Boswell Sisters.</p><!-- /wp:paragraph -->
+<!-- wp:paragraph {"fontSize":"lead"} --><p class="has-lead-font-size">Discover the velvet tones of Connie Boswell — inspiration to singers from Ella Fitzgerald to Wynonna Judd, seller of more than 75 million records, and one of America's greatest voices, delivered entirely from a wheelchair. Whether you're a nonplussed novice or a crusty old jazzbo, you'll be delighted by the sounds and stories of the Boswells.</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
 
 <!-- wp:separator {"className":"is-style-jazz","align":"wide"} --><hr class="wp-block-separator alignwide is-style-jazz"/><!-- /wp:separator -->
@@ -54,7 +54,7 @@
 
 <!-- wp:bozzies/section {"backgroundStyle":"gold","backdrop":"diamond-grid","width":"narrow","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Support the Work</p><!-- /wp:paragraph -->
-<!-- wp:heading {"textAlign":"center","level":2,"fontSize":"section-title-small"} --><h2 class="wp-block-heading has-text-align-center has-section-title-small-font-size">Help keep the Boswells' legacy alive.</h2><!-- /wp:heading -->
+<!-- wp:heading {"textAlign":"center","level":2,"style":{"spacing":{"margin":{"top":"var:preset|spacing|m"}}},"fontSize":"section-title-small"} --><h2 class="wp-block-heading has-text-align-center has-section-title-small-font-size" style="margin-top:var(--wp--preset--spacing--m)">Help keep the Boswells' legacy alive.</h2><!-- /wp:heading -->
 <!-- wp:paragraph {"align":"center","style":{"spacing":{"margin":{"top":"var:preset|spacing|m"}}}} --><p class="has-text-align-center" style="margin-top:var(--wp--preset--spacing--m)">Bozzies.org is dedicated to preserving the Boswell Sisters' recordings, research, and public memory. Every contribution keeps us Bozzing.</p><!-- /wp:paragraph -->
 <!-- wp:buttons {"layout":{"type":"flex","justifyContent":"center"}} -->
 <div class="wp-block-buttons"><!-- wp:button {"className":"is-style-large"} --><div class="wp-block-button is-style-large"><a class="wp-block-button__link wp-element-button" href="#">Donate</a></div><!-- /wp:button --></div>
