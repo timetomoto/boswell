@@ -46,7 +46,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Current status
 
-**Last commit:** Task 10 Group 2 (partial): pullquote + paper-card fixes applied; sitewide page pass still pending.
+**Last commit:** Task 10 Group 2 complete — page-by-page pass done through Home, Sisters, About, Media, Press, Privacy, 404.
 
 **Done**
 - Theme foundation (`bozzies` block theme, no parent, no plugins, no page builder).
@@ -73,13 +73,91 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
   - Placeholders relabeled to `[<name>: interactive block pending]` across import scripts and the DB — Home (Playlist player, Quotes carousel), Media (Playlist player), Discography (Discography search), Connee (Sisters timeline), Career Timeline (Sisters timeline).
   - Duplicated eyebrow-per-ground and button-on-paper/gold rules removed from `assets/css/chrome.css`; canonical copies remain in `blocks/section/src/style.scss` keyed on `.ground-*`. Colour check at 1440: 0 mismatches.
 
-**Task 10 Group 2 — partial (this commit):**
-- Home regression at 1440 and 390: both placeholders render (`[Playlist player: interactive block pending]`, `[Quotes carousel: interactive block pending]`); layout, colours and typography track Astro. `scripts/visual-colors.mjs` at 390: **0 mismatches** (matched=12, missing-in-wp=66 and missing-in-astro=39 are all pathkey-pairing artefacts from CSS text-transform on the skip link and section-class prefixes, not real colour drift).
-- **New block style `is-style-card-plain`** (registered on `core/group` + `core/columns`) — paper card with 4px purple left-accent, purple eyebrow, purple arrow CTA, hairline right/bottom borders. Matches Astro's `.sister-card`. Applied to the three sister cards on `/sisters/` (Martha/Connee/Vet); the two subpage teasers (Boz Biography, Career Timeline) stay on `is-style-card` because they sit on the gold ground and Astro renders them as dark purple cards there. Import helper `card()` in `scripts/import/group1.mjs` now takes `variant: 'card' | 'card-plain'`.
-- **Core `wp:pullquote` styled to Astro's `PullQuote.astro`** in `chrome.css`: `--font-ui` italic body, `quotes: "\201C" "\201D"` with `::before`/`::after` open/close-quote content, uppercased brass citation. Per-ground overrides mirror the existing `wp-block-quote.is-style-pull-quote` rules (`ground-ink` → champagne body; `ground-purple` → white body + yellow-soft citation + subtle text-shadow). Verified live on `/sisters/` and `/sisters/career-timeline/`.
-- YouTube CLAUDE.md line at line 64 was already complete ("YouTube embeds forced to `youtube-nocookie.com` and styled to Astro's `.video-embed` (16:9, `--ink` background).") — no edit needed.
+**Task 10 Group 2 — complete (three commits):**
 
-**Next: Group 2 remaining pages + carry-overs, then Group 3**
+Commit 1 `e713cb1` — pullquote + is-style-card-plain foundation:
+- Home regression at 1440 and 390: both placeholders render (`[Playlist player: interactive block pending]`, `[Quotes carousel: interactive block pending]`); layout, colours and typography track Astro. `scripts/visual-colors.mjs` at 390: **0 mismatches** (matched=12, missing-in-wp=66 and missing-in-astro=39 are all pathkey-pairing artefacts from CSS text-transform on the skip link and section-class prefixes).
+- New block style `is-style-card-plain` (registered on `core/group` + `core/columns`) — paper card with 4 px purple left-accent, purple eyebrow, purple arrow CTA, hairline right/bottom borders. Matches Astro's `.sister-card`.
+- Core `wp:pullquote` styled to Astro's `PullQuote.astro`: italic UI face, curly open/close marks via `quotes` + `::before`/`::after`, uppercased brass citation, per-ground colour overrides. Verified live on `/sisters/` and `/sisters/career-timeline/`.
+
+Commit 2 `01bc239` — Sisters + About structural fixes:
+- Sister bios (Connee, Martha, Vet): body rebuilt as native blocks — a `wp:group.bozzies-bio-body` wrapping `wp:columns` with the portrait in a 300 px sticky left column and the article prose in the right column. Facts strip is a `wp:group.bozzies-facts` with `wp:paragraph.bozzies-fact` children (`<strong>Label</strong> value`) rendered as an auto-fit CSS grid with a purple left-accent per pair. Sticky verified in a real browser at 1440: `_screens/task-10/connee-wp-sticky{1,2}b.png` show the portrait still at the top-left of the viewport when the article body has scrolled past the section title.
+- Sisters hub cards: eyebrow split into a display-face order number (`span.bozzies-card-order`) + small-caps nickname to match Astro's `.sister-card__meta` row; body italicised.
+- Bio Resources: hero moved to the gold ground, pull-quote wrapped in its own full-bleed ground-purple section (notes backdrop), and body + book cover placed in a `wp:columns` row with the image on the right (~40%).
+- About: intro line changed from `h2 {fontSize: section-title}` to `paragraph.is-style-lede`.
+- All content changes also applied to `scripts/import/group1.mjs` so re-imports stay correct. Text diff after re-import: sisters=0/0, martha=0/0, vet=0/0, bio-resources=0/0, about=0/0. Connee has 587 onlyAstro / 5 onlyWP — the missing tokens are the solo career timeline entries which are the `[Sisters timeline: interactive block pending]` placeholder.
+- Wrong press-category names in CLAUDE.md fixed. Real categories are `vintage / feature / video / essay / in-their-own-words`.
+
+Commit 3 `78a3319` — Media:
+- `/media/` "Five keys to the Boswell sound" inline lesson list: replaced the bullet `ol` with five `bozzies-lesson-row` groups (num + body + cta) styled as a full-width `[num][body][cta]` grid with a 4 px purple left-accent and hairline row separators. Matches Astro's `.lesson-card` layout on the media index. Fulfils the `/media/` inline lesson list carry-over from Group 1.
+- `/media/reviews/` rows: seven `h3 + p` pairs wrapped in a `bozzies-reviews` group so each `h3` picks up a hairline top border and the paragraph after each `h3` renders italic in the UI face on muted-ink. Matches Astro's `.reviews-body`.
+- Photo-hero coverage carry-over: verified Astro `/media/charts/`, `/media/reviews/`, `/media/discography/` and `/media/lessons/[order]/` all use `ground-purple` heroes (no photo hero), which is what WP already renders. No hero change needed there.
+- Text diff after re-import: charts=0/0, reviews=0/0, lesson-1=0/0, lesson-2=0/0. `/media/` has 176 onlyAstro (the actual playlist track list behind the `[Playlist player: interactive block pending]` placeholder). `/media/discography/` has 8 113 onlyAstro (the discography search entries behind the `[Discography search: interactive block pending]` placeholder). Both expected.
+
+Press + Privacy + 404 (verified — no code changes needed):
+- Press hub `/press/` renders with the photo hero, five category rows (Vintage Articles, In Their Own Words, Video Features, Features, About the Site), and the "Press releases & media" gold PDF grid. Text diff 0/0.
+- All 5 category archives WP row-for-row match Astro (see order tables below). Text diff 0/0 each.
+- Six articles spot-checked (one per category): `/press/vintage/02-cats-hepped/` 0/0, `/press/feature/andrews-sisters/` 4/4 (markdown `**bold**` marker artefacts, not real content), `/press/video/alexanders-ragtime-band/` 0/1 (`youtube-nocookie.com` URL token in the WP embed markup), `/press/essay/what-is-getting-bozzed/` 0/0, `/press/in-their-own-words/martha-the-spotlight/` 0/0, `/press/video/boswell-documentary/` 0/0.
+- Privacy Policy renders at 1440 and 390 with the full WP-authored content. Astro has no `/privacy-policy/` route — Vercel returns its default 404 there — so this is WP-only content; no diff to compile.
+- 404 at any unknown path renders the WP-branded 404 template (`404.html`): "ERROR 404 / The page isn't here" with a four-card section grid (HOME, Sisters, Press, Media). Astro's 404 is Vercel's default generic page — WP's is strictly better.
+
+**Press-hub order tables — WP vs Astro row for row:**
+
+`/press/vintage/` (11 items):
+| # | WP | Astro |
+|---|----|-------|
+| 1 | Part 1: Cats Hepped by Connee's Chirping | Part 1: Cats Hepped by Connee's Chirping |
+| 2 | Part 2: Visionary Scoring Put Boswell's Over | Part 2: Visionary Scoring Put Boswell's Over |
+| 3 | Another Boswell Chronicle | Another Boswell Chronicle |
+| 4 | Bothering the Boswells | Bothering the Boswells |
+| 5 | Blending Termed Secret of Boswell Trio's Success | Blending Termed Secret of Boswell Trio's Success |
+| 6 | Black Outs | Black Outs |
+| 7 | Those Boswell Sisters Talk | Those Boswell Sisters Talk |
+| 8 | Boswell Sister Nurses Father Back to Health On Visit Here | Boswell Sister Nurses Father Back to Health On Visit Here |
+| 9 | Time for the Boswells | Time for the Boswells |
+| 10 | In Harmony with the Boswell Sisters | In Harmony with the Boswell Sisters |
+| 11 | Bozzin' With the Brian Sisters | Bozzin' With the Brian Sisters |
+
+`/press/feature/` (10 items):
+| # | WP | Astro |
+|---|----|-------|
+| 1 | We Copied the Boswell Sisters | We Copied the Boswell Sisters |
+| 2 | Home at Last | Home at Last |
+| 3 | In Perfect Harmony | In Perfect Harmony |
+| 4 | It's the Girls (Bette Midler) | It's the Girls (Bette Midler) |
+| 5 | The King Sisters | The King Sisters |
+| 6 | Lamparski Talks with Connee and Vet | Lamparski Talks with Connee and Vet |
+| 7 | Personal Storm of Connee Boswell | Personal Storm of Connee Boswell |
+| 8 | Second Line — Post-event Recap | Second Line — Post-event Recap |
+| 9 | Steely Bozzies | Steely Bozzies |
+| 10 | A Conversation with Vet Boswell | A Conversation with Vet Boswell |
+
+`/press/video/` (10 items):
+| # | WP | Astro |
+|---|----|-------|
+| 1 | Alexander's Ragtime Band | Alexander's Ragtime Band |
+| 2 | The Boswell Sisters — A Documentary Feature | The Boswell Sisters — A Documentary Feature |
+| 3 | Connee Boswell Double Feature — with the Brian Sisters | Connee Boswell Double Feature — with the Brian Sisters |
+| 4 | Constructing YOU-DLE-EE-OO-DE-OO | Constructing YOU-DLE-EE-OO-DE-OO |
+| 5 | Crazy People (from "The Big Broadcast") | Crazy People (from "The Big Broadcast") |
+| 6 | Falling Star (from "Syncopation") | Falling Star (from "Syncopation") |
+| 7 | Lou'siana Waddle (in "Ramblin' Round Radio Row") | Lou'siana Waddle (in "Ramblin' Round Radio Row") |
+| 8 | Martha (M'appari) | Martha (M'appari) |
+| 9 | Sleepy Time Down South | Sleepy Time Down South |
+| 10 | Harlem Hop (in "Under Montana Skies") | Harlem Hop (in "Under Montana Skies") |
+
+`/press/essay/` (2 items):
+| # | WP | Astro |
+|---|----|-------|
+| 1 | What is Getting Bozzed? | What is Getting Bozzed? |
+| 2 | Why Bozzies.com? | Why Bozzies.com? |
+
+`/press/in-their-own-words/` (1 item):
+| # | WP | Astro |
+|---|----|-------|
+| 1 | Martha Boswell — The Spotlight | Martha Boswell — The Spotlight |
+
+**Next: Group 3 sitewide audits**
 
 Group 1 built the shared plumbing (templates, patterns, editor tools). Group 2 does the page-by-page visual pass; Group 3 does the sitewide audits.
 
@@ -96,21 +174,7 @@ For each page, screenshot WP and Astro side by side at 1440 and 390, view them, 
 
 Commit after Sisters/About, after Media, and after Press/other pages.
 
-**Group 2 remaining after the partial pass above — page by page:**
-- **Sister bios (`/sisters/connee/`, `/sisters/martha/`, `/sisters/vet/`) — structural rework.** Astro's `SisterBio` layout puts the facts (Born / Died / Hair / Eyes / etc.) in a fixed-column strip above the article (Martha, Vet) or in a sticky left rail (Connee), with the sister portrait floated inside the article body and previous/next sister links plus a "The Sisters" hub link at page-bottom. WP currently renders facts as a plain stacked paragraph list at the top of the article, centres the portrait, and shows the trio's shared prev/next only. **Fix path:** rebuild the sister-bio template — either (a) a per-page block layout with a Columns block (30/70 facts strip / article) and image-align-left on the portrait, or (b) a dedicated `sister-bio` page template PHP + a bindings-driven facts strip that reads `_bozzies_born / _bozzies_died / _bozzies_hair / _bozzies_eyes / _bozzies_complexion / _bozzies_height / _bozzies_marriage / _bozzies_children` from post_meta. Option (b) is cleaner (one source of truth per sister, no re-import needed). Also add the previous/next sister link pair — Astro cycles Martha ↔ Connee ↔ Vet with a link back to `/sisters/` in the centre.
-- **`/sisters/bio-resources/` — wrong hero ground and pull-quote treatment.** Astro renders the hero on the **gold** ground (yellow eyebrow "A FAMILY AFFAIR", ink title on gold), a full-bleed purple pull-quote section under it, and a paper section with a two-column layout: article body left, "The Boswell Legacy" book cover on the right. WP renders the hero on **purple**, the pull-quote inline on paper, and centres the book cover above the body. Fix: switch the hero section to `backgroundStyle: 'gold'`, wrap the pull-quote in its own `bozzies/section` ground-purple with the notes backdrop, and put the article body + book cover in a `wp:columns` (image column ~40%, right).
-- **`/sisters/career-timeline/` — layout matches Astro through the pull-quote; the actual year-by-year timeline is the `[Sisters timeline: interactive block pending]` placeholder** (as designed). Pull-quote now shows Astro's curly quotes + uppercased citation after this commit's chrome.css change.
-- **`/about/` — mostly matching.** Two small diffs: intro line "Bozzies.org is dedicated to preserving the memory of the Boswell Sisters." renders as a display-size heading in WP (h2 with the "Section title" preset) but as a lead-sized single line in Astro; and the small ornament divider between the "Get involved" section and the gold "Get in touch" CTA is present on both but WP shows slightly more vertical padding above it. Fix: change the intro block from h2 → paragraph.is-style-lede (or drop the "Section title" font-size preset). Verify at 390 too.
-- **Sisters hub (`/sisters/`) — done in this commit** (paper cards + pullquote). The 4 remaining nits are cosmetic: sister-card body text is italic on Astro (WP is regular); Astro's card-order number is a large display-face "01/02/03" separated from the small-caps nickname on the same row, WP renders one paragraph line "01 MBoz". Not blockers.
-- **Home — done in this commit.** Placeholders confirmed, colour check clean at 390.
-
-**Cross-cutting Group 2 work still to do (not yet started this pass):**
-- **Media hub (`/media/`), Charts, Reviews, Discography, Lessons hub, all 5 lessons** — screenshots not yet taken at 1440 / 390.
-- **Press hub (`/press/`), 5 category archives (`/press/vintage/`, `/press/feature/`, `/press/video/`, `/press/essay/`, `/press/in-their-own-words/`), at least 6 articles covering every category, Privacy Policy, 404** — screenshots not yet taken. Order-tables (WP vs Astro row-for-row) for the press hub and each category archive still to compile.
-- **Photo-hero coverage carry-over from Group 1** — check Astro on `/media/charts/`, `/media/reviews/`, `/media/discography/`, `/media/lessons/N/` and individual article pages; if Astro shows a `heroPhoto` treatment there, apply the same via `heroPhoto()` in `scripts/import/lib.mjs` and re-run the relevant import.
-- **`/media/` inline lesson list carry-over** — add the lesson list to the `/media/` page (inline) so it matches Astro. Keep the `/media/lessons/` hub route.
-
-**Group 3 (unchanged from previous notes):** page titles / meta descriptions / OG cards, favicon set, axe accessibility sweep, full crawl + network + text-diff + colour-check at both viewports.
+**Group 3 (still to do):** page titles / meta descriptions / OG cards, favicon set, axe accessibility sweep, full crawl + network + text-diff + colour-check at both viewports.
 
 ## Group 3: Sitewide checks
 1. **Page titles, meta descriptions, and social share previews** (Open Graph/Twitter tags, share image): compare every page's head tags against Astro. Output matching values from the theme (no plugins). Make descriptions editable by the owner where Astro has page-specific ones (e.g. use the page excerpt). Paste a table: page, WP vs Astro title and description, match yes/no.
