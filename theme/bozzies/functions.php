@@ -71,6 +71,27 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
+/**
+ * Enqueue the "Article details" sidebar plugin on post-editor screens only.
+ * The meta keys are underscore-prefixed so Custom Fields hides them; this
+ * panel gives the owner a normal Gutenberg control that writes through REST.
+ */
+add_action( 'enqueue_block_editor_assets', 'bozzies_enqueue_article_meta_panel' );
+function bozzies_enqueue_article_meta_panel() {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	if ( $screen && isset( $screen->post_type ) && 'post' !== $screen->post_type ) {
+		return;
+	}
+	$ver = wp_get_theme()->get( 'Version' );
+	wp_enqueue_script(
+		'bozzies-article-meta-panel',
+		get_stylesheet_directory_uri() . '/assets/js/article-meta-panel.js',
+		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data', 'wp-core-data', 'wp-i18n' ),
+		$ver,
+		true
+	);
+}
+
 // Authors on this site write copy that must land on the front verbatim (it
 // often mirrors the Astro reference character-for-character). WordPress
 // auto-textures apostrophes and quotes into curly typographers' variants;

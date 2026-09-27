@@ -182,3 +182,39 @@ export function escAttr(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 }
+
+// Full-bleed photo hero — used for the hub pages that Astro renders with
+// title + subtitle overlaid on a photo (About, Sisters, Media, Press,
+// Lessons). Emits a bozzies/section block with the photo as background,
+// dark ground, corner brackets, Ken Burns + grayscale, and the layout
+// class `is-hero-photo` (see blocks/section/src/style.scss for the
+// centered flex layout and credit-line positioning).
+//
+// opts = { media: {id,url,alt}, title, subtitle, credit, eyebrow }
+export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
+  if (!media || !media.url) {
+    throw new Error('heroPhoto: media is required (pass importMedia result)');
+  }
+  const bgImage = { id: media.id, url: media.url, alt: media.alt || '' };
+  const attrs = {
+    backgroundStyle: 'ink',
+    backgroundImage: bgImage,
+    overlayColor: '#181615',
+    overlayStrength: 55,
+    heroFrame: true,
+    imageGrayscale: true,
+    imageZoom: true,
+    width: 'container',
+    headingWidth: 'container',
+    spacing: 'spacious',
+    align: 'full',
+    className: 'is-hero-photo',
+  };
+  const inner = [
+    eyebrow ? `<!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} --><p class="is-style-eyebrow has-text-align-center">${eyebrow}</p><!-- /wp:paragraph -->` : '',
+    `<!-- wp:heading {"level":1,"textAlign":"center"} --><h1 class="wp-block-heading has-text-align-center">${title}</h1><!-- /wp:heading -->`,
+    subtitle ? `<!-- wp:paragraph {"align":"center","fontSize":"lead","className":"bozzies-hero-subtitle"} --><p class="has-text-align-center has-lead-font-size bozzies-hero-subtitle">${subtitle}</p><!-- /wp:paragraph -->` : '',
+    credit ? `<!-- wp:paragraph {"align":"center","className":"bozzies-hero-credit"} --><p class="has-text-align-center bozzies-hero-credit">${credit}</p><!-- /wp:paragraph -->` : '',
+  ].filter(Boolean).join('\n');
+  return `<!-- wp:bozzies/section ${JSON.stringify(attrs)} -->\n${inner}\n<!-- /wp:bozzies/section -->`;
+}

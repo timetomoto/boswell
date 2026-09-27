@@ -5,7 +5,7 @@
 // Interactive blocks (discography search, career timeline, playlist player)
 // are replaced with labeled placeholders per Task 9 rules.
 
-import { importMedia, upsertPage } from './lib.mjs';
+import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
 import { readFileSync } from 'node:fs';
 
 // ---------- Block helpers (mirror group1) ----------
@@ -101,11 +101,14 @@ function mdTable(mdLines) {
 
 // ---------- Page builders ----------
 
-function buildMedia() {
-  const hero = heroPurple({
-    backLabel: 'Home', backHref: '/',
-    eyebrow: 'Section', title: 'Media',
+function buildMedia(media) {
+  // Astro's media hub hero: full-bleed photo (Boswell_Sisters_Bing_Crosby.jpg)
+  // with title, subtitle, and credit line under the image.
+  const hero = heroPhoto({
+    media: media.bingCrosby,
+    title: 'Media',
     subtitle: 'A curated playlist, five audio lessons on the Boswell sound, and chart positions and reviews that recognized them.',
+    credit: 'The Boswell Sisters recording with Bing Crosby.',
   });
 
   const intro = proseSection([
@@ -118,7 +121,7 @@ function buildMedia() {
     [
       p('Music Playlist', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, 'The Boswell Sisters Collection Volume One', { align: 'center', fontSize: 'section-title' }),
-      p('[Playlist player: added in task 10]', { align: 'center' }),
+      p('[Playlist player: interactive block pending]', { align: 'center' }),
     ].join('\n'),
   );
 
@@ -274,7 +277,7 @@ function buildDiscography() {
     [
       p('Trio Era + Solo Years', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, `128 sessions, searchable by title, matrix, or personnel`, { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Discography search: added in task 10]', { align: 'center' }),
+      p('[Discography search: interactive block pending]', { align: 'center' }),
       p('Adapted from the Boswell Sisters Discography compiled by Paul Gaffey, preserved via web.archive.org.', { align: 'center', className: 'bozzies-para-body' }),
     ].join('\n'),
   );
@@ -302,16 +305,19 @@ function buildCareerTimeline() {
     [
       p('The Trio Years', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, '1905 – 1936, year by year', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: added in task 10]', { align: 'center' }),
+      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
     ].join('\n'),
   );
 
   return [hero, trioQuote, placeholder].join('\n\n');
 }
 
-function buildLessonsHub() {
-  const hero = heroPurple({
-    backLabel: 'Media', backHref: '/media/', eyebrow: 'Audio Lessons',
+function buildLessonsHub(media) {
+  // Astro's lessons hub hero: full-bleed photo (Boswell_Sisters_1932.jpg)
+  // with "Audio Lessons" eyebrow, "Lessons" title, subtitle.
+  const hero = heroPhoto({
+    media: media.boswell1932,
+    eyebrow: 'Audio Lessons',
     title: 'Lessons',
     subtitle: 'Five keys to the Boswell sound, narrated by Cynthia Lucas.',
   });
@@ -428,6 +434,13 @@ function run() {
   };
   console.log('  audio:', Object.fromEntries(Object.entries(audios).map(([k, v]) => [k, v.id])));
 
+  // Media hub + lessons hub full-bleed photo hero images.
+  const media = {
+    bingCrosby:   importMedia('/uploads/Boswell_Sisters_Bing_Crosby.jpg', 'The Boswell Sisters recording with Bing Crosby.'),
+    boswell1932:  importMedia('/uploads/Boswell_Sisters_1932.jpg', 'Portrait of the Boswell Sisters, circa 1932.'),
+  };
+  console.log('  media:', Object.fromEntries(Object.entries(media).map(([k, v]) => [k, v.id])));
+
   const lessons = [
     { order: 1, title: 'The Blend', summary: 'Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.', audioMedia: audios.l1 },
     { order: 2, title: 'The Tempo', summary: `The Boswells&rsquo; signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.`, audioMedia: audios.l2 },
@@ -437,16 +450,16 @@ function run() {
   ];
 
   const pages = [
-    { slug: 'media',            title: 'Media',           template: 'page-landing', content: buildMedia() },
-    { slug: 'charts',           title: 'On the Charts',   template: 'page-landing', content: buildCharts() },
-    { slug: 'reviews',          title: 'Reviews',         template: 'page-landing', content: buildReviews() },
-    { slug: 'discography',      title: 'Discography',     template: 'page-landing', content: buildDiscography() },
-    { slug: 'career-timeline',  title: 'Career Timeline', template: 'page-landing', content: buildCareerTimeline() },
-    { slug: 'lessons',          title: 'Lessons',         template: 'page-landing', content: buildLessonsHub() },
+    { slug: 'media',            title: 'Media',           template: 'page-landing', content: buildMedia(media) },
+    { slug: 'charts',           title: 'On the Charts',   template: 'page-subpage', content: buildCharts() },
+    { slug: 'reviews',          title: 'Reviews',         template: 'page-subpage', content: buildReviews() },
+    { slug: 'discography',      title: 'Discography',     template: 'page-subpage', content: buildDiscography() },
+    { slug: 'career-timeline',  title: 'Career Timeline', template: 'page-subpage', content: buildCareerTimeline() },
+    { slug: 'lessons',          title: 'Lessons',         template: 'page-landing', content: buildLessonsHub(media) },
     ...lessons.map(l => ({
       slug: `lesson-${l.order}`,
       title: `Lesson ${l.order} — ${l.title.replace(/&rsquo;/g, "'")}`,
-      template: 'page-landing',
+      template: 'page-subpage',
       content: buildLesson(l),
     })),
   ];

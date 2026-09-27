@@ -7,7 +7,7 @@
 // content/pages/{about,sisters,bio-resources}.md, and the mirroring
 // Astro page structure in src/pages/about.astro and src/pages/sisters/*.astro.
 
-import { importMedia, upsertPage } from './lib.mjs';
+import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
 
 // ---------- Helper builders (WP block markup as strings) ----------
 
@@ -135,16 +135,13 @@ const itemHero = ({ backLabel, backHref, eyebrow, title, subtitle }) => {
 // ---------- Content builders (per-page) ----------
 
 function buildSisters(media) {
-  // Astro's sisters hub hero has no back-link and no eyebrow — just title +
-  // subtitle over the full-bleed photo. Match the text; the full-bleed
-  // photo hero itself is a later sitewide pass.
-  const hero = section(
-    { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    [
-      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">The Sisters</h1><!-- /wp:heading -->`,
-      p('Get to know the Boswell Sisters — Martha at the piano, Connee out front, Vet in the middle.', { fontSize: 'lead' }),
-    ].join('\n'),
-  );
+  // Astro's sisters hub hero is full-bleed photo (bozbios.jpg) with title
+  // and subtitle overlaid.
+  const hero = heroPhoto({
+    media: media.bozbios,
+    title: 'The Sisters',
+    subtitle: 'Get to know the Boswell Sisters — Martha at the piano, Connee out front, Vet in the middle.',
+  });
 
   const introProse = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
@@ -263,7 +260,7 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
     [
       p('The Solo Years', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, 'Connee Boswell — Solo Career Timeline', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: added in task 10]', { align: 'center' }),
+      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
     ].join('\n'),
   ) : '';
 
@@ -300,16 +297,14 @@ ${p(`<a href="/sisters/${next.slug}/">${next.name}</a>`, { align: 'right' })}
 }
 
 function buildAbout(media) {
-  // Astro's about hero: eyebrow "Our Mission", title "About", subtitle. No
-  // back-link. The full-bleed photo hero itself is a later sitewide pass.
-  const hero = section(
-    { backgroundStyle: 'purple', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    [
-      p('Our Mission', { className: 'is-style-eyebrow' }),
-      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">About</h1><!-- /wp:heading -->`,
-      p('A tribute archive to the New Orleans trio who invented swinging close-harmony.', { fontSize: 'lead' }),
-    ].join('\n'),
-  );
+  // Astro's about hero: full-bleed photo (Boswell_Sisters_1932.jpg) with
+  // "Our Mission" eyebrow, "About" title, subtitle.
+  const hero = heroPhoto({
+    media: media.boswell1932,
+    eyebrow: 'Our Mission',
+    title: 'About',
+    subtitle: 'A tribute archive to the New Orleans trio who invented swinging close-harmony.',
+  });
 
   const prose = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
@@ -476,7 +471,7 @@ function run() {
 
   const pages = [
     { slug: 'sisters',       title: 'The Sisters',    template: 'page-landing', content: buildSisters(media) },
-    { slug: 'connee',        title: 'Connee Boswell', template: 'page-landing', content: buildSisterBio({
+    { slug: 'connee',        title: 'Connee Boswell', template: 'page-subpage', content: buildSisterBio({
       slug: 'connee', hasSoloTimeline: true,
       nickname: 'CBoz', order: 2, name: 'Connee Boswell',
       portrait: media.connee,
@@ -491,7 +486,7 @@ function run() {
       },
       bodyBlocks: conneeBody,
     }) },
-    { slug: 'martha', title: 'Martha Boswell', template: 'page-landing', content: buildSisterBio({
+    { slug: 'martha', title: 'Martha Boswell', template: 'page-subpage', content: buildSisterBio({
       slug: 'martha',
       nickname: 'MBoz', order: 1, name: 'Martha Boswell',
       portrait: media.martha,
@@ -506,7 +501,7 @@ function run() {
       },
       bodyBlocks: marthaBody,
     }) },
-    { slug: 'vet', title: 'Vet Boswell', template: 'page-landing', content: buildSisterBio({
+    { slug: 'vet', title: 'Vet Boswell', template: 'page-subpage', content: buildSisterBio({
       slug: 'vet',
       nickname: 'VBoz', order: 3, name: 'Vet Boswell',
       portrait: media.vet,
@@ -522,7 +517,7 @@ function run() {
       bodyBlocks: vetBody,
     }) },
     { slug: 'about',         title: 'About',        template: 'page-landing', content: buildAbout(media) },
-    { slug: 'bio-resources', title: 'Bio Resources', template: 'page-landing', content: buildBioResources(media) },
+    { slug: 'bio-resources', title: 'Bio Resources', template: 'page-subpage', content: buildBioResources(media) },
   ];
 
   for (const page of pages) {

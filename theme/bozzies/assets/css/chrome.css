@@ -661,46 +661,9 @@ header.wp-block-template-part {
 	display: inline-block;
 }
 
-/* Eyebrow colour per ground — Astro's home page has purple eyebrows on paper
- * and gold grounds (Music Playlist, Sample the Sound, Support the Work), and
- * a yellow-soft eyebrow on the purple voices section. The default eyebrow
- * variation in theme.json is brass, which is what unclassed grounds inherit.
- * ========================================================================= */
-.wp-block-bozzies-section.ground-paper  .is-style-eyebrow,
-.wp-block-bozzies-section.ground-gold   .is-style-eyebrow,
-.ground-paper > .is-style-eyebrow,
-.ground-gold  > .is-style-eyebrow {
-	color: var(--wp--preset--color--purple);
-}
-.wp-block-bozzies-section.ground-purple .is-style-eyebrow,
-.ground-purple > .is-style-eyebrow {
-	color: var(--wp--custom--color--yellow-soft);
-}
-
-/* ============================================================================
- * Buttons on paper / gold grounds — the section block colours <a> to link or
- * link-hover on those grounds, but the WP button block is an <a> too, so the
- * ground rule wins and the button text goes blue. Force the button's own
- * text colour back to paper (matches Astro's .sample__cta and .btn--purple,
- * both of which paint --paper text on a --purple background). Underline that
- * ground-gold links inherit is also cleared here.
- * ========================================================================= */
-.wp-block-bozzies-section.ground-paper .wp-block-button .wp-block-button__link,
-.wp-block-bozzies-section.ground-paper .wp-block-button .wp-element-button,
-.wp-block-bozzies-section.ground-gold  .wp-block-button .wp-block-button__link,
-.wp-block-bozzies-section.ground-gold  .wp-block-button .wp-element-button {
-	color: var(--wp--preset--color--paper);
-	text-decoration: none;
-}
-.wp-block-bozzies-section.ground-paper .wp-block-button .wp-block-button__link:hover,
-.wp-block-bozzies-section.ground-paper .wp-block-button .wp-block-button__link:focus-visible,
-.wp-block-bozzies-section.ground-gold  .wp-block-button .wp-block-button__link:hover,
-.wp-block-bozzies-section.ground-gold  .wp-block-button .wp-block-button__link:focus-visible {
-	color: var(--wp--preset--color--paper);
-	background: var(--wp--preset--color--oxblood);
-	border-color: var(--wp--preset--color--oxblood);
-	text-decoration: none;
-}
+/* Eyebrow colour per ground and button colour per ground live in
+ * blocks/section/src/style.scss (keyed on .ground-*). They are not repeated
+ * here to avoid duplicated rules — see the styling-rules cleanup note. */
 
 /* ============================================================================
  * Button style variations — decoupled from Section ground so choosing a

@@ -4,7 +4,7 @@
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { load } from 'js-yaml';
-import { importMedia, upsertPage, upsertPost, deleteBySlug, wp } from './lib.mjs';
+import { importMedia, upsertPage, upsertPost, deleteBySlug, wp, heroPhoto } from './lib.mjs';
 
 const ARTICLES_DIR = '/Users/keithhalpin/boswell-poc/src/content/articles';
 const RELEASES_DIR = '/Users/keithhalpin/boswell-poc/src/content/press-releases';
@@ -325,16 +325,14 @@ ${inner}
 <!-- /wp:group -->`;
 }
 
-function buildPressHub({ hubs, releases }) {
-  // Astro's /press/ hero has no back-link and no eyebrow — only the title
-  // and subtitle. Match that exactly.
-  const hero = section(
-    { backgroundStyle: 'purple', backdrop: 'notes', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    [
-      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Press</h1><!-- /wp:heading -->`,
-      p('A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.', { fontSize: 'lead' }),
-    ].join('\n'),
-  );
+function buildPressHub({ hubs, releases, media }) {
+  // Astro's /press/ hero is a full-bleed photo (bozbuz.jpg) with title
+  // and subtitle. No back-link, no eyebrow.
+  const hero = heroPhoto({
+    media: media.bozbuz,
+    title: 'Press',
+    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.',
+  });
 
   const intro = proseSection([
     p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body' }),
@@ -360,13 +358,28 @@ ${releases.map(releaseCard).join('\n')}
 }
 
 function buildArticleContent(data, bodyBlocks) {
-  // The single.html template renders the meta line (author · publication ·
-  // publicationDate) from post meta via the bozzies/article-meta binding.
-  // Our content is: pull quote, hero image, video embed, body, external-link.
-  const pullQuoteBlock = data.pullQuote ? section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', spacing: 'compact', align: 'full' },
-    quote(data.pullQuote, data.pullQuoteAttribution ? `— ${data.pullQuoteAttribution}` : ''),
-  ) : '';
+  // Article page structure — mirrors Astro's [purple hero → paper body → gold
+  // external-link] layout. The purple hero contains the back link (to the
+  // category), the h1, the meta line (author · publication · publicationDate,
+  // rendered from post meta via the bozzies/article-meta binding), and the
+  // pull quote when present. Astro packages all four together in a single
+  // hero band — matching that here removes the "double band" artefact caused
+  // by the earlier split single.html hero + separate pull-quote section.
+  const hubLabel = (HUB_ORDER.find(h => h.slug === data.subhub) || {}).label || 'Press';
+  const backLink = `<a href="/press/${data.subhub}/">← Press &middot; ${hubLabel}</a>`;
+  const metaParagraph = `<!-- wp:paragraph {"className":"is-style-eyebrow bozzies-article-meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} -->
+<p class="is-style-eyebrow bozzies-article-meta"></p>
+<!-- /wp:paragraph -->`;
+  const heroInner = [
+    p(backLink),
+    `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">${data.title}</h1><!-- /wp:heading -->`,
+    metaParagraph,
+    data.pullQuote ? quote(data.pullQuote, data.pullQuoteAttribution ? `— ${data.pullQuoteAttribution}` : '') : '',
+  ].filter(Boolean).join('\n');
+  const hero = section(
+    { backgroundStyle: 'purple', backdrop: 'notes', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
+    heroInner,
+  );
 
   const heroImage = data.heroImageMedia ? section(
     { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
@@ -388,7 +401,7 @@ function buildArticleContent(data, bodyBlocks) {
     buttons(button(data.externalLink, 'Read the full article'), 'center'),
   ) : '';
 
-  return [pullQuoteBlock, heroImage, videoEmbed, body, externalLink].filter(Boolean).join('\n\n');
+  return [hero, heroImage, videoEmbed, body, externalLink].filter(Boolean).join('\n\n');
 }
 
 function updateCategoryDescriptions() {
@@ -520,9 +533,13 @@ function run() {
     const count  = parseInt(wp(['post', 'list', `--category=${hub.slug}`, '--post_type=post', '--format=count'], { allowFail: true }).trim(), 10);
     return { ...hub, termId, blurb: HUB_BLURBS[hub.slug], hasEntries: count > 0 };
   });
+  const media = {
+    bozbuz: importMedia('/uploads/bozbuz.jpg', 'A Boswell Sisters press photograph.'),
+  };
+  console.log('  media:', Object.fromEntries(Object.entries(media).map(([k, v]) => [k, v.id])));
   const pressHubRes = upsertPage({
     slug: 'press', title: 'Press', template: 'page-landing',
-    content: buildPressHub({ hubs, releases }),
+    content: buildPressHub({ hubs, releases, media }),
   });
   console.log(`  ${pressHubRes.created ? '+' : '~'} press (id=${pressHubRes.id})`);
 }
