@@ -668,10 +668,14 @@ header.wp-block-template-part {
  *   the bottom of the content column.
  * ========================================================================= */
 .wp-block-bozzies-section.is-hero-photo > .wp-block-bozzies-section__inner {
-	min-height: clamp(560px, 92vh, 900px);
+	/* Astro's four full-bleed heroes (Sisters, Press, Media, About) all pass
+	 * `height="medium"` which resolves to `min-height: 62vh`. Match that here
+	 * so the hero doesn't tower over the fold on 900px viewports. */
+	min-height: 62vh;
 	padding-block: var(--wp--preset--spacing--xl);
 	gap: var(--wp--preset--spacing--m);
 	position: relative;
+	justify-content: flex-end;
 }
 .wp-block-bozzies-section.is-hero-photo::after {
 	content: '';
