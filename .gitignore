@@ -35,3 +35,6 @@ admin-credentials.txt
 
 # Screenshots for visual QA (local only)
 _screens/
+
+# Import script staging area (host-writable, container-readable via theme mount)
+theme/bozzies/.import-tmp/
