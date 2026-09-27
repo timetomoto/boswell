@@ -46,7 +46,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Current status
 
-**Last commit:** `03ed41b` — Fix sample and donate pixel-diff regression (task 7g).
+**Last commit:** `4bc2ea7` — Task 9b: finish content import (meta, press hub, releases, text diffs).
 
 **Done**
 - Theme foundation (`bozzies` block theme, no parent, no plugins, no page builder).
@@ -60,28 +60,35 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 - Templates: `page`, `page-landing`, `page-subpage`, `single`, `archive`, `category`, `404`, `index`.
 - Patterns: `landing`, `subpage-hero`, `card-grid-2`, `card-grid-3`, `donate-teaser`, `see-also`, `item-hero`, `lesson-row`.
 - Ornaments: hero corner brackets (tl/tr/bl/br), hero glyph, jazz divider, four backdrop SVGs.
-- Home page built with real Astro copy — the only page with content.
+- Home page built with real Astro copy.
 - YouTube embeds forced to `youtube-nocookie.com` and styled to Astro's `.video-embed` (16:9, `--ink` background).
 - Visual measurement scripts: `scripts/visual-colors.mjs`, `scripts/visual-backdrops.mjs`, `scripts/visual-diff.mjs`, `scripts/measure-sections.mjs`, `scripts/measure-others.mjs`, `scripts/crop-sections.mjs`.
+- **All content imported from Astro** (tasks 9 + 9b): Sisters hub + Connee/Martha/Vet bios, About, Bio Resources, Media hub, Charts, Reviews, Discography, Career Timeline, Lessons hub + Lessons 1–5, Press hub with per-sub-hub core Query Loops, the five press categories, 34 article posts with author / publication / publicationDate post_meta (registered `show_in_rest=true`), and nine press-release PDFs linked from `/press/` (no per-release pages).
+- Re-runnable import scripts in `scripts/import/`: `group1.mjs` (Sisters + About), `group2.mjs` (Media), `group3.mjs` (Press), shared `lib.mjs` (wp-cli wrapper, idempotent media importer, upsert-by-slug). Verification harness: `verify.mjs` (Playwright visible-text diff with wp=astro route mapping), `crawl.mjs` (BFS 404 sweep), `alt-audit.mjs` (per-image alt comparison), `network-audit.mjs` (failed subresource sweep).
 
-**Open items**
+**Next task — sitewide style pass**
+Bring every page to visual parity with `https://boswell-poc.vercel.app/`, page by page. Known issues to address:
+- **Full-bleed photo heroes are missing** on `/`, `/sisters/`, `/about/`, `/media/`, `/press/`, `/media/charts/`, `/media/reviews/`, `/media/discography/`, articles, and lessons. `/media/` also needs the "The Boswell Sisters recording with Bing Crosby." credit line under the hero image.
+- **Double purple band on article single pages**: `single.html`'s built-in purple hero and the pull-quote section from post content both render on the paper→purple transition.
+- **Sticky scrolling not working** on the sister bio pages (Connee / Martha / Vet).
+- **All pages are on the `page-landing` template.** They were switched during import to sidestep the `page-subpage` template's built-in "Section" placeholder eyebrow. Fix the subpage template so it doesn't inject placeholder chrome, then move each page to the right template for its role.
+- **Article order on category archives and the press hub** must be checked visually against Astro. The text-diff harness only compares token sets — it does not check ordering. `menu_order` was set for every article during import; verify each list matches Astro row-for-row.
+- **Article-meta is not owner-editable in the sidebar.** The three keys are underscore-prefixed (`_bozzies_author`, `_bozzies_publication`, `_bozzies_publication_date`), so the Custom Fields panel hides them. Add a small "Article details" panel in the post editor sidebar (theme code, no plugins) that exposes them via the REST API.
+- **Placeholder labels are inconsistent.** Home says `[Playlist player: added in task 8]` and `[Quotes carousel: added in task 8]`; other pages say `[…: added in task 10]`. Relabel everything to one consistent tag with no task number, e.g. `[Playlist player: interactive block pending]`.
+
+**After the style pass**
+- Build the interactive blocks and drop each into its labelled placeholder: playlist player, quotes carousel, sisters timeline (used on `/sisters/connee/` for the solo timeline and on `/sisters/career-timeline/` for the trio), discography search.
+- Read-only survey of `~/bozzies-dreamhost-backup` for higher-resolution originals of images, audio, or PDFs the site already uses, plus a list (no import) of any real content that exists in the DreamHost backup but not in Astro. Vercel is still the target — this pass produces findings only.
+
+**Open items / pre-launch**
 - Hero at 1440 has ~6% pixel diff vs Astro (photo grayscale/contrast render + heading font-metrics on the same image file). Titles at 1920 read ~5% wider due to font-metric drift on Cormorant Garamond. Neither is content-visible; flagged in earlier 7d/7f/7g reports.
-- Playlist player and quotes carousel on the home page are labelled `[Playlist player: added in task 8]` / `[Quotes carousel: added in task 8]` placeholders.
 - Ground colour rules are duplicated in `blocks/section/src/style.scss` and `assets/css/chrome.css` (eyebrow colour, button text colour, heading colour). Not a bug; hygiene cleanup.
 - `Privacy Policy` copy still has a `[CONTACT EMAIL]` placeholder.
-- Two test pages exist in the DB: `Section styles test` (id 46, publish) and `Section styles + patterns test` (id 6, draft). Also an `Embed test` page (id 54) from task 7d. Delete before handoff.
-
-**Only the home page has content.** Every other page and post is empty or missing. About, Sisters, Connee/Martha/Vet, Media, Press, Bio Resources, Career Timeline, Charts, Reviews, Discography, Lessons 1–5, and all article posts still need to be imported from `~/boswell-poc/src/content/` and `~/boswell-poc/src/pages/`.
-
-**Next task — content import (before interactive blocks)**
-Import all pages and posts from the Astro source as native editable blocks, with clearly labelled placeholders where a timeline, discography, or player will go. Scope:
-- The three sisters: Connee, Martha, Vet — bios and per-sister timelines (`~/boswell-poc/src/content/sisters/`).
-- Media hub: Charts, Reviews, Discography, 5 Lessons (`~/boswell-poc/src/content/media/`).
-- About, Bio Resources.
-- Press: 34 articles across 5 sub-hubs (`~/boswell-poc/src/content/articles/`), plus 9 press releases/PDFs.
-- All images, PDFs, MP3s go into the media library with Astro's alt text / titles preserved.
-- Verify each imported page with the visible-text Playwright diff (see the Content rules above) — zero visible-text differences before moving on.
-Then build the interactive blocks: playlist player, quotes carousel, sisters timeline, discography search — and drop each into its labelled placeholder.
+- Three test pages in the DB: `Section styles test` (id 46, publish), `Section styles + patterns test` (id 6, draft), `Embed test` (id 54, from task 7d). Delete before handoff.
+- **Before handoff, delete `theme/bozzies/.import-tmp/`.** The import script stages page content there because `wp-env` doesn't forward stdin. It's gitignored, but it lives inside the theme directory, so it would otherwise ship with the theme zip.
+- **Decide whether `scripts/import/` stays in the repo** for the handoff. The scripts are re-runnable and idempotent, but they assume a running local wp-env + a Python HTTP server on `host.docker.internal:8899` for uploads; a fresh owner would not need them.
+- **`/media/lessons/` hub is WP-only.** Astro shows the lesson list inline on `/media/` and serves individual lessons at `/media/lessons/N/`. Per settled decisions the WP structure is `/media/lessons/` + `/media/lessons/lesson-N/`; the hub adds a route Astro does not have.
+- **Two `render_block` filters exist** in `functions.php` (added in task 9b): `render_block_core/post-template` injects `<span class="bozzies-article-row__num">01</span>` inside each `<li>` on `.bozzies-article-list`, and `render_block_core/post-navigation-link` wraps around to the first/last sub-hub article when there's no adjacent post. These are structural (numbering + wraparound), not styling — the styling-rules ban on `render_block` filters was scoped to visual concerns.
 
 **Working habits**
 - Read files with `offset`/`limit` instead of loading whole files; re-read sparingly.
