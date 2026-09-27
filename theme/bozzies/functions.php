@@ -91,6 +91,15 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro cards CSS — sister-card, subpage-card, bio-body, bio-portrait,
+	// facts, bio-timeline, bio-nav (from sisters/**). Future card families
+	// (release-card, lesson-card, music-teaser, see-also) get appended.
+	wp_enqueue_style(
+		'bozzies-astro-cards',
+		$dir_uri . '/assets/css/astro/cards.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -98,7 +107,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards' ),
 		$ver
 	);
 }
@@ -110,6 +119,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/global.css' );
 	add_editor_style( 'assets/css/astro/hero.css' );
 	add_editor_style( 'assets/css/astro/article.css' );
+	add_editor_style( 'assets/css/astro/cards.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 

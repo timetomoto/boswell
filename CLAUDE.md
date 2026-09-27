@@ -81,7 +81,8 @@ Every component port ships four passes before commit:
 - `4d80b67` astro-rebuild Step 0: rewrite styling rules + set up branch
 - `82d6650` astro-rebuild Step 1: full Astro inventory in CLAUDE.md
 - `b59500f` astro-rebuild base layer: port global.css, add Instrument Serif, disable WP layout CSS
-- **THIS commit** — astro-rebuild article list: port article-list / article-row / article-hero / page-hero / article-nav / prose / video-embed CSS; rewrite category.html + single.html to Astro DOM; rewrite `bozzies_wrap_post_navigation` filter to emit `.article-nav__link` shape.
+- `fdae892` astro-rebuild article list: port article-list / article-row / article-hero / page-hero / article-nav / prose / video-embed CSS; rewrite category.html + single.html; rewrite post-navigation filter
+- **THIS commit** — astro-rebuild cards (sisters): port sister-card / subpage-card / bio-body / bio-portrait / facts-strip / facts / bio-timeline / bio-nav from Astro's sisters/index.astro + sisters/[slug].astro. Existing imported content still carries the pre-rebuild `bozzies-*` class prefix; the ported Astro CSS applies to new content and to old content once Step 14 re-imports. Remaining card families (release-card, lesson-card, music-teaser, see-also) will append to cards.css in a follow-up.
 
 **Build order — one commit per step, riskiest first:**
 
@@ -102,6 +103,7 @@ Every component port ships four passes before commit:
 15. **Dead code sweep + Group 3 audits + final CLAUDE.md.**
 
 **Recorded issues / things not matching Astro exactly:**
+- **Cards CSS applies to Astro class names only.** Existing imported content on `/sisters/`, `/sisters/{connee,martha,vet}/`, `/sisters/bio-resources/`, `/sisters/career-timeline/` still uses the pre-rebuild `bozzies-bio-body`, `bozzies-facts`, `bozzies-fact`, `bozzies-card-*` class prefixes. Old chrome.css rules keep those visually correct today. Step 14 re-imports content with Astro class names; that's when the cards.css port takes effect on hub pages. New sister-card DOM authored via the block editor (Step 5b, follow-up pattern) will get Astro classes from the pattern directly.
 - **Article row DOM.** Astro wraps the whole `<li>` content in a single `<a class="article-row__link">` with `<span class="article-row__num">`, `<div class="article-row__body">`, `<h3 class="article-row__title">`, `<p class="article-row__meta">`, `<svg class="article-row__arrow">` children. WP's `core/post-template` with `core/post-title {"isLink":true}` inside a `core/group` emits `<h3><a>title</a></h3>` + sibling `<p>meta</p>` inside the `<li>`; there is no wrapping `<a>` and no arrow SVG. The port applies `.article-list`, `.article-row`, `.article-row__title`, `.article-row__meta`, `.article-row__num` (the last injected by the `bozzies_number_article_rows` filter) but not `.article-row__link` (no wrapping anchor) or `.article-row__arrow`. Row hover state and the "→" arrow won't match Astro until a follow-up commit rebuilds the row via a `render_block_core/post-template` filter that assembles Astro's exact DOM server-side.
 - **Category header eyebrow.** WP's `bozzies/term-kicker` binding renders term meta into a paragraph. The template applies both `eyebrow` and `page-hero__eyebrow` classes so Astro's `.eyebrow` typography + `.page-hero__eyebrow` yellow color apply. This should match Astro but has not been visually verified yet.
 
