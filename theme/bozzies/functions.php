@@ -82,6 +82,15 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro article CSS — verbatim port of the article-list, article-row,
+	// article-hero, page-hero, article-nav, prose and video-embed rules
+	// from Astro's press/**/*.astro pages.
+	wp_enqueue_style(
+		'bozzies-astro-article',
+		$dir_uri . '/assets/css/astro/article.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -89,7 +98,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article' ),
 		$ver
 	);
 }
@@ -100,6 +109,7 @@ function bozzies_add_editor_styles() {
 	// while editing.
 	add_editor_style( 'assets/css/astro/global.css' );
 	add_editor_style( 'assets/css/astro/hero.css' );
+	add_editor_style( 'assets/css/astro/article.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
@@ -179,7 +189,9 @@ function bozzies_press_rewrite_rule() {
 add_filter( 'render_block_core/post-template', 'bozzies_number_article_rows', 10, 2 );
 function bozzies_number_article_rows( $block_content, $block ) {
 	$cls = isset( $block['attrs']['className'] ) ? (string) $block['attrs']['className'] : '';
-	if ( strpos( $cls, 'bozzies-article-list' ) === false ) {
+	// Match Astro's `article-list` (the class name the ported CSS keys on) and
+	// keep backward-compat with the pre-rebuild `bozzies-article-list`.
+	if ( strpos( $cls, 'article-list' ) === false ) {
 		return $block_content;
 	}
 	$i = 0;
@@ -188,7 +200,7 @@ function bozzies_number_article_rows( $block_content, $block ) {
 		function ( $m ) use ( &$i ) {
 			$i++;
 			$num = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
-			return '<li' . $m[1] . '><span class="bozzies-article-row__num">' . $num . '</span>';
+			return '<li' . $m[1] . '><span class="article-row__num">' . $num . '</span>';
 		},
 		$block_content,
 		-1
@@ -240,19 +252,39 @@ function bozzies_next_post_where( $where, $in_same_term, $excluded_terms, $taxon
 }
 
 /**
- * Astro's article-nav wraps around: at the last article in a sub-hub, "Next"
- * links to the first; at the first, "Previous" links to the last. WP's
- * post-navigation-link renders nothing when there's no adjacent post. Fill
- * in the wraparound render so the UI (and the visible-text diff) matches.
+ * Astro's article-nav (~/boswell-poc/src/pages/press/[subhub]/[slug].astro)
+ * emits a prev/all/next row where each side is:
+ *   <a class="article-nav__link article-nav__link--prev">
+ *     <span class="article-nav__label">Previous</span>
+ *     <span class="article-nav__title">Article title</span>
+ *   </a>
+ * WP's core/post-navigation-link block emits its own class and shape. This
+ * filter rewrites every post-navigation-link render inside a single post
+ * (adjacent found OR wraparound needed) into Astro's exact DOM so the ported
+ * article.css applies without a mapping layer.
  */
 add_filter( 'render_block_core/post-navigation-link', 'bozzies_wrap_post_navigation', 10, 2 );
 function bozzies_wrap_post_navigation( $block_content, $block ) {
-	// WP still wraps an empty adjacent-post navigation in a `<div class="…"></div>`.
-	// Treat "no <a> inside" as the empty case rather than an entirely empty string.
-	if ( strpos( $block_content, '<a ' ) !== false ) {
-		return $block_content;
-	}
 	$type = ( isset( $block['attrs']['type'] ) && 'next' === $block['attrs']['type'] ) ? 'next' : 'previous';
+	$label_text = 'next' === $type ? 'Next' : 'Previous';
+	$class_side = 'next' === $type ? 'article-nav__link--next' : 'article-nav__link--prev';
+	$rel        = 'next' === $type ? 'next' : 'prev';
+
+	// If WP found an adjacent post, its output already includes an <a>. Rewrite
+	// the shape to Astro's without hitting the DB again — extract href + title.
+	if ( strpos( $block_content, '<a ' ) !== false && preg_match( '#<a[^>]*href="([^"]+)"[^>]*>([^<]+)</a>#', $block_content, $m ) ) {
+		return sprintf(
+			'<a class="article-nav__link %s" href="%s" rel="%s"><span class="article-nav__label">%s</span><span class="article-nav__title">%s</span></a>',
+			esc_attr( $class_side ),
+			esc_url( html_entity_decode( $m[1], ENT_QUOTES ) ),
+			esc_attr( $rel ),
+			esc_html( $label_text ),
+			esc_html( html_entity_decode( $m[2], ENT_QUOTES ) )
+		);
+	}
+
+	// Otherwise Astro wraps around: at the last article, "Next" links to the
+	// first; at the first, "Previous" links to the last.
 	$post = get_post();
 	if ( ! $post ) {
 		return $block_content;
@@ -276,17 +308,12 @@ function bozzies_wrap_post_navigation( $block_content, $block ) {
 		return $block_content;
 	}
 	$target = $wrap[0];
-	$label  = 'next' === $type ? 'Next' : 'Previous';
-	$rel    = 'next' === $type ? 'next' : 'prev';
-	$cls    = 'next' === $type
-		? 'post-navigation-link-next wp-block-post-navigation-link'
-		: 'post-navigation-link-previous wp-block-post-navigation-link';
 	return sprintf(
-		'<div class="%s"><span class="post-navigation-link__label">%s</span> <a href="%s" rel="%s">%s</a></div>',
-		esc_attr( $cls ),
-		esc_html( $label ),
+		'<a class="article-nav__link %s" href="%s" rel="%s"><span class="article-nav__label">%s</span><span class="article-nav__title">%s</span></a>',
+		esc_attr( $class_side ),
 		esc_url( get_permalink( $target ) ),
 		esc_attr( $rel ),
+		esc_html( $label_text ),
 		esc_html( get_the_title( $target ) )
 	);
 }
