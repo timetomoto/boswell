@@ -295,7 +295,8 @@ ${bodyBlocks.join('\n')}
     ].join('\n'),
   ) : '';
 
-  // Sister prev/all/next nav (mirrors Astro's bio-nav).
+  // Sister prev/all/next nav (mirrors Astro's bio-nav). Emits Astro's exact
+  // <nav class="section-tight ground-paper bio-nav"> DOM via bozzies/bio-nav.
   const order2 = [
     { slug: 'martha', name: 'Martha Boswell' },
     { slug: 'connee', name: 'Connee Boswell' },
@@ -304,25 +305,20 @@ ${bodyBlocks.join('\n')}
   const idx = order2.findIndex(x => x.slug === slug);
   const prev = order2[(idx - 1 + order2.length) % order2.length];
   const next = order2[(idx + 1) % order2.length];
-  const nav = section(
-    { backgroundStyle: 'paper', spacing: 'compact', headingWidth: 'container', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">
-${p('Previous', { className: 'is-style-eyebrow' })}
-${p(`<a href="/sisters/${prev.slug}/">${prev.name}</a>`)}
-</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">
-${p('All', { className: 'is-style-eyebrow', align: 'center' })}
-${p(`<a href="/sisters/">The Sisters</a>`, { align: 'center' })}
-</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">
-${p('Next', { className: 'is-style-eyebrow', align: 'right' })}
-${p(`<a href="/sisters/${next.slug}/">${next.name}</a>`, { align: 'right' })}
-</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  const navAttrs = {
+    prevHref:  `/sisters/${prev.slug}/`,
+    prevLabel: 'Previous',
+    prevName:  prev.name,
+    allHref:   '/sisters/',
+    allLabel:  'All',
+    allName:   'The Sisters',
+    nextHref:  `/sisters/${next.slug}/`,
+    nextLabel: 'Next',
+    nextName:  next.name,
+    ariaLabel: 'Sisters navigation',
+    align:     'full',
+  };
+  const nav = `<!-- wp:bozzies/bio-nav ${JSON.stringify(navAttrs)} /-->`;
 
   return [hero, facts_, body, timelinePlaceholder, nav].filter(Boolean).join('\n\n');
 }
