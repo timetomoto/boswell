@@ -119,9 +119,10 @@ function bozzies_enqueue_chrome() {
 		$ver
 	);
 	// Astro pages CSS — per-page scoped rules from Astro pages that live
-	// outside a component. Starts with the home donate teaser
-	// (index.astro L169-200) and the eyebrow color modifiers (L137-140);
-	// later commits (home hub, about hub) will append their sections.
+	// outside a component. Holds the home intro (index.astro L117-135),
+	// donate teaser (index.astro L169-200) and eyebrow color modifiers
+	// (L137-140), plus the about CTA (about.astro L74-97); later commits
+	// (home hub playlist/voices/sample, about hub intro) will append.
 	wp_enqueue_style(
 		'bozzies-astro-pages',
 		$dir_uri . '/assets/css/astro/pages.css',

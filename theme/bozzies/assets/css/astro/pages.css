@@ -14,12 +14,15 @@
  *     lines 58 and 74-97 (`.about-cta`, `.about-cta__inner`,
  *     `.about-cta__head`, `.about-cta__title`, `.about-cta__body`,
  *     `.about-cta__actions`, `.btn`, `.btn--outline`, `.btn--gold`).
+ *   - Intro section from ~/boswell-poc/src/pages/index.astro styles lines
+ *     114 and 117-135 (`.intro-section`, `.intro`, `.intro__lede`,
+ *     `.intro__body`, `.intro__body--lead`).
  *
  * Documented edits from the Astro source:
- *   1. Section overflow rule shortened to just `.donate-teaser` and
- *      `.about-cta` here. The other home siblings (`.intro-section,
- *      .playlist-section, .voices-section, .sample-section`) and the about
- *      `.section-intro` sibling join this rule when their sections port.
+ *   1. Section overflow rule shortened to `.intro-section, .donate-teaser`
+ *      and `.about-cta` here. The other home siblings (`.playlist-section,
+ *      .voices-section, .sample-section`) and the about `.section-intro`
+ *      sibling join this rule when their sections port.
  *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
  *      they beat `global.css`'s `.ground-gold a { color: var(--link);
  *      border-color: var(--link) }` (0-1-1) and `.ground-gold a:hover`
@@ -42,6 +45,28 @@
 .eyebrow--purple { color: var(--purple); }
 .eyebrow--yellow { color: var(--yellow); }
 .eyebrow--copper { color: var(--copper); }
+
+/* Intro — home welcome/mission on paper ground (index.astro L114, L117-135). */
+.intro-section { position: relative; overflow: hidden; }
+.intro { text-align: left; position: relative; z-index: 1; }
+.intro__lede {
+	font-family: var(--font-display);
+	font-weight: 400;
+	font-size: clamp(var(--step-3), 2.5vw + 0.4rem, var(--step-4));
+	line-height: var(--leading-snug);
+	color: var(--ink);
+	margin-top: var(--space-4);
+	max-width: var(--measure-body);
+}
+.intro__body {
+	margin-top: var(--space-5);
+	font-family: var(--font-body);
+	font-size: var(--step-1);
+	line-height: var(--leading-loose);
+	color: var(--text-on-paper);
+	max-width: var(--measure-body);
+}
+.intro__body--lead { font-weight: 700; }
 
 /* Donate teaser — on bourbon-gold ground. */
 .donate-teaser { position: relative; overflow: hidden; }
