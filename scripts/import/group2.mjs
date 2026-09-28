@@ -135,12 +135,13 @@ function mdTable(mdLines) {
 
 function buildMedia(media) {
   // Astro's media hub hero: full-bleed photo (Boswell_Sisters_Bing_Crosby.jpg)
-  // with title, subtitle, and credit line under the image.
+  // with title + subtitle. Astro passes only imageAlt for the alt attribute
+  // (no visible credit line under the image — Hero.astro renders `.hero__credit`
+  // only when a `credit` prop is passed, and pages/media/index.astro doesn't).
   const hero = heroPhoto({
     media: media.bingCrosby,
     title: 'Media',
     subtitle: 'A curated playlist, five audio lessons on the Boswell sound, and chart positions and reviews that recognized them.',
-    credit: 'The Boswell Sisters recording with Bing Crosby.',
   });
 
   const intro = proseSection([
@@ -173,31 +174,21 @@ function buildMedia(media) {
     ].join('\n'),
   );
 
-  const teasers = section(
-    { backgroundStyle: 'gold', backdrop: 'vinyl', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Discography',
-  title: 'Boz on the Charts',
-  body: 'Chart positions from Brunswick 6083 in 1931 to Decca in the late 1930s and beyond — how the Boswell Sisters and Connee actually rated with the record-buying public.',
-  cta: 'Explore the charts', href: '/media/charts/',
-})}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Reviews',
-  title: 'Album reviews from the experts',
-  body: 'Storyville volumes, Singing the Blues, Shout Sisters Shout, and the lost 1957 RCA classic — hand-picked reviews for anyone starting a Boz collection.',
-  cta: 'Read the reviews', href: '/media/reviews/',
-})}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Discography',
-  title: 'Every session, every track',
-  body: `128 recording sessions spanning 1925 to 1957, from the trio's first Victor sides through Connee's final solos with Sy Oliver. Searchable by title, matrix, or personnel.`,
-  cta: 'Browse the sessions', href: '/media/discography/',
-})}</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  // Astro's music-teasers section is emitted verbatim by the
+  // bozzies/music-teasers + bozzies/music-teaser blocks. Container block
+  // renders <section class="section ground-gold music-teasers"> with the
+  // vinyl music-backdrop inlined, followed by <div class="container
+  // music-teasers__grid">…</div>; each child block renders one
+  // <a class="music-teaser"> with Astro's exact inner DOM (eyebrow + h3 +
+  // body p + cta span with arrow SVG). Verbatim from
+  // ~/boswell-poc/src/pages/media/index.astro lines 98-139.
+  const musicTeaser = ({ eyebrow, title, body, ctaLabel, href }) =>
+    `<!-- wp:bozzies/music-teaser ${JSON.stringify({ eyebrow, title, body, ctaLabel, href })} /-->`;
+  const teasers = `<!-- wp:bozzies/music-teasers {"align":"full"} -->
+${musicTeaser({ eyebrow: 'Discography', title: 'Boz on the Charts', body: 'Chart positions from Brunswick 6083 in 1931 to Decca in the late 1930s and beyond — how the Boswell Sisters and Connee actually rated with the record-buying public.', ctaLabel: 'Explore the charts', href: '/media/charts/' })}
+${musicTeaser({ eyebrow: 'Reviews', title: 'Album reviews from the experts', body: 'Storyville volumes, Singing the Blues, Shout Sisters Shout, and the lost 1957 RCA classic — hand-picked reviews for anyone starting a Boz collection.', ctaLabel: 'Read the reviews', href: '/media/reviews/' })}
+${musicTeaser({ eyebrow: 'Discography', title: 'Every session, every track', body: '128 recording sessions spanning 1925 to 1957, from the trio’s first Victor sides through Connee’s final solos with Sy Oliver. Searchable by title, matrix, or personnel.', ctaLabel: 'Browse the sessions', href: '/media/discography/' })}
+<!-- /wp:bozzies/music-teasers -->`;
 
   return [hero, intro, separator(), playlistPlaceholder, separator(), lessonsGrid, teasers].join('\n\n');
 }

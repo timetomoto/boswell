@@ -113,6 +113,12 @@
 	--measure:        42rem;
 	--measure-wide:   60rem;
 	--measure-max:    84rem;
+	/* Text-block widths — Astro tokens.css lines 98-99. Applied to
+	 * page-section titles and reading prose. Missing before now; added
+	 * so `.music-teaser__body { max-width: var(--measure-body) }` and
+	 * other card body rules resolve to 58ch. */
+	--measure-title: 34ch;
+	--measure-body:  58ch;
 
 	/* Motion. */
 	--ease-out-quart:    cubic-bezier(0.25, 1, 0.5, 1);
