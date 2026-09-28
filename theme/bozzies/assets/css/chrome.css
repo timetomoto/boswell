@@ -967,9 +967,10 @@ header.wp-block-template-part {
  *
  * "Large" (is-style-large): 0.75rem × 2rem padding — for a plain-text CTA
  * button that needs more room than the theme default (0.5rem × 1rem).
- * Left in place for the still-unported CTAs on /about/ and
- * /sisters/bio-resources/; the /home/ donate teaser now emits Astro's
- * `.btn.btn--purple` directly via the bozzies/donate-teaser block.
+ * Left in place for the still-unported CTAs on /sisters/bio-resources/;
+ * the /home/ donate teaser emits Astro's `.btn.btn--purple` via the
+ * bozzies/donate-teaser block and /about/ emits `.btn.btn--outline` +
+ * `.btn.btn--gold` via the bozzies/about-cta block.
  *
  * "Play"  (is-style-play): 1rem × 2rem padding + inline play-icon SVG
  * prepended via ::before. Matches Astro's .sample__cta.

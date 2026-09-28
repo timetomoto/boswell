@@ -10,20 +10,31 @@
  *     styles lines 114 and 169-200 (`.donate-teaser`, `.donate-teaser__inner`,
  *     `.donate-teaser__title`, `.donate-teaser__body`, `.btn`, `.btn--purple`)
  *     plus the eyebrow color modifiers on lines 137-140.
+ *   - About CTA section from ~/boswell-poc/src/pages/about.astro styles
+ *     lines 58 and 74-97 (`.about-cta`, `.about-cta__inner`,
+ *     `.about-cta__head`, `.about-cta__title`, `.about-cta__body`,
+ *     `.about-cta__actions`, `.btn`, `.btn--outline`, `.btn--gold`).
  *
  * Documented edits from the Astro source:
- *   1. Section overflow rule shortened to just `.donate-teaser` here. The
- *      other siblings (`.intro-section, .playlist-section, .voices-section,
- *      .sample-section`) join this rule when their sections are ported in
- *      the Home page sections step.
+ *   1. Section overflow rule shortened to just `.donate-teaser` and
+ *      `.about-cta` here. The other home siblings (`.intro-section,
+ *      .playlist-section, .voices-section, .sample-section`) and the about
+ *      `.section-intro` sibling join this rule when their sections port.
  *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
  *      they beat `global.css`'s `.ground-gold a { color: var(--link);
  *      border-color: var(--link) }` (0-1-1) and `.ground-gold a:hover`
  *      (0-2-1). Bumping to `.donate-teaser .btn` (0-2-0) and
  *      `.donate-teaser .btn--purple:hover` (0-3-0) wins the cascade.
  *      Astro achieves the same via its `data-astro-cid-*` attribute
- *      scoping. The about-cta commit will add its own `.about-cta .btn*`
- *      scoping for the two-button row (btn--outline + btn--gold).
+ *      scoping.
+ *   3. Same scoping for the about-cta buttons: `.about-cta .btn` (0-2-0),
+ *      `.about-cta .btn--outline` (0-2-0), `.about-cta .btn--outline:hover`
+ *      (0-3-0), `.about-cta .btn--gold` (0-2-0), `.about-cta
+ *      .btn--gold:hover` (0-3-0). Beats `.ground-gold a` (0-1-1) and
+ *      `.ground-gold a:hover` (0-2-1). The `.btn` rule on `.about-cta`
+ *      duplicates the base declarations on `.donate-teaser .btn` (both
+ *      port the same Astro `.btn` block) — they don't share a selector
+ *      because Astro scopes each per-page via `data-astro-cid-*`.
  */
 
 /* Eyebrow color modifiers (Astro pages/index.astro lines 137-140). */
@@ -66,3 +77,51 @@
 .donate-teaser .btn--purple { color: var(--paper); background: var(--purple); border: 1px solid var(--purple); }
 .donate-teaser .btn--purple:hover,
 .donate-teaser .btn--purple:focus-visible { background: var(--oxblood); border-color: var(--oxblood); color: var(--paper); }
+
+/* About CTA — on bourbon-gold ground (about.astro lines 74-97). */
+.about-cta { position: relative; overflow: hidden; }
+.about-cta__inner { text-align: center; position: relative; z-index: 1; }
+.about-cta__head { max-width: var(--measure); margin: 0 auto; }
+.about-cta__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6));
+	font-weight: 300;
+	color: var(--ink);
+	max-width: var(--measure-title);
+}
+.about-cta__body {
+	margin: var(--space-4) auto 0;
+	font-family: var(--font-body);
+	font-size: var(--step-1);
+	line-height: var(--leading-normal);
+	color: var(--ink);
+	max-width: var(--measure-body);
+}
+.about-cta__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--space-4);
+	margin-top: var(--space-7);
+}
+.about-cta .btn {
+	display: inline-block;
+	padding: var(--space-3) var(--space-6);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	text-decoration: none;
+	border: 1px solid transparent;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
+}
+/* Secondary — outline purple on gold. */
+.about-cta .btn--outline { color: var(--purple); border-color: var(--purple); background: transparent; }
+.about-cta .btn--outline:hover,
+.about-cta .btn--outline:focus-visible { background: var(--purple); color: var(--paper); }
+/* Primary — filled purple on gold. */
+.about-cta .btn--gold { color: var(--paper); background: var(--purple); border-color: var(--purple); }
+.about-cta .btn--gold:hover,
+.about-cta .btn--gold:focus-visible { background: var(--oxblood); border-color: var(--oxblood); color: var(--paper); }
