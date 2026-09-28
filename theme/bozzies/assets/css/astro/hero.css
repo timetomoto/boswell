@@ -13,6 +13,11 @@
  *  2. `.hero__title` gains `.wp-block-heading` in the WP DOM (core/heading
  *     adds it automatically). Both classes are targeted where needed so
  *     ordinary WP heading defaults don't overwrite Astro's values.
+ *  3. `.hero__eyebrow` gains an explicit `max-width: none`. Astro's markup
+ *     is `<span class="eyebrow hero__eyebrow">` (no body-reset applies), but
+ *     WP's `core/paragraph` renders `<p>`, which inherits `global.css`'s
+ *     body-level `p { max-width: var(--measure) }` reset (42rem). The
+ *     override restores Astro's behaviour without changing DOM.
  *
  * No other selector was renamed or altered.
  * -------------------------------------------------------------------- */
@@ -159,7 +164,7 @@
 	text-align: center;
 }
 .hero--left .hero__content { text-align: left; }
-.hero__eyebrow { color: var(--yellow-soft); margin-bottom: var(--space-4); }
+.hero__eyebrow { color: var(--yellow-soft); margin-bottom: var(--space-4); max-width: none; /* WP wraps eyebrow in <p>; drops global p { max-width: --measure } */ }
 .hero__title,
 .hero__title.wp-block-heading {   /* WP core/heading adds .wp-block-heading */
 	font-family: var(--font-display);
