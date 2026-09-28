@@ -6,21 +6,7 @@
  * Description: The site landing pattern — every section on the home page, in order, built from the Section block. Matches Astro's home layout section by section.
  */
 ?>
-<!-- wp:bozzies/section {"backgroundStyle":"ink","width":"edge","headingWidth":"container","spacing":"none","heroFrame":true,"imageGrayscale":true,"imageZoom":true,"align":"full"} -->
-<!-- wp:columns {"verticalAlignment":"stretch","className":"bozzies-hero-split"} -->
-<div class="wp-block-columns are-vertically-aligned-stretch bozzies-hero-split">
-<!-- wp:column {"verticalAlignment":"stretch","width":"50%","className":"bozzies-hero-split__image"} -->
-<div class="wp-block-column is-vertically-aligned-stretch bozzies-hero-split__image" style="flex-basis:50%"><!-- wp:image {"sizeSlug":"large","linkDestination":"none"} --><figure class="wp-block-image size-large"><img alt="Portrait of the Boswell Sisters, circa 1932." /></figure><!-- /wp:image -->
-<!-- wp:paragraph {"className":"bozzies-hero-split__credit"} --><p class="bozzies-hero-split__credit"><span>c. 1932</span></p><!-- /wp:paragraph --></div>
-<!-- /wp:column -->
-<!-- wp:column {"verticalAlignment":"center","width":"50%","className":"bozzies-hero-split__text"} -->
-<div class="wp-block-column is-vertically-aligned-center bozzies-hero-split__text" style="flex-basis:50%"><!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Meet the Boswells</h1><!-- /wp:heading -->
-<!-- wp:html --><div class="bozzies-hero-split__glyph" aria-hidden="true"><svg viewBox="0 0 80 20"><g fill="none" stroke="currentColor" stroke-width="0.7"><path d="M0 10 L28 10"/><path d="M52 10 L80 10"/><g transform="translate(40 10)"><path d="M-6 0 L-2 -4 L2 0 L-2 4 Z"/><path d="M-10 0 L-6 -4 M6 4 L10 0" opacity="0.7"/><circle cx="0" cy="0" r="1.4" fill="currentColor" stroke="none"/></g></g></svg></div><!-- /wp:html -->
-<!-- wp:paragraph {"className":"bozzies-hero-split__subtitle"} --><p class="bozzies-hero-split__subtitle">Martha, Connie and Vet, the New Orleans trio who invented swinging close-harmony.</p><!-- /wp:paragraph --></div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->
-<!-- /wp:bozzies/section -->
+<!-- wp:bozzies/hero-split {"title":"Meet the Boswells","subtitle":"Martha, Connie and Vet, the New Orleans trio who invented swinging close-harmony.","imageCredit":"c. 1932","height":"tall"} /-->
 
 <!-- wp:bozzies/section {"backgroundStyle":"paper","width":"narrow","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-lede"} --><p class="is-style-lede">The roots of rock and roll literally start here.</p><!-- /wp:paragraph -->

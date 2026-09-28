@@ -18,6 +18,13 @@
  *     WP's `core/paragraph` renders `<p>`, which inherits `global.css`'s
  *     body-level `p { max-width: var(--measure) }` reset (42rem). The
  *     override restores Astro's behaviour without changing DOM.
+ *  4. `.hero__title--split` also targets `.wp-block-heading` (same reason
+ *     as note 2 — the split hero uses core/heading via the hero-split block
+ *     wrapper).
+ *  5. The split-hero image credit `.hero__credit--split` gets an explicit
+ *     `margin: 0` / `padding: 0` reset because the block wraps it in a
+ *     server-rendered `<p>` inside the hero-split block, which would
+ *     otherwise pick up the `p + p { margin-top: --space-4 }` reset below.
  *
  * No other selector was renamed or altered.
  * -------------------------------------------------------------------- */
@@ -137,6 +144,91 @@
 .hero--tall   { min-height: 92vh; display: grid; align-items: end; }
 .hero--medium { min-height: 62vh; display: grid; align-items: end; }
 .hero--short  { min-height: 42vh; display: grid; align-items: end; }
+/* Split layout uses a fixed, editorial-scale height and stretches panels */
+.hero--split { align-items: stretch; }
+.hero--split.hero--tall   { min-height: clamp(460px, 60vh, 620px); max-height: 680px; }   /* +120px baseline */
+.hero--split.hero--medium { min-height: clamp(400px, 50vh, 540px); max-height: 580px; }
+.hero--split.hero--short  { min-height: clamp(340px, 40vh, 440px); max-height: 480px; }
+
+/* --- SPLIT layout ------------------------------------------------------ */
+.hero__split {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	width: 100%;
+	min-height: inherit;
+}
+.hero__image-panel {
+	position: relative;
+	overflow: hidden;
+	min-width: 0;
+	background: #0f0d0c;
+	isolation: isolate;
+}
+.hero__text-panel-fix { min-width: 0; }
+.hero__image--split {
+	width: 100%; height: 100%;
+	object-fit: cover;
+	object-position: center 25%;    /* bias toward top — faces usually up there */
+	filter: grayscale(0.55) contrast(1.05) brightness(0.94);
+	animation: heroKen 40s var(--ease-out-quart) both;
+}
+.hero__text-panel {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;   /* vertical center within panel */
+	align-items: flex-start;
+	padding: clamp(var(--space-5), 3.5vw, var(--space-7)) clamp(var(--space-6), 5vw, var(--space-9));
+	background: var(--purple);
+	position: relative;
+	min-width: 0;
+}
+.hero__text-inner { max-width: 34rem; }
+.hero__title--split,
+.hero__title--split.wp-block-heading {   /* WP core/heading adds .wp-block-heading */
+	font-family: var(--font-display);
+	font-weight: 300;
+	font-size: clamp(var(--step-5), 5vw + 0.3rem, var(--step-7));
+	line-height: 1;
+	letter-spacing: var(--track-tight);
+	color: var(--text-on-ink);
+	margin-top: var(--space-4);
+	max-width: 16ch;
+}
+.hero__subtitle--split {
+	margin-top: var(--space-5);
+	font-family: var(--font-body);
+	font-size: clamp(var(--step-1), 1.2vw + 0.4rem, var(--step-2));
+	color: var(--text-on-ink);
+	max-width: 34ch;
+	line-height: var(--leading-normal);
+}
+.hero__tagline {
+	margin-top: var(--space-4);
+	font-family: var(--font-body);
+	font-style: normal;
+	font-weight: 400;
+	font-size: clamp(var(--step-1), 1.4vw + 0.3rem, var(--step-2));
+	color: var(--yellow-soft);
+	line-height: 1.35;
+	max-width: 36ch;
+}
+.hero__credit--split {
+	position: absolute; bottom: var(--space-3); right: var(--space-4);
+	font-family: var(--font-ui); font-size: var(--step--2);
+	color: rgba(237, 230, 214, 0.75);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	z-index: 2;
+	max-width: none;
+	margin: 0; padding: 0;   /* WP <p> reset — see file header edit #5 */
+}
+
+/* Mobile: stack image on top, text below */
+@media (max-width: 900px) {
+	.hero__split { grid-template-columns: 1fr; }
+	.hero__image-panel { min-height: 58vh; }
+	.hero__text-panel { padding-block: clamp(var(--space-7), 8vw, var(--space-9)); }
+	.hero__text-panel::before { display: none; }
+}
 
 /* --- FULL-BLEED layout ------------------------------------------------- */
 .hero__image-wrap { position: absolute; inset: 0; z-index: 0; }
@@ -150,6 +242,17 @@
 	background: var(--purple);
 	mix-blend-mode: multiply;
 	opacity: 0.6;
+}
+/* Split layout: horizontal purple gradient (20% → 40% → 60% → 100% left to right) */
+.hero__tint--gradient {
+	background: linear-gradient(90deg,
+		rgba(74, 46, 90, 0.20) 0%,
+		rgba(74, 46, 90, 0.40) 33%,
+		rgba(74, 46, 90, 0.60) 66%,
+		rgba(74, 46, 90, 1.00) 100%);
+	mix-blend-mode: normal;
+	opacity: 1;
+	z-index: 2;
 }
 .hero__scrim {
 	position: absolute; inset: 0;
@@ -206,6 +309,7 @@
 /* Deco glyph under the subtitle */
 .hero__glyph { margin-top: var(--space-6); display: flex; color: var(--yellow-soft); opacity: 0.85; }
 .hero__glyph svg { width: min(140px, 30vw); height: auto; }
+.hero--split .hero__glyph { justify-content: flex-start; }
 .hero--full-bleed .hero__glyph { justify-content: center; }
 .hero--left .hero__glyph { justify-content: flex-start; }
 
