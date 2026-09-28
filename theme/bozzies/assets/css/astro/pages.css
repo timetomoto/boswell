@@ -1,0 +1,68 @@
+/*
+ * pages.css — page-scoped CSS from Astro pages that live outside a component.
+ *
+ * Astro defines these rules per-page in a scoped `<style>` block on the
+ * `.astro` file. WordPress has no equivalent per-page scoping mechanism, so
+ * we collect them here in one file, ordered by owning Astro page.
+ *
+ * Ports so far:
+ *   - Donate teaser section from ~/boswell-poc/src/pages/index.astro
+ *     styles lines 114 and 169-200 (`.donate-teaser`, `.donate-teaser__inner`,
+ *     `.donate-teaser__title`, `.donate-teaser__body`, `.btn`, `.btn--purple`)
+ *     plus the eyebrow color modifiers on lines 137-140.
+ *
+ * Documented edits from the Astro source:
+ *   1. Section overflow rule shortened to just `.donate-teaser` here. The
+ *      other siblings (`.intro-section, .playlist-section, .voices-section,
+ *      .sample-section`) join this rule when their sections are ported in
+ *      the Home page sections step.
+ *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
+ *      they beat `global.css`'s `.ground-gold a { color: var(--link);
+ *      border-color: var(--link) }` (0-1-1) and `.ground-gold a:hover`
+ *      (0-2-1). Bumping to `.donate-teaser .btn` (0-2-0) and
+ *      `.donate-teaser .btn--purple:hover` (0-3-0) wins the cascade.
+ *      Astro achieves the same via its `data-astro-cid-*` attribute
+ *      scoping. The about-cta commit will add its own `.about-cta .btn*`
+ *      scoping for the two-button row (btn--outline + btn--gold).
+ */
+
+/* Eyebrow color modifiers (Astro pages/index.astro lines 137-140). */
+.eyebrow--brass  { color: var(--brass); }
+.eyebrow--purple { color: var(--purple); }
+.eyebrow--yellow { color: var(--yellow); }
+.eyebrow--copper { color: var(--copper); }
+
+/* Donate teaser — on bourbon-gold ground. */
+.donate-teaser { position: relative; overflow: hidden; }
+.donate-teaser__inner { text-align: center; position: relative; z-index: 1; }
+.donate-teaser__title {
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-3), 2.5vw + 0.4rem, var(--step-5));
+	margin-top: var(--space-4);
+	margin-inline: auto;
+	max-width: var(--measure-title);
+	color: var(--ink);
+}
+.donate-teaser__body {
+	margin-inline: auto;
+	max-width: var(--measure-body);
+	margin-top: var(--space-4);
+	font-family: var(--font-body);
+	color: var(--ink);
+}
+.donate-teaser .btn {
+	display: inline-block;
+	margin-top: var(--space-6);
+	padding: var(--space-3) var(--space-6);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	background: transparent;
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
+}
+.donate-teaser .btn--purple { color: var(--paper); background: var(--purple); border: 1px solid var(--purple); }
+.donate-teaser .btn--purple:hover,
+.donate-teaser .btn--purple:focus-visible { background: var(--oxblood); border-color: var(--oxblood); color: var(--paper); }

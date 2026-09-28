@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/donate-teaser",
+	"version": "1.0.0",
+	"title": "Donate teaser",
+	"category": "design",
+	"icon": "money-alt",
+	"description": "The centered donate call-to-action on the home page. Ground-gold with the diamond-grid backdrop, purple eyebrow, single filled purple CTA button.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":    { "type": "string", "default": "full" },
+		"eyebrow":  { "type": "string", "default": "Support the Work" },
+		"title":    { "type": "string", "default": "" },
+		"body":     { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "" },
+		"ctaLabel": { "type": "string", "default": "Donate" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

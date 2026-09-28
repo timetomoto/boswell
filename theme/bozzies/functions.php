@@ -118,6 +118,16 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
 		$ver
 	);
+	// Astro pages CSS — per-page scoped rules from Astro pages that live
+	// outside a component. Starts with the home donate teaser
+	// (index.astro L169-200) and the eyebrow color modifiers (L137-140);
+	// later commits (home hub, about hub) will append their sections.
+	wp_enqueue_style(
+		'bozzies-astro-pages',
+		$dir_uri . '/assets/css/astro/pages.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -125,7 +135,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages' ),
 		$ver
 	);
 }
@@ -140,6 +150,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/cards.css' );
 	add_editor_style( 'assets/css/astro/music-backdrop.css' );
 	add_editor_style( 'assets/css/astro/bio-hero.css' );
+	add_editor_style( 'assets/css/astro/pages.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
