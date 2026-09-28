@@ -92,9 +92,9 @@ function bozzies_enqueue_chrome() {
 		$ver
 	);
 	// Astro cards CSS — sister-card, subpage-card, bio-body, bio-portrait,
-	// facts, bio-timeline, bio-nav (from sisters/**), music-teaser (from
-	// media/index.astro). Future card families (release-card, lesson-card,
-	// see-also) get appended.
+	// facts, bio-timeline, bio-nav (from sisters/**), release-card (from
+	// press/index.astro), music-teaser + lessons-grid + lesson-card (from
+	// media/index.astro). Future card families (see-also) get appended.
 	wp_enqueue_style(
 		'bozzies-astro-cards',
 		$dir_uri . '/assets/css/astro/cards.css',

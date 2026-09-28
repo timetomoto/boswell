@@ -56,37 +56,44 @@ const quote = (text, cite) =>
 const pullQuote = (text, cite) =>
   `<!-- wp:pullquote --><figure class="wp-block-pullquote"><blockquote><p>${text}</p>${cite ? `<cite>— ${cite}</cite>` : ''}</blockquote></figure><!-- /wp:pullquote -->`;
 
-// Lesson row — mirrors Astro's .lesson-card ([num][body][cta] grid) via the
-// bozzies-lesson-row group + child groups styled in chrome.css.
-const lessonRow = ({ order, title, summary, href }) => {
-  const num = `<!-- wp:group {"className":"bozzies-lesson-row__num","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row__num">
-${p('Lesson', { className: 'is-style-eyebrow' })}
-${p(String(order).padStart(2, '0'))}
-</div>
-<!-- /wp:group -->`;
-  const body = `<!-- wp:group {"className":"bozzies-lesson-row__body","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row__body">
-<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="${href}">${title}</a></h3><!-- /wp:heading -->
-${summary ? p(summary) : ''}
-</div>
-<!-- /wp:group -->`;
-  const cta = `<!-- wp:paragraph {"className":"bozzies-lesson-row__cta"} --><p class="bozzies-lesson-row__cta"><a href="${href}">▶ Listen</a></p><!-- /wp:paragraph -->`;
-  return `<!-- wp:group {"className":"bozzies-lesson-row","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row">
-${num}
-${body}
-${cta}
-</div>
-<!-- /wp:group -->`;
-};
+// Serialize a block-attrs JSON payload the way Gutenberg's client-side
+// serializer does (`@wordpress/blocks` serializeAttributes: JSON.stringify
+// then escape only `--`, `<`, `>`, `&`, U+2028, U+2029) so re-saving the
+// block in the editor produces the exact same string and the round-trip
+// stays clean. Note: PHP-side `wp_json_encode` uses JSON_HEX_APOS/QUOT too,
+// but the editor never serializes through PHP — post_content round-trips
+// through the JS serializer.
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
 
-const lessonRows = (rows) =>
-  `<!-- wp:group {"className":"bozzies-lesson-rows","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-rows">
-${rows.map(lessonRow).join('\n')}
-</div>
-<!-- /wp:group -->`;
+const ENTITY_MAP = {
+  '&ndash;': '–', '&mdash;': '—',
+  '&lsquo;': '‘', '&rsquo;': '’',
+  '&ldquo;': '“', '&rdquo;': '”',
+  '&amp;':   '&',
+};
+const decodeEntities = (s) =>
+  String(s || '').replace(/&(?:ndash|mdash|lsquo|rsquo|ldquo|rdquo|amp);/g, (m) => ENTITY_MAP[m] ?? m);
+
+// One lesson card as the new bozzies/lesson-card block. Emits Astro's exact
+// <li class="lesson-card"><a class="lesson-card__link"> DOM verbatim from
+// ~/boswell-poc/src/pages/media/index.astro lines 73-93 via the block's
+// server-render. Attributes-only.
+const lessonCard = ({ order, title, summary, href }) => {
+  const attrs = {
+    order,
+    title:   decodeEntities(title),
+    summary: decodeEntities(summary),
+    href,
+  };
+  // ctaLabel default is 'Listen' — matches block.json default so Gutenberg
+  // strips it on save. Omit here to keep the round-trip clean.
+  return `<!-- wp:bozzies/lesson-card ${gbJson(attrs)} /-->`;
+};
 
 const card = ({ eyebrow, title, body, cta, href }) => {
   const inner = [
@@ -158,21 +165,26 @@ function buildMedia(media) {
     ].join('\n'),
   );
 
-  const lessonsGrid = section(
-    { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
-    [
-      p('Audio Lessons', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, 'Five keys to the Boswell sound', { align: 'center', fontSize: 'section-title' }),
-      p('Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.', { align: 'center' }),
-      lessonRows([
-        { order: 1, title: 'The Blend',       summary: "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.", href: '/media/lessons/lesson-1/' },
-        { order: 2, title: 'The Tempo',       summary: "The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.", href: '/media/lessons/lesson-2/' },
-        { order: 3, title: 'The Riffs',       summary: "The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.", href: '/media/lessons/lesson-3/' },
-        { order: 4, title: `Melody? Words? Who Needs &rsquo;Em!`, summary: "What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.", href: '/media/lessons/lesson-4/' },
-        { order: 5, title: 'Scatting, Hand Trumpets, Gibberish and Gulling', summary: "The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.", href: '/media/lessons/lesson-5/' },
-      ]),
-    ].join('\n'),
-  );
+  // Astro's lessons-grid section is emitted verbatim by the
+  // bozzies/lesson-cards + bozzies/lesson-card blocks. Container renders
+  // <section class="section ground-paper lessons-grid"> with a
+  // <header class="lessons-grid__head"> (eyebrow + h2 + lede) and
+  // <ol class="lessons-cards" role="list">; each child renders one
+  // <li class="lesson-card"> with Astro's exact <a class="lesson-card__link">
+  // DOM (num + body + cta with play-circle SVG). Verbatim from
+  // ~/boswell-poc/src/pages/media/index.astro lines 65-96.
+  const lessonsGridAttrs = {
+    eyebrow: 'Audio Lessons',
+    title:   'Five keys to the Boswell sound',
+    lede:    'Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.',
+  };
+  const lessonsGrid = `<!-- wp:bozzies/lesson-cards ${gbJson(lessonsGridAttrs)} -->
+${lessonCard({ order: 1, title: 'The Blend',       summary: "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.", href: '/media/lessons/lesson-1/' })}
+${lessonCard({ order: 2, title: 'The Tempo',       summary: "The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.", href: '/media/lessons/lesson-2/' })}
+${lessonCard({ order: 3, title: 'The Riffs',       summary: "The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.", href: '/media/lessons/lesson-3/' })}
+${lessonCard({ order: 4, title: `Melody? Words? Who Needs &rsquo;Em!`, summary: "What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.", href: '/media/lessons/lesson-4/' })}
+${lessonCard({ order: 5, title: 'Scatting, Hand Trumpets, Gibberish and Gulling', summary: "The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.", href: '/media/lessons/lesson-5/' })}
+<!-- /wp:bozzies/lesson-cards -->`;
 
   // Astro's music-teasers section is emitted verbatim by the
   // bozzies/music-teasers + bozzies/music-teaser blocks. Container block

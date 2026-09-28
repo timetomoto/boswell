@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/lesson-cards",
+	"version": "1.0.0",
+	"title": "Lesson cards",
+	"category": "design",
+	"icon": "list-view",
+	"description": "The five audio-lesson rows on the Media hub. A section header (eyebrow + title + lede) followed by a numbered <ol class=\"lessons-cards\"> of bozzies/lesson-card children. Renders Astro's exact <section class=\"section ground-paper lessons-grid\"> DOM.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":   { "type": "string", "default": "full" },
+		"eyebrow": { "type": "string", "default": "" },
+		"title":   { "type": "string", "default": "" },
+		"lede":    { "type": "string", "default": "" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

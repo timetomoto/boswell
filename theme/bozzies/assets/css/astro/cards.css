@@ -47,6 +47,10 @@
  *     .release-card__link:hover` (0-3-0) so it beats `.ground-gold
  *     a:hover` (0-2-1). Astro achieves the same via its
  *     `data-astro-cid-*` scoping.
+ *  8. `.lessons-grid__head` / `.lessons-grid__title` / `.lessons-grid__lede`
+ *     rules from media/index.astro L162-164 added alongside the existing
+ *     `.lessons-cards` / `.lesson-card` block (which was ported at
+ *     commit ac1c464). No selector changes.
  *
  * No other selector was renamed.
  * -------------------------------------------------------------------- */
@@ -372,6 +376,10 @@
 .release-card__date { margin: 0; font-family: var(--font-ui); font-size: var(--step--1); color: rgba(245, 234, 209, 0.75); }
 
 /* --- Lesson rows on /media/ (media/index.astro) -------------------- */
+.lessons-grid { position: relative; overflow: hidden; }
+.lessons-grid__head { max-width: var(--measure-wide); margin: 0 auto var(--space-6); text-align: center; position: relative; z-index: 1; }
+.lessons-grid__title { margin: var(--space-2) auto 0; font-family: var(--font-display); font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6)); font-weight: 300; letter-spacing: var(--track-tight); text-align: center; }
+.lessons-grid__lede { margin: var(--space-3) auto 0; font-family: var(--font-body); font-size: var(--step-1); line-height: var(--leading-loose); color: var(--text-on-paper); max-width: var(--measure-body); text-align: center; }
 .lessons-cards { display: flex; flex-direction: column; gap: 0; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--paper-hairline); position: relative; z-index: 1; }
 .lesson-card { border-bottom: 1px solid var(--paper-hairline); position: relative; background: color-mix(in oklab, var(--paper) 97%, var(--purple) 3%); }
 .lesson-card::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--purple); opacity: 0.9; }
