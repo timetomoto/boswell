@@ -24,13 +24,16 @@
  *     styles lines 114 and 143-145 (`.playlist-section`,
  *     `.playlist-section__head`, `.playlist-section__title`,
  *     `.playlist-section__blurb`).
+ *   - Voices section head from ~/boswell-poc/src/pages/index.astro
+ *     styles lines 114 and 148-150 (`.voices-section`,
+ *     `.voices-section__head`, `.voices-section__eyebrow`,
+ *     `.voices-section__title`).
  *
  * Documented edits from the Astro source:
  *   1. Section overflow rule shortened to `.intro-section,
- *      .playlist-section, .sample-section, .donate-teaser` and
- *      `.about-cta` here. The remaining home sibling
- *      (`.voices-section`) and the about `.section-intro` sibling join
- *      this rule when their sections port.
+ *      .playlist-section, .voices-section, .sample-section,
+ *      .donate-teaser` and `.about-cta` here. The about `.section-intro`
+ *      sibling joins this rule when its section ports.
  *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
  *      they beat `global.css`'s `.ground-gold a { color: var(--link);
  *      border-color: var(--link) }` (0-1-1) and `.ground-gold a:hover`
@@ -106,6 +109,27 @@
 	color: var(--ink);
 	max-width: 82ch;
 	text-align: center;
+}
+
+/* Voices — head only on purple ground with quotes-carousel body pending
+ * (index.astro L114, L148-150). Body waits for the interactive
+ * bozzies/quotes-carousel block (Step 14). */
+.voices-section { position: relative; overflow: hidden; }
+.voices-section__head {
+	text-align: center;
+	margin: 0 auto var(--space-4);
+	position: relative;
+	z-index: 1;
+}
+.voices-section__eyebrow { color: var(--yellow-soft); }
+.voices-section__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6));
+	font-weight: 300;
+	color: var(--paper-warm);
+	text-align: center;
+	max-width: var(--measure-title);
 }
 
 /* Sample the Sound — educational lessons CTA on paper ground

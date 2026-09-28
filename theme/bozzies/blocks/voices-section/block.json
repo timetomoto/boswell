@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/voices-section",
+	"version": "1.0.0",
+	"title": "Voices section",
+	"category": "design",
+	"icon": "format-quote",
+	"description": "Astro's home Voices section — <section class=\"section ground-purple voices-section\"> with a notes music-backdrop, a centered <header class=\"voices-section__head\"> holding eyebrow + h2, and inner blocks that hold the quotes carousel (or a placeholder paragraph until the interactive block ships). Verbatim from index.astro lines 69-78.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":   { "type": "string", "default": "full" },
+		"eyebrow": { "type": "string", "default": "" },
+		"title":   { "type": "string", "default": "" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}
