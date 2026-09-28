@@ -24,7 +24,7 @@
 		"eyebrow":   { "type": "string", "default": "" },
 		"title":     { "type": "string", "default": "" },
 		"subtitle":  { "type": "string", "default": "" },
-		"backdrop":  { "type": "string", "default": "none", "enum": [ "none", "staves" ] }
+		"backdrop":  { "type": "string", "default": "none", "enum": [ "none", "staves", "vinyl" ] }
 	},
 	"editorScript": "file:./build/index.js",
 	"render": "file:./render.php"

@@ -4,15 +4,17 @@
  *
  * Emits Astro's exact DOM verbatim from
  * ~/boswell-poc/src/pages/sisters/career-timeline.astro lines 14-21,
- * ~/boswell-poc/src/pages/media/discography.astro lines 25-33, and
- * ~/boswell-poc/src/pages/media/reviews.astro lines 11-19 (the
+ * ~/boswell-poc/src/pages/media/discography.astro lines 25-33,
+ * ~/boswell-poc/src/pages/media/reviews.astro lines 11-19, and
+ * ~/boswell-poc/src/pages/media/charts.astro lines 11-19 (the
  * <section class="page-hero ground-purple"> wrapper with a
  * <div class="container-narrow page-hero__inner"> holding the back-link,
  * optional eyebrow, h1 title, and optional subtitle).
  *
- * `backdrop` = "staves" inlines the MusicBackdrop.astro `staves` SVG
- * verbatim (lines 250-277) with Astro's props from reviews.astro L12
- * (opacity=0.07, color=var(--yellow-soft)).
+ * `backdrop` inlines a MusicBackdrop.astro pattern SVG verbatim with the
+ * opacity/color Astro passes to <MusicBackdrop …/> on that page:
+ *   - "staves" (reviews.astro L12):   staves SVG,  opacity 0.07, color yellow-soft
+ *   - "vinyl"  (charts.astro L12):    vinyl SVG,   opacity 0.09, color yellow-soft
  *
  * Gold-ground variant is handled in a later sub-item.
  *
@@ -76,6 +78,32 @@ $backdrop   = (string) $attrs['backdrop'];
 				</pattern>
 			</defs>
 			<rect width="100%" height="100%" fill="url(#staves)"/>
+		</svg>
+	</div>
+<?php elseif ( 'vinyl' === $backdrop ) : ?>
+	<div class="music-backdrop" style="--mb-opacity:0.09; --mb-color:var(--yellow-soft); --mb-top:0px" aria-hidden="true">
+		<svg viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+			<defs>
+				<pattern id="vinyl" width="440" height="440" patternUnits="userSpaceOnUse">
+					<g fill="none" stroke="var(--mb-color)" stroke-width="0.9" transform="translate(220 220)">
+						<circle r="210"/>
+						<circle r="196" stroke-width="0.6"/>
+						<circle r="182" stroke-width="0.6"/>
+						<circle r="168" stroke-width="0.6"/>
+						<circle r="154" stroke-width="0.6"/>
+						<circle r="140" stroke-width="0.6"/>
+						<circle r="126" stroke-width="0.6"/>
+						<circle r="112" stroke-width="0.6"/>
+						<circle r="98" stroke-width="0.6"/>
+						<circle r="84" stroke-width="0.6"/>
+						<circle r="70" stroke-width="0.7"/>
+						<circle r="56" stroke-width="1.4"/>
+						<circle r="40" stroke-width="0.7"/>
+						<circle r="4" fill="var(--mb-color)" stroke="none"/>
+					</g>
+				</pattern>
+			</defs>
+			<rect width="100%" height="100%" fill="url(#vinyl)"/>
 		</svg>
 	</div>
 <?php endif; ?>

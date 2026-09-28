@@ -76,6 +76,7 @@
 .page-slug-discography     .wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
 .page-slug-discography     .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
 .page-slug-reviews         .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 52ch; }
+.page-slug-charts          .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 52ch; }
 
 /* --- Article hero (single article, ground-purple) ------------------- */
 /*  Selector adjustment: `.wp-block-bozzies-section.article-hero` gives

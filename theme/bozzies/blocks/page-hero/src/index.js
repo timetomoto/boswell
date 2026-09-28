@@ -33,6 +33,40 @@ const STAVES_SVG = (
 	</svg>
 );
 
+const VINYL_SVG = (
+	<svg viewBox="0 0 640 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+		<defs>
+			<pattern id="vinyl" width="440" height="440" patternUnits="userSpaceOnUse">
+				<g fill="none" stroke="var(--mb-color)" strokeWidth="0.9" transform="translate(220 220)">
+					<circle r="210" />
+					<circle r="196" strokeWidth="0.6" />
+					<circle r="182" strokeWidth="0.6" />
+					<circle r="168" strokeWidth="0.6" />
+					<circle r="154" strokeWidth="0.6" />
+					<circle r="140" strokeWidth="0.6" />
+					<circle r="126" strokeWidth="0.6" />
+					<circle r="112" strokeWidth="0.6" />
+					<circle r="98" strokeWidth="0.6" />
+					<circle r="84" strokeWidth="0.6" />
+					<circle r="70" strokeWidth="0.7" />
+					<circle r="56" strokeWidth="1.4" />
+					<circle r="40" strokeWidth="0.7" />
+					<circle r="4" fill="var(--mb-color)" stroke="none" />
+				</g>
+			</pattern>
+		</defs>
+		<rect width="100%" height="100%" fill="url(#vinyl)" />
+	</svg>
+);
+
+// Backdrop props keyed to Astro's per-page MusicBackdrop invocations:
+//   - reviews.astro L12:  <MusicBackdrop variant="staves" opacity={0.07} color="var(--yellow-soft)" />
+//   - charts.astro L12:   <MusicBackdrop variant="vinyl"  opacity={0.09} color="var(--yellow-soft)" />
+const BACKDROPS = {
+	staves: { svg: STAVES_SVG, opacity: 0.07, color: 'var(--yellow-soft)' },
+	vinyl:  { svg: VINYL_SVG,  opacity: 0.09, color: 'var(--yellow-soft)' },
+};
+
 registerBlockType( metadata.name, {
 	edit: ( { attributes, setAttributes } ) => {
 		const { backHref, backLabel, eyebrow, title, subtitle, backdrop } = attributes;
@@ -63,6 +97,7 @@ registerBlockType( metadata.name, {
 							options={ [
 								{ label: __( 'None', 'bozzies' ), value: 'none' },
 								{ label: __( 'Staves', 'bozzies' ), value: 'staves' },
+								{ label: __( 'Vinyl', 'bozzies' ), value: 'vinyl' },
 							] }
 							onChange={ ( v ) => setAttributes( { backdrop: v } ) }
 							__nextHasNoMarginBottom
@@ -71,13 +106,17 @@ registerBlockType( metadata.name, {
 				</InspectorControls>
 
 				<section { ...blockProps }>
-					{ backdrop === 'staves' && (
+					{ BACKDROPS[ backdrop ] && (
 						<div
 							className="music-backdrop"
-							style={ { '--mb-opacity': 0.07, '--mb-color': 'var(--yellow-soft)', '--mb-top': '0px' } }
+							style={ {
+								'--mb-opacity': BACKDROPS[ backdrop ].opacity,
+								'--mb-color': BACKDROPS[ backdrop ].color,
+								'--mb-top': '0px',
+							} }
 							aria-hidden="true"
 						>
-							{ STAVES_SVG }
+							{ BACKDROPS[ backdrop ].svg }
 						</div>
 					) }
 					<div className="container-narrow page-hero__inner">
