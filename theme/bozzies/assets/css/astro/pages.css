@@ -17,11 +17,14 @@
  *   - Intro section from ~/boswell-poc/src/pages/index.astro styles lines
  *     114 and 117-135 (`.intro-section`, `.intro`, `.intro__lede`,
  *     `.intro__body`, `.intro__body--lead`).
+ *   - Sample section from ~/boswell-poc/src/pages/index.astro styles
+ *     lines 114 and 152-167 (`.sample-section`, `.sample__inner`,
+ *     `.sample__title`, `.sample__body`, `.sample__cta`).
  *
  * Documented edits from the Astro source:
- *   1. Section overflow rule shortened to `.intro-section, .donate-teaser`
- *      and `.about-cta` here. The other home siblings (`.playlist-section,
- *      .voices-section, .sample-section`) and the about `.section-intro`
+ *   1. Section overflow rule shortened to `.intro-section, .sample-section,
+ *      .donate-teaser` and `.about-cta` here. The other home siblings
+ *      (`.playlist-section, .voices-section`) and the about `.section-intro`
  *      sibling join this rule when their sections port.
  *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
  *      they beat `global.css`'s `.ground-gold a { color: var(--link);
@@ -38,6 +41,11 @@
  *      duplicates the base declarations on `.donate-teaser .btn` (both
  *      port the same Astro `.btn` block) — they don't share a selector
  *      because Astro scopes each per-page via `data-astro-cid-*`.
+ *   4. `.sample__cta` sits on `.ground-paper` where `global.css` has no
+ *      dark-anchor rule (`.ground-paper a` is not overridden), so no
+ *      specificity bump is needed — the ported `.sample__cta` selector
+ *      (0-1-0) is enough. `.sample__cta:hover, :focus-visible` (0-1-1)
+ *      likewise wins cleanly.
  */
 
 /* Eyebrow color modifiers (Astro pages/index.astro lines 137-140). */
@@ -67,6 +75,40 @@
 	max-width: var(--measure-body);
 }
 .intro__body--lead { font-weight: 700; }
+
+/* Sample the Sound — educational lessons CTA on paper ground
+ * (index.astro L114, L152-167). */
+.sample-section {
+	position: relative;
+	overflow: hidden;
+	padding-bottom: clamp(var(--space-8), 6vw, var(--space-9));
+}
+.sample__inner { text-align: center; position: relative; z-index: 1; }
+.sample__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-5));
+	font-weight: 300;
+	max-width: var(--measure-title);
+	color: var(--ink);
+}
+.sample__body {
+	margin: var(--space-4) auto 0;
+	max-width: var(--measure-body);
+	font-family: var(--font-body);
+	color: var(--ink);
+}
+.sample__cta {
+	display: inline-flex; align-items: center; gap: var(--space-3);
+	margin-top: var(--space-6);
+	padding: var(--space-4) var(--space-6);
+	font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--paper); background: var(--purple); border: 1px solid var(--purple);
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
+}
+.sample__cta:hover, .sample__cta:focus-visible { background: var(--oxblood); border-color: var(--oxblood); }
 
 /* Donate teaser — on bourbon-gold ground. */
 .donate-teaser { position: relative; overflow: hidden; }
