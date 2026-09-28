@@ -61,17 +61,21 @@
 	font-size: clamp(var(--step-1), 1.4vw + 0.3rem, var(--step-2));
 	color: rgba(245, 234, 209, 0.9); max-width: 60ch;
 }
-/* `bozzies/page-hero` block variants (career-timeline, discography, and
- * later reviews/charts/bio-resources) constrain the title + subtitle
- * widths to Astro's `--measure-title` (34ch) and `--measure-body` (58ch).
- * Astro sets these per-page in each subpage's scoped <style>; here they
- * are scoped to the block wrapper so the press-subhub template (which
- * emits `.page-hero` via core/group in category.html and has no title
- * max-width, subtitle max-width 60ch) is unaffected. Verbatim from
- * ~/boswell-poc/src/pages/sisters/career-timeline.astro L57 and
- * ~/boswell-poc/src/pages/media/discography.astro L167, L172. */
-.wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
-.wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
+/* `bozzies/page-hero` block per-page overrides. Astro sets `.page-hero__title`
+ * and `.page-hero__subtitle` max-widths inside each page's own scoped <style>
+ * block; here we mirror that by scoping on `body.page-slug-<slug>` (added by
+ * the `body_class` filter in functions.php).
+ *   - career-timeline.astro L57:  title 34ch, subtitle 58ch (--measure-body)
+ *   - discography.astro L167,172: title 34ch, subtitle 58ch (--measure-body)
+ *   - reviews.astro L35:          title none, subtitle 52ch
+ *   - charts.astro L46-49:        title none, subtitle 52ch
+ *   - bio-resources.astro L74-80: title none, subtitle 46ch (ground-gold)
+ * (bio-resources also has ground-gold, added when that variant lands.) */
+.page-slug-career-timeline .wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
+.page-slug-career-timeline .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
+.page-slug-discography     .wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
+.page-slug-discography     .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
+.page-slug-reviews         .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 52ch; }
 
 /* --- Article hero (single article, ground-purple) ------------------- */
 /*  Selector adjustment: `.wp-block-bozzies-section.article-hero` gives

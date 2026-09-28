@@ -1,15 +1,17 @@
 /*
  * Owner tests for bozzies/page-hero:
  *   A. Insert via inserter → default attrs (align='full', backHref='/',
- *      backLabel='Home', eyebrow=title=subtitle=''), 0 inner blocks.
- *   B. Set backHref via sidebar TextControl → confirm attribute persists
- *      into post_content JSON and rendered front <a class="page-hero__back">
- *      href matches.
- *   C. Insert with pre-typed backHref/backLabel/eyebrow/title/subtitle →
- *      confirm serialized JSON + rendered front DOM matches Astro's exact
- *      shape (section.page-hero.ground-purple > div.container-narrow.page-hero__inner
- *      > a.page-hero__back + span.eyebrow.page-hero__eyebrow +
- *      h1.page-hero__title + p.page-hero__subtitle).
+ *      backLabel='Home', eyebrow=title=subtitle='', backdrop='none'),
+ *      0 inner blocks.
+ *   B. Set backHref + backdrop via sidebar controls → confirm attributes
+ *      persist into post_content JSON, rendered front <a class="page-hero__back">
+ *      href matches, and .music-backdrop staves SVG appears on the front.
+ *   C. Insert with pre-typed backHref/backLabel/eyebrow/title/subtitle
+ *      + backdrop:'staves' → confirm serialized JSON + rendered front DOM
+ *      match Astro's exact shape (section.page-hero.ground-purple
+ *      > div.music-backdrop + div.container-narrow.page-hero__inner
+ *      > a.page-hero__back + span.eyebrow.page-hero__eyebrow
+ *      + h1.page-hero__title + p.page-hero__subtitle).
  *
  * Runs against local wp-env as the throwaway `astroshot` administrator.
  * Trashes the test pages afterward.
@@ -135,8 +137,8 @@ async function main() {
     console.log('  child count:', childCountA);
     trashIds.push(await getPostId(page));
 
-    // --- Test B: sidebar TextControl → backHref mutation ------------------
-    console.log('\n=== Test B: sidebar backHref mutation');
+    // --- Test B: sidebar TextControl → backHref + backdrop mutation --------
+    console.log('\n=== Test B: sidebar backHref + backdrop mutation');
     await newDraftPage(page, 'Page hero — Test B');
     const clientB = await insertBlock(page, {
       backHref: '/',
@@ -146,24 +148,33 @@ async function main() {
       subtitle: 'Some summary line.',
     });
     await updateBlockAttr(page, clientB, 'backHref', '/media/');
-    const hrefAfter = await page.evaluate((cid) =>
-      wp.data.select('core/block-editor').getBlock(cid).attributes.backHref
+    await updateBlockAttr(page, clientB, 'backdrop', 'staves');
+    const attrsAfterB = await page.evaluate((cid) =>
+      wp.data.select('core/block-editor').getBlock(cid).attributes
     , clientB);
-    results.B.hrefAfter = hrefAfter;
-    results.B.mutated = hrefAfter === '/media/';
-    console.log(`  backHref after sidebar update: ${hrefAfter}  mutated=${results.B.mutated}`);
+    results.B.hrefAfter     = attrsAfterB.backHref;
+    results.B.backdropAfter = attrsAfterB.backdrop;
+    results.B.mutated       = attrsAfterB.backHref === '/media/' && attrsAfterB.backdrop === 'staves';
+    console.log(`  backHref after: ${attrsAfterB.backHref}  backdrop after: ${attrsAfterB.backdrop}  mutated=${results.B.mutated}`);
     const linkB = await saveAndPublish(page);
     const idB = await getPostId(page);
     trashIds.push(idB);
     const contentB = await readContent(idB);
-    results.B.serializedContainsHref = contentB.includes('"backHref":"/media/"') || contentB.includes('"backHref":"\\/media\\/"');
-    console.log(`  serialized contains backHref: ${results.B.serializedContainsHref}`);
+    results.B.serializedContainsHref     = contentB.includes('"backHref":"/media/"') || contentB.includes('"backHref":"\\/media\\/"');
+    results.B.serializedContainsBackdrop = contentB.includes('"backdrop":"staves"');
+    console.log(`  serialized contains backHref:  ${results.B.serializedContainsHref}`);
+    console.log(`  serialized contains backdrop:  ${results.B.serializedContainsBackdrop}`);
     await page.goto(linkB, { waitUntil: 'networkidle' });
     results.B.frontShowsHref = await page.evaluate(() => {
       const a = document.querySelector('.page-hero a.page-hero__back');
       return !!a && a.getAttribute('href') === '/media/';
     });
+    results.B.frontShowsBackdrop = await page.evaluate(() => {
+      const mb = document.querySelector('.page-hero > .music-backdrop svg pattern#staves');
+      return !!mb;
+    });
     console.log(`  front a.page-hero__back href matches: ${results.B.frontShowsHref}`);
+    console.log(`  front .music-backdrop staves pattern: ${results.B.frontShowsBackdrop}`);
 
     // --- Test C: pre-typed content ---------------------------------------
     console.log('\n=== Test C: pre-typed content');
@@ -174,6 +185,7 @@ async function main() {
       eyebrow: 'Test Eyebrow',
       title: 'The Test Title',
       subtitle: 'A one-line test summary of the page.',
+      backdrop: 'staves',
     });
     const linkC = await saveAndPublish(page);
     const idC = await getPostId(page);
@@ -184,14 +196,16 @@ async function main() {
     results.C.serializedHasSubtitle = contentC.includes('one-line test summary');
     results.C.serializedHasBackHref = contentC.includes('"backHref":"/sisters/"') || contentC.includes('"backHref":"\\/sisters\\/"');
     results.C.serializedHasBackLabel = contentC.includes('"backLabel":"The Sisters"');
+    results.C.serializedHasBackdrop = contentC.includes('"backdrop":"staves"');
     console.log(`  serialized has title:     ${results.C.serializedHasTitle}`);
     console.log(`  serialized has eyebrow:   ${results.C.serializedHasEyebrow}`);
     console.log(`  serialized has subtitle:  ${results.C.serializedHasSubtitle}`);
     console.log(`  serialized has backHref:  ${results.C.serializedHasBackHref}`);
     console.log(`  serialized has backLabel: ${results.C.serializedHasBackLabel}`);
+    console.log(`  serialized has backdrop:  ${results.C.serializedHasBackdrop}`);
     await page.goto(linkC, { waitUntil: 'networkidle' });
     results.C.outerShape = await page.evaluate(() => !!document.querySelector(
-      'section.page-hero.ground-purple > div.container-narrow.page-hero__inner'
+      'section.page-hero.ground-purple > div.music-backdrop + div.container-narrow.page-hero__inner'
     ));
     results.C.innerContent = await page.evaluate(() => {
       const inner = document.querySelector('.page-hero__inner');
@@ -229,11 +243,14 @@ async function main() {
     A_default_eyebrow:      (results.A.attrs?.eyebrow ?? '') === '',
     A_default_title:        (results.A.attrs?.title ?? '') === '',
     A_default_subtitle:     (results.A.attrs?.subtitle ?? '') === '',
+    A_default_backdrop:     (results.A.attrs?.backdrop ?? 'none') === 'none',
     A_no_children:          results.A.childCount === 0,
     B_sidebar_mutates:      results.B.mutated,
-    B_persists:             results.B.serializedContainsHref,
+    B_persists_href:        results.B.serializedContainsHref,
+    B_persists_backdrop:    results.B.serializedContainsBackdrop,
     B_front_href:           results.B.frontShowsHref,
-    C_all_fields_persist:   !!(results.C.serializedHasTitle && results.C.serializedHasEyebrow && results.C.serializedHasSubtitle && results.C.serializedHasBackHref && results.C.serializedHasBackLabel),
+    B_front_backdrop:       results.B.frontShowsBackdrop,
+    C_all_fields_persist:   !!(results.C.serializedHasTitle && results.C.serializedHasEyebrow && results.C.serializedHasSubtitle && results.C.serializedHasBackHref && results.C.serializedHasBackLabel && results.C.serializedHasBackdrop),
     C_outer_shape:          results.C.outerShape,
     C_inner_content:        results.C.innerContent,
     cleanup:                results.cleanup,

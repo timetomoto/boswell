@@ -181,6 +181,22 @@ function bozzies_enqueue_article_meta_panel() {
 // switch that off so straight quotes stay straight and match the source.
 add_filter( 'run_wptexturize', '__return_false' );
 
+// Add a `page-slug-<slug>` class to <body> on singular pages/posts so per-page
+// CSS can hook off the slug (Astro's scoped <style> blocks are equivalent to
+// per-page selectors). Astro's `.page-hero__title` and `.page-hero__subtitle`
+// max-widths differ across career-timeline (34ch/58ch), discography
+// (34ch/58ch), reviews (none/52ch), charts (none/52ch), and bio-resources
+// (none/46ch). Slug scoping lets the shared bozzies/page-hero block match each.
+add_filter( 'body_class', function ( $classes ) {
+	if ( is_singular() ) {
+		$post = get_queried_object();
+		if ( $post && ! empty( $post->post_name ) ) {
+			$classes[] = 'page-slug-' . sanitize_html_class( $post->post_name );
+		}
+	}
+	return $classes;
+} );
+
 /**
  * Rewrite YouTube embed URLs to the privacy-enhanced youtube-nocookie.com
  * domain everywhere: core Embed blocks, oEmbed HTML cached in the DB,

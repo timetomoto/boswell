@@ -23,7 +23,8 @@
 		"backLabel": { "type": "string", "default": "Home" },
 		"eyebrow":   { "type": "string", "default": "" },
 		"title":     { "type": "string", "default": "" },
-		"subtitle":  { "type": "string", "default": "" }
+		"subtitle":  { "type": "string", "default": "" },
+		"backdrop":  { "type": "string", "default": "none", "enum": [ "none", "staves" ] }
 	},
 	"editorScript": "file:./build/index.js",
 	"render": "file:./render.php"
