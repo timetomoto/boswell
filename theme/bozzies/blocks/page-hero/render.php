@@ -16,7 +16,10 @@
  *   - "staves" (reviews.astro L12):   staves SVG,  opacity 0.07, color yellow-soft
  *   - "vinyl"  (charts.astro L12):    vinyl SVG,   opacity 0.09, color yellow-soft
  *
- * Gold-ground variant is handled in a later sub-item.
+ * `ground` swaps the section class between `ground-purple` (default) and
+ * `ground-gold` (bio-resources.astro L12). On ground-gold, the eyebrow uses
+ * `.eyebrow.eyebrow--purple` rather than `.eyebrow.page-hero__eyebrow`,
+ * verbatim from bio-resources.astro L15.
  *
  * @package bozzies
  */
@@ -33,6 +36,7 @@ $attrs = wp_parse_args(
 		'eyebrow'   => '',
 		'title'     => '',
 		'subtitle'  => '',
+		'ground'    => 'purple',
 		'backdrop'  => 'none',
 	)
 );
@@ -49,8 +53,10 @@ $title      = html_entity_decode( (string) $attrs['title'],     ENT_QUOTES | ENT
 $subtitle   = html_entity_decode( (string) $attrs['subtitle'],  ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 $back_href  = (string) $attrs['backHref'];
 $backdrop   = (string) $attrs['backdrop'];
+$ground     = ( 'gold' === $attrs['ground'] ) ? 'gold' : 'purple';
+$ground_cls = 'gold' === $ground ? 'ground-gold' : 'ground-purple';
 ?>
-<section<?php echo $anchor; ?> class="wp-block-bozzies-page-hero page-hero ground-purple<?php echo $extra_cls; ?>">
+<section<?php echo $anchor; ?> class="wp-block-bozzies-page-hero page-hero <?php echo $ground_cls; ?><?php echo $extra_cls; ?>">
 <?php if ( 'staves' === $backdrop ) : ?>
 	<div class="music-backdrop" style="--mb-opacity:0.07; --mb-color:var(--yellow-soft); --mb-top:0px" aria-hidden="true">
 		<svg viewBox="0 0 400 400" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
@@ -110,7 +116,11 @@ $backdrop   = (string) $attrs['backdrop'];
 	<div class="container-narrow page-hero__inner">
 		<a href="<?php echo esc_url( $back_href ); ?>" class="page-hero__back">← <?php echo esc_html( $back_label ); ?></a>
 <?php if ( '' !== $eyebrow ) : ?>
+	<?php if ( 'gold' === $ground ) : ?>
+		<span class="eyebrow eyebrow--purple"><?php echo esc_html( $eyebrow ); ?></span>
+	<?php else : ?>
 		<span class="eyebrow page-hero__eyebrow"><?php echo esc_html( $eyebrow ); ?></span>
+	<?php endif; ?>
 <?php endif; ?>
 <?php if ( '' !== $title ) : ?>
 		<h1 class="page-hero__title"><?php echo esc_html( $title ); ?></h1>

@@ -3,10 +3,10 @@
 	"apiVersion": 3,
 	"name": "bozzies/page-hero",
 	"version": "1.0.0",
-	"title": "Page hero (purple)",
+	"title": "Page hero",
 	"category": "design",
 	"icon": "cover-image",
-	"description": "Compact purple hero with a back-link, optional eyebrow, h1 title and optional subtitle. Use at the top of section subpages (career-timeline, discography, reviews, charts, bio-resources).",
+	"description": "Compact hero with a back-link, optional eyebrow, h1 title and optional subtitle. Ground purple (default) or gold. Use at the top of section subpages (career-timeline, discography, reviews, charts, bio-resources).",
 	"textdomain": "bozzies",
 	"supports": {
 		"anchor": true,
@@ -24,6 +24,7 @@
 		"eyebrow":   { "type": "string", "default": "" },
 		"title":     { "type": "string", "default": "" },
 		"subtitle":  { "type": "string", "default": "" },
+		"ground":    { "type": "string", "default": "purple", "enum": [ "purple", "gold" ] },
 		"backdrop":  { "type": "string", "default": "none", "enum": [ "none", "staves", "vinyl" ] }
 	},
 	"editorScript": "file:./build/index.js",

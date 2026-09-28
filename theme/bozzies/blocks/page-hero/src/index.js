@@ -69,8 +69,11 @@ const BACKDROPS = {
 
 registerBlockType( metadata.name, {
 	edit: ( { attributes, setAttributes } ) => {
-		const { backHref, backLabel, eyebrow, title, subtitle, backdrop } = attributes;
-		const blockProps = useBlockProps( { className: 'page-hero ground-purple' } );
+		const { backHref, backLabel, eyebrow, title, subtitle, ground, backdrop } = attributes;
+		const isGold = ground === 'gold';
+		const blockProps = useBlockProps( {
+			className: isGold ? 'page-hero ground-gold' : 'page-hero ground-purple',
+		} );
 
 		return (
 			<>
@@ -87,6 +90,19 @@ registerBlockType( metadata.name, {
 							value={ backLabel || '' }
 							onChange={ ( v ) => setAttributes( { backLabel: v } ) }
 							help={ __( 'Rendered as “← <label>”.', 'bozzies' ) }
+							__nextHasNoMarginBottom
+						/>
+					</PanelBody>
+					<PanelBody title={ __( 'Ground', 'bozzies' ) } initialOpen={ false }>
+						<SelectControl
+							label={ __( 'Section ground', 'bozzies' ) }
+							value={ ground || 'purple' }
+							options={ [
+								{ label: __( 'Purple (default)', 'bozzies' ), value: 'purple' },
+								{ label: __( 'Gold', 'bozzies' ), value: 'gold' },
+							] }
+							onChange={ ( v ) => setAttributes( { ground: v } ) }
+							help={ __( 'Gold switches the eyebrow to `.eyebrow--purple` (used on /sisters/bio-resources/).', 'bozzies' ) }
 							__nextHasNoMarginBottom
 						/>
 					</PanelBody>
@@ -125,7 +141,7 @@ registerBlockType( metadata.name, {
 						</a>
 						<RichText
 							tagName="span"
-							className="eyebrow page-hero__eyebrow"
+							className={ isGold ? 'eyebrow eyebrow--purple' : 'eyebrow page-hero__eyebrow' }
 							value={ eyebrow || '' }
 							onChange={ ( v ) => setAttributes( { eyebrow: v } ) }
 							allowedFormats={ [] }
