@@ -38,6 +38,13 @@
 	margin-bottom: var(--space-5);
 }
 .page-hero__back:hover { color: var(--yellow-hover); }
+/* WP scoping: `global.css` has `.ground-purple a { color: var(--link-on-dark) }`
+ * (0-1-1), which overrides the plain `.page-hero__back { color: var(--yellow-soft) }`
+ * (0-1-0). Bump specificity to (0-2-0)/(0-3-0) so `.page-hero .page-hero__back`
+ * wins on both idle and hover. Astro achieves the same via its
+ * `data-astro-cid-*` per-page scoping. */
+.page-hero .page-hero__back        { color: var(--yellow-soft); border-color: currentColor; }
+.page-hero .page-hero__back:hover  { color: var(--yellow-hover); border-color: currentColor; }
 .page-hero__eyebrow {
 	color: var(--yellow-soft);
 	margin-top: 0; /* WP's `.wp-block-paragraph { margin-top: --space-4 }` adds a top margin between sibling <p>s; Astro's eyebrow is a bare inline-block <span> at markup level and starts with no top margin. */
@@ -54,6 +61,17 @@
 	font-size: clamp(var(--step-1), 1.4vw + 0.3rem, var(--step-2));
 	color: rgba(245, 234, 209, 0.9); max-width: 60ch;
 }
+/* `bozzies/page-hero` block variants (career-timeline, discography, and
+ * later reviews/charts/bio-resources) constrain the title + subtitle
+ * widths to Astro's `--measure-title` (34ch) and `--measure-body` (58ch).
+ * Astro sets these per-page in each subpage's scoped <style>; here they
+ * are scoped to the block wrapper so the press-subhub template (which
+ * emits `.page-hero` via core/group in category.html and has no title
+ * max-width, subtitle max-width 60ch) is unaffected. Verbatim from
+ * ~/boswell-poc/src/pages/sisters/career-timeline.astro L57 and
+ * ~/boswell-poc/src/pages/media/discography.astro L167, L172. */
+.wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
+.wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
 
 /* --- Article hero (single article, ground-purple) ------------------- */
 /*  Selector adjustment: `.wp-block-bozzies-section.article-hero` gives
