@@ -51,6 +51,16 @@
  *     rules from media/index.astro L162-164 added alongside the existing
  *     `.lessons-cards` / `.lesson-card` block (which was ported at
  *     commit ac1c464). No selector changes.
+ *  9. `.see-also__card` (an <a> on ground-gold, same shape as .music-teaser
+ *     / .subpage-card / .release-card__link) needs its `color`, `background`,
+ *     `border`, `text-decoration` and `:hover`/`:focus-visible` rules scoped
+ *     to `.see-also .see-also__card` (0-2-0 base, 0-3-0 with hover pseudo)
+ *     so they beat `global.css`'s `.ground-gold a` (0-1-1) and `.ground-gold
+ *     a:hover` (0-2-1). Astro achieves the same via its `data-astro-cid-*`
+ *     scoping.
+ * 10. `.see-also__eyebrow`'s color rule scoped to `.see-also__card
+ *     .see-also__eyebrow` (0-2-0) matches `.ground-gold .eyebrow` (0-2-0)
+ *     — cards.css loads after global.css so yellow-soft wins.
  *
  * No other selector was renamed.
  * -------------------------------------------------------------------- */
@@ -435,7 +445,7 @@
 /* --- See-also cross-links (charts, discography) -------------------- */
 .see-also { position: relative; overflow: hidden; }
 .see-also__grid { display: flex; justify-content: center; }
-.see-also__card {
+.see-also .see-also__card {
 	display: flex; flex-direction: column; gap: var(--space-3);
 	padding: clamp(var(--space-5), 2.4vw, var(--space-6));
 	max-width: 40rem; width: 100%;
@@ -445,10 +455,10 @@
 	text-decoration: none;
 	transition: transform var(--dur) var(--ease-out-quart), background var(--dur) var(--ease-out-quart);
 }
-.see-also__card:hover, .see-also__card:focus-visible { transform: translateY(-3px); background: var(--oxblood); color: var(--paper-warm); }
-.see-also__eyebrow { color: var(--yellow-soft); }
-.see-also__title { font-family: var(--font-display); font-weight: 400; font-size: clamp(var(--step-3), 2.4vw, var(--step-4)); letter-spacing: var(--track-tight); color: var(--paper-warm); margin: 0; max-width: 34ch; }
-.see-also__body { font-family: var(--font-body); font-size: var(--step-0); line-height: var(--leading-normal); color: rgba(245, 234, 209, 0.9); margin: 0; max-width: 58ch; }
+.see-also .see-also__card:hover, .see-also .see-also__card:focus-visible { transform: translateY(-3px); background: var(--oxblood); color: var(--paper-warm); }
+.see-also__card .see-also__eyebrow { color: var(--yellow-soft); }
+.see-also__title { font-family: var(--font-display); font-weight: 400; font-size: clamp(var(--step-3), 2.4vw, var(--step-4)); letter-spacing: var(--track-tight); color: var(--paper-warm); margin: 0; max-width: var(--measure-title); }
+.see-also__body { font-family: var(--font-body); font-size: var(--step-0); line-height: var(--leading-normal); color: rgba(245, 234, 209, 0.9); margin: 0; max-width: var(--measure-body); }
 .see-also__cta {
 	margin-top: auto; padding-top: var(--space-3);
 	display: inline-flex; align-items: center; gap: var(--space-2);

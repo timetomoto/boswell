@@ -79,6 +79,24 @@ const ENTITY_MAP = {
 const decodeEntities = (s) =>
   String(s || '').replace(/&(?:ndash|mdash|lsquo|rsquo|ldquo|rdquo|amp);/g, (m) => ENTITY_MAP[m] ?? m);
 
+// The bozzies/see-also block. Emits Astro's exact
+// <section class="section ground-gold see-also"><div class="container
+// see-also__grid"><a class="see-also__card">…</a></div></section> DOM
+// verbatim from ~/boswell-poc/src/pages/media/charts.astro lines 27-39
+// and ~/boswell-poc/src/pages/media/discography.astro lines 86-98.
+// Attributes-only. Uses gbJson() (client-side serializer parity) so a
+// straight apostrophe inside `body` round-trips cleanly.
+const seeAlsoBlock = ({ eyebrow, title, body, ctaLabel, href }) => {
+  const attrs = {
+    eyebrow: decodeEntities(eyebrow),
+    title:   decodeEntities(title),
+    body:    decodeEntities(body),
+    href,
+    ctaLabel: decodeEntities(ctaLabel),
+  };
+  return `<!-- wp:bozzies/see-also ${gbJson(attrs)} /-->`;
+};
+
 // One lesson card as the new bozzies/lesson-card block. Emits Astro's exact
 // <li class="lesson-card"><a class="lesson-card__link"> DOM verbatim from
 // ~/boswell-poc/src/pages/media/index.astro lines 73-93 via the block's
@@ -255,17 +273,16 @@ function buildCharts() {
   );
 
   // Astro's charts page ends with a "See also → discography" gold card.
-  const seeAlso = section(
-    { backgroundStyle: 'gold', width: 'narrow', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:group {"className":"is-style-card","align":"wide","layout":{"type":"default"}} -->
-<div class="wp-block-group alignwide is-style-card">
-${p('See also', { className: 'is-style-eyebrow', align: 'center' })}
-${h(2, `<a href="/media/discography/">The full discography</a>`, { align: 'center', fontSize: 'section-title-medium' })}
-${p('Chart positions tell you how the records sold. The discography goes deeper — 128 sessions and 500+ tracks, with matrix numbers, personnel, and label catalog data.', { align: 'center' })}
-${buttons(button('/media/discography/', 'Browse the sessions'), 'center')}
-</div>
-<!-- /wp:group -->`,
-  );
+  // Emitted by the bozzies/see-also block — Astro's exact
+  // <section class="section ground-gold see-also"> DOM verbatim from
+  // ~/boswell-poc/src/pages/media/charts.astro lines 27-39.
+  const seeAlso = seeAlsoBlock({
+    eyebrow: 'See also',
+    title:   'The full discography',
+    body:    'Chart positions tell you how the records sold. The discography goes deeper — 128 sessions and 500+ tracks, with matrix numbers, personnel, and label catalog data.',
+    ctaLabel:'Browse the sessions',
+    href:    '/media/discography/',
+  });
 
   return [hero, proseBody, seeAlso].join('\n\n');
 }
@@ -320,7 +337,19 @@ function buildDiscography() {
     ].join('\n'),
   );
 
-  return [hero, placeholder].join('\n\n');
+  // Astro's discography page ends with a "See also → charts" gold card.
+  // Emitted by the bozzies/see-also block — Astro's exact
+  // <section class="section ground-gold see-also"> DOM verbatim from
+  // ~/boswell-poc/src/pages/media/discography.astro lines 86-98.
+  const seeAlso = seeAlsoBlock({
+    eyebrow: 'See also',
+    title:   'Chart positions',
+    body:    "The discography catalogs every session. The charts page shows how those records actually sold — peak positions and weeks charted from Brunswick 6083 in 1931 through Connee's mid-fifties Decca hits.",
+    ctaLabel:'See the chart positions',
+    href:    '/media/charts/',
+  });
+
+  return [hero, placeholder, seeAlso].join('\n\n');
 }
 
 function buildCareerTimeline() {

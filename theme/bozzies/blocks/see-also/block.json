@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/see-also",
+	"version": "1.0.0",
+	"title": "See also",
+	"category": "design",
+	"icon": "external",
+	"description": "The dark-purple cross-link card on the /media/charts/ + /media/discography/ pages. Single card, centered on ground-gold. Eyebrow, title, body, link and CTA label are all editable.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":    { "type": "string", "default": "full" },
+		"eyebrow":  { "type": "string", "default": "See also" },
+		"title":    { "type": "string", "default": "" },
+		"body":     { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "" },
+		"ctaLabel": { "type": "string", "default": "Explore" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}
