@@ -40,6 +40,13 @@
  *  6. `.music-teaser__eyebrow`'s color rule scoped to `.music-teaser
  *     .music-teaser__eyebrow` (0-2-0) matches `.ground-gold .eyebrow`
  *     (0-2-0) — cards.css loads after global.css so yellow-soft wins.
+ *  7. `.release-card__link` (an <a> on ground-gold) needs its `color`,
+ *     `background` and `border` rules scoped to `.press-releases
+ *     .release-card__link` (0-2-0) so they beat `.ground-gold a`
+ *     (0-1-1); `.release-card__link:hover` scoped to `.press-releases
+ *     .release-card__link:hover` (0-3-0) so it beats `.ground-gold
+ *     a:hover` (0-2-1). Astro achieves the same via its
+ *     `data-astro-cid-*` scoping.
  *
  * No other selector was renamed.
  * -------------------------------------------------------------------- */
@@ -347,7 +354,7 @@
 	position: relative;
 	z-index: 1;
 }
-.release-card__link {
+.press-releases .release-card__link {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
@@ -359,7 +366,7 @@
 	transition: transform var(--dur) var(--ease-out-quart), background var(--dur) var(--ease-out-quart);
 	height: 100%;
 }
-.release-card__link:hover { transform: translateY(-3px); background: var(--oxblood); }
+.press-releases .release-card__link:hover { transform: translateY(-3px); background: var(--oxblood); }
 .release-card__type { font-family: var(--font-ui); font-weight: 600; font-size: var(--step--2); letter-spacing: var(--track-caps); color: var(--yellow-soft); }
 .release-card__title { margin: 0; font-family: var(--font-display); font-size: var(--step-2); font-weight: 400; line-height: var(--leading-snug); color: var(--paper-warm); }
 .release-card__date { margin: 0; font-family: var(--font-ui); font-size: var(--step--1); color: rgba(245, 234, 209, 0.75); }

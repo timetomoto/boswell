@@ -314,21 +314,43 @@ function buildSubhubSection({ termId, kicker, label, blurb }) {
   );
 }
 
-// One press-release card. Each card links straight to the PDF (target=_blank
-// so the PDF opens in a new tab, matching Astro's markup).
-function releaseCard({ documentUrl, documentType, title, releaseDate }) {
-  const type = (documentType || 'DOC').toUpperCase();
-  const inner = [
-    p(type, { className: 'is-style-eyebrow release-card__type' }),
-    h(3, title, { className: 'release-card__title' }),
-    releaseDate ? p(releaseDate, { className: 'release-card__date' }) : '',
-  ].filter(Boolean).join('\n');
-  return `<!-- wp:group {"className":"release-card","layout":{"type":"default"}} -->
-<div class="wp-block-group release-card"><a class="release-card__link" href="${documentUrl}" target="_blank" rel="noopener noreferrer">
-${inner}
-</a></div>
-<!-- /wp:group -->`;
-}
+// Decode HTML entities used in press-release titles/dates so the JSON stored
+// in post_content contains real Unicode glyphs (Gutenberg re-serializes named
+// entities on save otherwise, causing a round-trip diff).
+const RELEASE_ENTITY_MAP = {
+  '&ndash;': '–', '&mdash;': '—',
+  '&lsquo;': '‘', '&rsquo;': '’',
+  '&ldquo;': '“', '&rdquo;': '”',
+  '&amp;':   '&',
+};
+const decodeReleaseValue = (s) =>
+  String(s || '').replace(/&(?:ndash|mdash|lsquo|rsquo|ldquo|rdquo|amp);/g, (m) => RELEASE_ENTITY_MAP[m] ?? m);
+
+// Serialize a block-attrs JSON payload the way Gutenberg does (`wp_json_encode`
+// with JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE + the default JSON_HEX_*
+// flags for `<>&'`) so re-saving the block in the editor produces the exact same
+// string and the round-trip stays clean.
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/'/g, '\\u0027');
+
+// One press-release card as the new bozzies/release-card block. Emits Astro's
+// exact <li class="release-card"><a class="release-card__link"> DOM verbatim
+// from ~/boswell-poc/src/pages/press/index.astro lines 104-111 via the block's
+// server-render. Attributes-only; empty releaseDate omitted so Gutenberg's
+// default-attr elision doesn't change the serialization on save.
+const releaseCard = ({ documentUrl, documentType, title, releaseDate }) => {
+  const attrs = {
+    documentType: decodeReleaseValue(documentType || 'PDF'),
+    title:        decodeReleaseValue(title),
+    href:         documentUrl,
+  };
+  if (releaseDate) attrs.releaseDate = decodeReleaseValue(releaseDate);
+  return `<!-- wp:bozzies/release-card ${gbJson(attrs)} /-->`;
+};
 
 function buildPressHub({ hubs, releases, media }) {
   // Astro's /press/ hero is a full-bleed photo (bozbuz.jpg) with title
@@ -348,19 +370,26 @@ function buildPressHub({ hubs, releases, media }) {
 
   const subhubs = hubs.filter(h => h.hasEntries).map(buildSubhubSection);
 
-  const releasesGrid = releases.length ? section(
-    { backgroundStyle: 'gold', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Press Room', { className: 'is-style-eyebrow' }),
-      h(2, 'Press releases &amp; media', { fontSize: 'section-title-medium' }),
-      p('Original press releases, event announcements, and archival documents. Each opens as a PDF.', { className: 'bozzies-para-body' }),
-      `<!-- wp:group {"className":"releases-grid","layout":{"type":"grid","minimumColumnWidth":"16rem"}} -->
-<div class="wp-block-group releases-grid">
-${releases.map(releaseCard).join('\n')}
-</div>
-<!-- /wp:group -->`,
-    ].join('\n'),
-  ) : '';
+  // Astro's press-releases section is emitted verbatim by the
+  // bozzies/release-cards + bozzies/release-card blocks. Container renders
+  // <section class="section ground-gold press-releases"> with the staves
+  // music-backdrop inlined, followed by <header class="releases-head"> and
+  // <ul class="releases-grid">…</ul>; each child renders one <li class=
+  // "release-card"> with Astro's exact <a class="release-card__link">
+  // (span.release-card__type + h3.release-card__title + optional
+  // p.release-card__date). Verbatim from ~/boswell-poc/src/pages/press/
+  // index.astro lines 94-116.
+  // align:"full" omitted from serialized attrs — it matches the block.json
+  // default so Gutenberg strips it on save. Keep the ordering
+  // eyebrow/title/blurb matching PHP's wp_json_encode.
+  const releasesGridAttrs = {
+    eyebrow: 'The Press Room',
+    title:   'Press releases & media',
+    blurb:   'Original press releases, event announcements, and archival documents. Each opens as a PDF.',
+  };
+  const releasesGrid = releases.length
+    ? `<!-- wp:bozzies/release-cards ${gbJson(releasesGridAttrs)} -->\n${releases.map(releaseCard).join('\n\n')}\n<!-- /wp:bozzies/release-cards -->`
+    : '';
 
   return [hero, intro, ...subhubs, releasesGrid].filter(Boolean).join('\n\n');
 }
