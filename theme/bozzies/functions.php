@@ -152,6 +152,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro footer CSS — verbatim port of Footer.astro's <style>. Owned by
+	// the bozzies/site-footer block; used by parts/footer.html.
+	wp_enqueue_style(
+		'bozzies-astro-footer',
+		$dir_uri . '/assets/css/astro/footer.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -159,7 +167,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer' ),
 		$ver
 	);
 }
@@ -178,6 +186,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/pull-quote.css' );
 	add_editor_style( 'assets/css/astro/section-divider.css' );
 	add_editor_style( 'assets/css/astro/nav.css' );
+	add_editor_style( 'assets/css/astro/footer.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
@@ -209,25 +218,45 @@ function bozzies_enqueue_article_meta_panel() {
 add_filter( 'run_wptexturize', '__return_false' );
 
 /**
- * Inject `site-nav` className into the header template-part so Astro's
- * `.site-nav { position: sticky; top: 0; … }` rules apply to the outermost
- * `<header>` (the template-part wrapper). The wrapper's containing block is
- * `.wp-site-blocks` (full page height), which is what makes sticky work
- * across the whole document.
+ * Inject template-part className into the header/footer template-parts so
+ * Astro's per-element rules apply to the outermost wrapper element:
  *
- * The bozzies/site-nav block's render.php emits only inner DOM (starting at
- * `.site-nav__inner`); this filter is what turns the surrounding
- * `<header class="wp-block-template-part">` into
- * `<header class="wp-block-template-part site-nav">`.
+ *   header slug → adds `site-nav` (sticky + backdrop-filter live on <header>)
+ *   footer slug → adds `site-footer ground-purple` (padding-block + purple
+ *                 ground live on <footer>, matching Astro's exact class list)
+ *
+ * The bozzies/site-nav and bozzies/site-footer blocks' render.php emit only
+ * inner DOM; this filter turns the surrounding template-part wrapper
+ * `<header class="wp-block-template-part">` /
+ * `<footer class="wp-block-template-part">` into
+ * `<header class="wp-block-template-part site-nav">` /
+ * `<footer class="wp-block-template-part site-footer ground-purple">`.
  */
 add_filter( 'render_block_data', function ( $block ) {
-	if ( 'core/template-part' === ( $block['blockName'] ?? '' )
-		&& 'header' === ( $block['attrs']['slug'] ?? '' ) ) {
-		$existing = isset( $block['attrs']['className'] ) ? trim( (string) $block['attrs']['className'] ) : '';
-		if ( '' === $existing || false === strpos( ' ' . $existing . ' ', ' site-nav ' ) ) {
-			$block['attrs']['className'] = trim( $existing . ' site-nav' );
+	if ( 'core/template-part' !== ( $block['blockName'] ?? '' ) ) {
+		return $block;
+	}
+	$slug = $block['attrs']['slug'] ?? '';
+	$add  = '';
+	if ( 'header' === $slug ) {
+		$add = 'site-nav';
+	} elseif ( 'footer' === $slug ) {
+		$add = 'site-footer ground-purple';
+	}
+	if ( '' === $add ) {
+		return $block;
+	}
+	$existing = isset( $block['attrs']['className'] ) ? trim( (string) $block['attrs']['className'] ) : '';
+	// Add each token only if not already present (idempotent).
+	foreach ( preg_split( '/\s+/', $add ) as $token ) {
+		if ( '' === $token ) {
+			continue;
+		}
+		if ( false === strpos( ' ' . $existing . ' ', ' ' . $token . ' ' ) ) {
+			$existing = trim( $existing . ' ' . $token );
 		}
 	}
+	$block['attrs']['className'] = $existing;
 	return $block;
 } );
 

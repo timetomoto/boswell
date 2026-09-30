@@ -138,83 +138,16 @@ body.admin-bar .wp-site-blocks {
 	border-radius: 2px;
 }
 
-/* --- Site footer (Footer.astro) --- */
-.site-footer__inner {
-	width: 100%;
-	max-width: var(--wp--custom--measure--max);
-	margin-inline: auto;
-	padding-inline: clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8));
-	box-sizing: border-box;
-	display: grid;
-	gap: var(--wp--preset--spacing--xl);
-	grid-template-columns: 1.4fr 1fr 1.4fr;
-	align-items: start;
-}
-
-/* Footer padding-block matches Astro's Footer.astro clamp, overriding the section-style .section rhythm on the footer only. */
-.wp-block-group.site-footer {
-	padding-top: clamp(var(--wp--custom--space--8), 6vw, var(--wp--custom--space--10));
-	padding-bottom: clamp(var(--wp--custom--space--8), 6vw, var(--wp--custom--space--10));
-}
-@media (max-width: 900px) {
-	.site-footer__inner { grid-template-columns: 1fr; }
-}
-
-.site-footer__wordmark {
-	font-family: var(--wp--preset--font-family--display);
-	font-size: var(--wp--preset--font-size--large);
-	color: var(--wp--preset--color--paper-warm);
-	max-width: none;
-	margin: 0;
-	line-height: var(--wp--custom--line-height--tight);
-}
-.site-footer__tagline {
-	font-family: var(--wp--preset--font-family--body);
-	color: rgba(245, 234, 209, 0.8);
-	font-size: var(--wp--preset--font-size--body);
-	line-height: var(--wp--custom--line-height--normal);
-	max-width: 34ch;
-	margin-top: var(--wp--preset--spacing--s);
-}
-
-.site-footer__nav ul.wp-block-navigation__container {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wp--preset--spacing--xs);
-	align-items: flex-start;
-}
-.site-footer__nav .wp-block-navigation-item__content {
-	font-family: var(--wp--preset--font-family--ui);
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--small);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-	color: var(--wp--preset--color--paper-warm);
-	text-decoration: none;
-	border: 0;
-}
-.site-footer__nav .wp-block-navigation-item__content:hover,
-.site-footer__nav .wp-block-navigation-item__content:focus-visible {
-	color: var(--wp--custom--color--yellow-soft);
-}
-
-.site-footer__meta {
-	color: rgba(245, 234, 209, 0.75);
-	font-size: var(--wp--preset--font-size--small);
-}
-.site-footer__meta p + p {
-	margin-top: var(--wp--preset--spacing--s);
-}
-
-/* --- Cookie settings button on the purple footer --- */
-.wp-block-template-part.site-footer .bozzies-cookie-settings,
+/* Cookie settings button on the purple footer — theme plumbing that
+ * Astro doesn't have (no cookie consent flow on the Astro site). Rendered
+ * inside .site-footer__meta by the bozzies/site-footer block; hidden by
+ * default via the `hidden` attribute, revealed by assets/js/consent.js
+ * once the banner is dismissed. */
 .site-footer__meta .bozzies-cookie-settings {
 	color: var(--wp--custom--color--text-on-purple);
 	margin-top: var(--wp--preset--spacing--s);
 }
-.wp-block-template-part.site-footer .bozzies-cookie-settings:hover,
 .site-footer__meta .bozzies-cookie-settings:hover,
-.wp-block-template-part.site-footer .bozzies-cookie-settings:focus-visible,
 .site-footer__meta .bozzies-cookie-settings:focus-visible {
 	color: var(--wp--custom--color--yellow-soft);
 }
