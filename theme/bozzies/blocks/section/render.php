@@ -30,13 +30,6 @@ $defaults = array(
 );
 $attrs = array_merge( $defaults, $attrs );
 
-$backdrop_defaults = array(
-	'vinyl'        => 'var(--wp--preset--color--purple)',
-	'staves'       => 'var(--wp--preset--color--purple)',
-	'notes'        => 'var(--wp--custom--color--yellow-soft)',
-	'diamond-grid' => 'var(--wp--preset--color--purple)',
-);
-
 $is_custom_bg  = 'custom' === $attrs['backgroundStyle'];
 $has_image     = is_array( $attrs['backgroundImage'] ) && ! empty( $attrs['backgroundImage']['url'] );
 $has_backdrop  = 'none' !== $attrs['backdrop'];
@@ -52,7 +45,6 @@ $classes = array(
 	'wp-block-bozzies-section',
 	'align' . sanitize_html_class( $align_attr ),
 	$is_custom_bg ? 'ground-custom' : 'ground-' . sanitize_html_class( $attrs['backgroundStyle'] ),
-	$has_backdrop ? 'has-backdrop-' . sanitize_html_class( $attrs['backdrop'] ) : '',
 	'has-width-' . sanitize_html_class( $attrs['width'] ),
 	'has-heading-width-' . sanitize_html_class( $attrs['headingWidth'] ),
 	'has-spacing-' . sanitize_html_class( $attrs['spacing'] ),
@@ -81,12 +73,6 @@ $class_str = trim( implode( ' ', array_filter( $classes ) ) );
 $style_parts = array();
 if ( $is_custom_bg && ! empty( $attrs['customBackground'] ) ) {
 	$style_parts[] = '--bozzies-section-bg:' . esc_attr( $attrs['customBackground'] );
-}
-if ( $has_backdrop ) {
-	$bd_color = ! empty( $attrs['backdropColor'] )
-		? $attrs['backdropColor']
-		: $backdrop_defaults[ $attrs['backdrop'] ];
-	$style_parts[] = '--backdrop-color:' . esc_attr( $bd_color );
 }
 if ( $has_image && ! $is_hero_photo ) {
 	$focal_x = isset( $attrs['backgroundFocalPoint']['x'] ) ? floatval( $attrs['backgroundFocalPoint']['x'] ) : 0.5;
@@ -159,9 +145,13 @@ $hero_glyph_svg = '<svg viewBox="0 0 80 20"><g fill="none" stroke="currentColor"
 			<div class="wp-block-bozzies-section__image" aria-hidden="true"></div>
 			<div class="wp-block-bozzies-section__overlay" aria-hidden="true"></div>
 		<?php endif; ?>
-		<?php if ( $has_backdrop ) : ?>
-			<div class="wp-block-bozzies-section__backdrop" aria-hidden="true"></div>
-		<?php endif; ?>
+		<?php
+		if ( $has_backdrop ) {
+			$bd_defaults = bozzies_music_backdrop_defaults( $attrs['backdrop'] );
+			$bd_color    = ! empty( $attrs['backdropColor'] ) ? $attrs['backdropColor'] : $bd_defaults['color'];
+			echo bozzies_music_backdrop_html( $attrs['backdrop'], $bd_defaults['opacity'], $bd_color ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG helper output is escaped internally.
+		}
+		?>
 		<?php if ( $attrs['heroFrame'] ) : ?>
 			<div class="wp-block-bozzies-section__frame" aria-hidden="true"></div>
 		<?php endif; ?>

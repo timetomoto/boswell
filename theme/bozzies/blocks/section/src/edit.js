@@ -29,6 +29,9 @@ const GROUND_OPTIONS = [
 	{ label: __( 'Custom colour', 'bozzies' ), value: 'custom' },
 ];
 
+/* The 12 Astro variants. The live site only uses the first four
+ * (staves, vinyl, notes, diamond-grid), so the primary picker shows
+ * those; the remaining eight sit behind an "Advanced" collapse. */
 const BACKDROP_OPTIONS = [
 	{ label: __( 'None', 'bozzies' ),         value: 'none' },
 	{ label: __( 'Staves', 'bozzies' ),       value: 'staves' },
@@ -36,6 +39,17 @@ const BACKDROP_OPTIONS = [
 	{ label: __( 'Notes', 'bozzies' ),        value: 'notes' },
 	{ label: __( 'Diamond grid', 'bozzies' ), value: 'diamond-grid' },
 ];
+const BACKDROP_OPTIONS_ADVANCED = [
+	{ label: __( 'Sunburst', 'bozzies' ),    value: 'sunburst' },
+	{ label: __( 'Chevrons', 'bozzies' ),    value: 'chevrons' },
+	{ label: __( 'Arcs', 'bozzies' ),        value: 'arcs' },
+	{ label: __( 'Rays', 'bozzies' ),        value: 'rays' },
+	{ label: __( 'Piano keys', 'bozzies' ),  value: 'piano-keys' },
+	{ label: __( 'Sheet music', 'bozzies' ), value: 'sheet-music' },
+	{ label: __( 'Fleur-de-lis', 'bozzies' ), value: 'fleur' },
+	{ label: __( 'Ironwork', 'bozzies' ),    value: 'ironwork' },
+];
+const ADVANCED_BACKDROP_VALUES = BACKDROP_OPTIONS_ADVANCED.map( ( o ) => o.value );
 
 const WIDTH_OPTIONS = [
 	{ label: __( 'Container (default)', 'bozzies' ), value: 'container' },
@@ -68,11 +82,24 @@ const GROUND_BG = {
 	purple: '#4A2E5A',
 	gold: '#C99A2A',
 };
+/* Per-variant defaults sourced from every <MusicBackdrop … /> call on the
+ * live Astro site (see grep of ~/boswell-poc/src/pages/**). The four
+ * commonly-used variants use themed tokens; the eight "Advanced" variants
+ * are never used on the live site and fall back to a soft purple so the
+ * preview isn't invisible. */
 const BACKDROP_DEFAULT_COLOR = {
 	vinyl: '#4A2E5A',
 	staves: '#4A2E5A',
 	notes: '#E1C263',
 	'diamond-grid': '#4A2E5A',
+	sunburst: '#4A2E5A',
+	chevrons: '#4A2E5A',
+	arcs: '#4A2E5A',
+	rays: '#4A2E5A',
+	'piano-keys': '#4A2E5A',
+	'sheet-music': '#4A2E5A',
+	fleur: '#4A2E5A',
+	ironwork: '#4A2E5A',
 };
 
 // Relative luminance per WCAG.
@@ -219,7 +246,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const { replaceInnerBlocks, updateBlockAttributes } = useDispatch( 'core/block-editor' );
 
 	const groundClass = isCustomBg ? 'ground-custom' : `ground-${ backgroundStyle }`;
-	const backdropClass = hasBackdrop ? `has-backdrop-${ backdrop }` : '';
 	const widthClass = `has-width-${ width }`;
 	const headingWidthClass = `has-heading-width-${ headingWidth }`;
 	const spacingClass = `has-spacing-${ spacing }`;
@@ -237,8 +263,12 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 		inlineStyle[ '--bozzies-section-bg' ] = customBackground;
 	}
 	if ( hasBackdrop ) {
-		const bd = backdropColor || BACKDROP_DEFAULT_COLOR[ backdrop ];
-		inlineStyle[ '--backdrop-color' ] = bd;
+		/* Editor-only inline vars so the preview <div class="music-backdrop"> below
+		 * paints with the same tint the front-end will show. Never emitted at
+		 * render time — render.php reads BACKDROP_DEFAULT_COLOR-equivalent PHP. */
+		const bd = backdropColor || BACKDROP_DEFAULT_COLOR[ backdrop ] || '#4A2E5A';
+		inlineStyle[ '--mb-color' ] = bd;
+		inlineStyle[ '--mb-opacity' ] = '0.08';
 	}
 	if ( hasImage && ! isPhotoHero ) {
 		inlineStyle[ '--bozzies-section-image' ] = `url("${ backgroundImage.url }")`;
@@ -250,7 +280,6 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 	const wrapperClasses = [
 		'wp-block-bozzies-section',
 		groundClass,
-		backdropClass,
 		widthClass,
 		headingWidthClass,
 		spacingClass,
@@ -422,7 +451,11 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				<div className="wp-block-bozzies-section__overlay" aria-hidden="true" />
 			) }
 			{ hasBackdrop && (
-				<div className="wp-block-bozzies-section__backdrop" aria-hidden="true" />
+				/* Editor preview: empty .music-backdrop wrapper so the ported
+				 * music-backdrop.css applies (opacity + color). The pattern
+				 * SVG is only emitted server-side via render.php. Matches
+				 * every dedicated block's editor approach. */
+				<div className="music-backdrop" aria-hidden="true" />
 			) }
 			{ heroFrame && (
 				<div className="wp-block-bozzies-section__frame" aria-hidden="true" />
@@ -518,9 +551,23 @@ export default function Edit( { attributes, setAttributes, clientId } ) {
 				<PanelBody title={ __( 'Backdrop pattern', 'bozzies' ) } initialOpen={ false }>
 					<SelectControl
 						label={ __( 'Pattern', 'bozzies' ) }
-						value={ backdrop }
+						value={ ADVANCED_BACKDROP_VALUES.includes( backdrop ) ? 'none' : backdrop }
 						options={ BACKDROP_OPTIONS }
 						onChange={ ( value ) => setAttributes( { backdrop: value } ) }
+						__nextHasNoMarginBottom
+					/>
+					<SelectControl
+						label={ __( 'Advanced pattern', 'bozzies' ) }
+						help={ __(
+							'Astro also ships eight extra patterns (Art Deco + New Orleans) that the live site does not use. Available here for parity.',
+							'bozzies'
+						) }
+						value={ ADVANCED_BACKDROP_VALUES.includes( backdrop ) ? backdrop : '' }
+						options={ [
+							{ label: __( '— Not selected —', 'bozzies' ), value: '' },
+							...BACKDROP_OPTIONS_ADVANCED,
+						] }
+						onChange={ ( value ) => setAttributes( { backdrop: value || 'none' } ) }
 						__nextHasNoMarginBottom
 					/>
 					{ hasBackdrop && (

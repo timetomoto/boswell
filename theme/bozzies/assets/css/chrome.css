@@ -658,91 +658,13 @@ header.wp-block-template-part {
 	vertical-align: baseline;
 }
 
-/* ============================================================================
- * Music backdrops — ported from Astro's MusicBackdrop.astro. A section can
- * carry BOTH a ground (is-style-paper/-ink/-purple/-gold, or ground-*) AND a
- * backdrop (has-backdrop-vinyl/-staves/-notes/-diamond-grid). The pattern is
- * painted from an external SVG via a decorative ::after using mask-image so
- * the shape comes from the SVG and the colour comes from CSS. Change
- * --backdrop-color (or set --wp--preset--color--purple / yellow-soft) and
- * every backdrop follows. Per-variant opacity matches Astro's landing page.
- * ========================================================================= */
-.has-backdrop-vinyl,
-.has-backdrop-staves,
-.has-backdrop-notes,
-.has-backdrop-diamond-grid {
-	position: relative;
-	isolation: isolate;
-	overflow: hidden;
-}
-/* Position + z-index setup for content children ABOVE the ::after backdrop
- * layer. Scoped away from the Section block: that block renders its backdrop
- * via a dedicated __backdrop child, so applying "position: relative" to all
- * children here would collapse the __backdrop (position: absolute; inset:0)
- * to height: 0 and hide the pattern entirely. */
-.has-backdrop-vinyl:not(.wp-block-bozzies-section) > *,
-.has-backdrop-staves:not(.wp-block-bozzies-section) > *,
-.has-backdrop-notes:not(.wp-block-bozzies-section) > *,
-.has-backdrop-diamond-grid:not(.wp-block-bozzies-section) > * {
-	position: relative;
-	z-index: 1;
-}
-/* Per-usage default colour (matches Astro's landing page). Override on the
- * element with --backdrop-color to change the tint. */
-.has-backdrop-vinyl        { --backdrop-color: var(--wp--preset--color--purple); }
-.has-backdrop-staves       { --backdrop-color: var(--wp--preset--color--purple); }
-.has-backdrop-notes        { --backdrop-color: var(--wp--custom--color--yellow-soft); }
-.has-backdrop-diamond-grid { --backdrop-color: var(--wp--preset--color--purple); }
-
-/* The Section block paints its backdrop via a dedicated __backdrop element,
- * so exclude it here to avoid a double render. */
-.has-backdrop-vinyl:not(.wp-block-bozzies-section)::after,
-.has-backdrop-staves:not(.wp-block-bozzies-section)::after,
-.has-backdrop-notes:not(.wp-block-bozzies-section)::after,
-.has-backdrop-diamond-grid:not(.wp-block-bozzies-section)::after {
-	content: '';
-	position: absolute;
-	inset: 0;
-	pointer-events: none;
-	background-color: var(--backdrop-color);
-	-webkit-mask-repeat: repeat;
-	        mask-repeat: repeat;
-	-webkit-mask-position: center;
-	        mask-position: center;
-	z-index: 0;
-}
-/* Astro applies the pattern SVGs with preserveAspectRatio="slice", which
- * scales the pattern tile roughly with viewport width. These sizes reproduce
- * Astro's rendered tile sizes at ~1440px (see MusicBackdrop.astro viewBox
- * math). Sizes use vw so the tile scales down at smaller viewports. */
-.has-backdrop-vinyl:not(.wp-block-bozzies-section)::after {
-	-webkit-mask-image: url("../svg/backdrop-vinyl.svg");
-	        mask-image: url("../svg/backdrop-vinyl.svg");
-	-webkit-mask-size: 69vw 69vw;
-	        mask-size: 69vw 69vw;
-	opacity: 0.05;
-}
-.has-backdrop-staves:not(.wp-block-bozzies-section)::after {
-	-webkit-mask-image: url("../svg/backdrop-staves.svg");
-	        mask-image: url("../svg/backdrop-staves.svg");
-	-webkit-mask-size: 100vw 30vw;
-	        mask-size: 100vw 30vw;
-	opacity: 0.06;
-}
-.has-backdrop-notes:not(.wp-block-bozzies-section)::after {
-	-webkit-mask-image: url("../svg/backdrop-notes.svg");
-	        mask-image: url("../svg/backdrop-notes.svg");
-	-webkit-mask-size: 100vw 100vw;
-	        mask-size: 100vw 100vw;
-	opacity: 0.09;
-}
-.has-backdrop-diamond-grid:not(.wp-block-bozzies-section)::after {
-	-webkit-mask-image: url("../svg/backdrop-diamond-grid.svg");
-	        mask-image: url("../svg/backdrop-diamond-grid.svg");
-	-webkit-mask-size: 30vw 30vw;
-	        mask-size: 30vw 30vw;
-	opacity: 0.08;
-}
+/* Music backdrops formerly lived here as mask-image utilities on
+ * .has-backdrop-{vinyl|staves|notes|diamond-grid}. Removed once bozzies/section
+ * (and the dedicated blocks: bio-hero, music-teasers, release-cards,
+ * donate-teaser, sample-section, page-hero) started emitting Astro's exact
+ * <div class="music-backdrop"><svg>…</svg></div> DOM. The wrapper styles
+ * live in assets/css/astro/music-backdrop.css; the SVGs come from the
+ * inc/music-backdrop.php helper. */
 
 /* ============================================================================
  * Paragraph-width utilities — match Astro's --measure-* tokens so section

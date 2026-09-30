@@ -240,7 +240,6 @@
 /* --- Decorative layers -------------------------------------------------- */
 .wp-block-bozzies-section__image,
 .wp-block-bozzies-section__overlay,
-.wp-block-bozzies-section__backdrop,
 .wp-block-bozzies-section__frame {
 	position: absolute;
 	inset: 0;
@@ -276,47 +275,6 @@
 	opacity: var(--bozzies-section-overlay-alpha, 0.55);
 	z-index: 1;
 }
-
-/* --- Backdrop pattern (mask-image so colour is CSS-driven) -------------- */
-.wp-block-bozzies-section__backdrop {
-	background-color: var(--backdrop-color, var(--wp--preset--color--purple));
-	-webkit-mask-repeat: repeat;
-	        mask-repeat: repeat;
-	-webkit-mask-position: center;
-	        mask-position: center;
-	z-index: 2;
-}
-.wp-block-bozzies-section.has-backdrop-vinyl .wp-block-bozzies-section__backdrop {
-	-webkit-mask-image: url("../../../assets/svg/backdrop-vinyl.svg");
-	        mask-image: url("../../../assets/svg/backdrop-vinyl.svg");
-	-webkit-mask-size: 69vw 69vw;
-	        mask-size: 69vw 69vw;
-	opacity: 0.05;
-}
-.wp-block-bozzies-section.has-backdrop-staves .wp-block-bozzies-section__backdrop {
-	-webkit-mask-image: url("../../../assets/svg/backdrop-staves.svg");
-	        mask-image: url("../../../assets/svg/backdrop-staves.svg");
-	-webkit-mask-size: 100vw 30vw;
-	        mask-size: 100vw 30vw;
-	opacity: 0.06;
-}
-.wp-block-bozzies-section.has-backdrop-notes .wp-block-bozzies-section__backdrop {
-	-webkit-mask-image: url("../../../assets/svg/backdrop-notes.svg");
-	        mask-image: url("../../../assets/svg/backdrop-notes.svg");
-	-webkit-mask-size: 100vw 100vw;
-	        mask-size: 100vw 100vw;
-	opacity: 0.09;
-}
-.wp-block-bozzies-section.has-backdrop-diamond-grid .wp-block-bozzies-section__backdrop {
-	-webkit-mask-image: url("../../../assets/svg/backdrop-diamond-grid.svg");
-	        mask-image: url("../../../assets/svg/backdrop-diamond-grid.svg");
-	-webkit-mask-size: 30vw 30vw;
-	        mask-size: 30vw 30vw;
-	opacity: 0.08;
-}
-
-/* Inherit the has-backdrop-* per-usage default colour set in chrome.css so
- * an author who leaves backdropColor blank still gets Astro's colours. */
 
 /* --- Hero corner brackets ---------------------------------------------- */
 .wp-block-bozzies-section__frame {

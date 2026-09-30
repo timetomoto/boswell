@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/inc/analytics.php';
 require_once __DIR__ . '/inc/bindings.php';
+require_once __DIR__ . '/inc/music-backdrop.php';
 
 add_action( 'init', 'bozzies_register_section_styles' );
 function bozzies_register_section_styles() {
