@@ -28,26 +28,33 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/**
- * Extract a year from a session header for filtering. Verbatim port of
- * discography.astro L13-22 (`yearFromHeader`).
- */
-function bozzies_disc_year_from_header( $h ) {
-	if ( preg_match( '/\b(19\d{2}|20\d{2})\b/', (string) $h, $m ) ) {
-		return $m[1];
+// render.php is included once per block render; a page with two disc blocks
+// (or the editor's ServerSideRender preview + front-end render in the same
+// request) would fatal on redeclare without these guards.
+if ( ! function_exists( 'bozzies_disc_year_from_header' ) ) {
+	/**
+	 * Extract a year from a session header for filtering. Verbatim port of
+	 * discography.astro L13-22 (`yearFromHeader`).
+	 */
+	function bozzies_disc_year_from_header( $h ) {
+		if ( preg_match( '/\b(19\d{2}|20\d{2})\b/', (string) $h, $m ) ) {
+			return $m[1];
+		}
+		if ( preg_match( '#\b\d{1,2}/\d{1,2}/(\d{2})\b#', (string) $h, $m2 ) ) {
+			return '19' . str_pad( $m2[1], 2, '0', STR_PAD_LEFT );
+		}
+		return '';
 	}
-	if ( preg_match( '#\b\d{1,2}/\d{1,2}/(\d{2})\b#', (string) $h, $m2 ) ) {
-		return '19' . str_pad( $m2[1], 2, '0', STR_PAD_LEFT );
-	}
-	return '';
 }
 
-/**
- * Decode HTML entities like Astro's raw markdown output. Curly quotes and
- * em-dashes in the source markdown must survive round-trips.
- */
-function bozzies_disc_decode( $s ) {
-	return html_entity_decode( (string) $s, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+if ( ! function_exists( 'bozzies_disc_decode' ) ) {
+	/**
+	 * Decode HTML entities like Astro's raw markdown output. Curly quotes and
+	 * em-dashes in the source markdown must survive round-trips.
+	 */
+	function bozzies_disc_decode( $s ) {
+		return html_entity_decode( (string) $s, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
+	}
 }
 
 $attrs = wp_parse_args(
