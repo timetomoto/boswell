@@ -117,6 +117,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
 		$ver
 	);
+	// Astro lesson-hero CSS — verbatim port of media/lessons/[order].astro's
+	// .lesson-hero* rules. Owned by the bozzies/lesson-hero block.
+	wp_enqueue_style(
+		'bozzies-astro-lesson-hero',
+		$dir_uri . '/assets/css/astro/lesson-hero.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
 	// Astro pages CSS — per-page scoped rules from Astro pages that live
 	// outside a component. Holds the home intro (index.astro L117-135),
 	// donate teaser (index.astro L169-200) and eyebrow color modifiers
@@ -167,7 +175,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer' ),
 		$ver
 	);
 }
@@ -182,6 +190,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/cards.css' );
 	add_editor_style( 'assets/css/astro/music-backdrop.css' );
 	add_editor_style( 'assets/css/astro/bio-hero.css' );
+	add_editor_style( 'assets/css/astro/lesson-hero.css' );
 	add_editor_style( 'assets/css/astro/pages.css' );
 	add_editor_style( 'assets/css/astro/pull-quote.css' );
 	add_editor_style( 'assets/css/astro/section-divider.css' );

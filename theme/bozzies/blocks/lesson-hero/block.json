@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/lesson-hero",
+	"version": "1.0.0",
+	"title": "Lesson hero",
+	"category": "design",
+	"icon": "controls-play",
+	"description": "Astro's compact purple lesson-page hero — <section class=\"lesson-hero ground-purple\"> with a staves music backdrop, back link, eyebrow (Lesson 01), big display title, and optional summary.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":     { "type": "string", "default": "full" },
+		"eyebrow":   { "type": "string", "default": "" },
+		"title":     { "type": "string", "default": "" },
+		"summary":   { "type": "string", "default": "" },
+		"backHref":  { "type": "string", "default": "/media/" },
+		"backLabel": { "type": "string", "default": "Media" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}
