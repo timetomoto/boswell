@@ -8,7 +8,7 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Decisions (do not revisit)
 - WordPress native, standalone block theme "bozzies" at theme/bozzies/. No parent theme, no page builder.
-- Free WordPress.org plugins are allowed when they solve a real need better than custom code. Currently installed: Contact Form 7 (contact form runtime), CF7 Apps Honeypot (spam), Flamingo (contact submissions log in the dashboard), WP Mail SMTP (Dreamhost SMTP relay for outbound mail). Configure plugin settings via wp-config constants (WPMS_*) where the plugin supports it, not the database.
+- Free WordPress.org plugins are allowed when they solve a real need better than custom code. Currently installed: Contact Form 7 (contact form runtime), CF7 Apps Honeypot (spam), Flamingo (contact submissions log in the dashboard), WP Mail SMTP (Dreamhost SMTP relay for outbound mail). Configure plugin settings via wp-config constants (WPMS_*) where the plugin supports it, not the database. WordPress's default "Hello Dolly" and "Akismet" plugins are removed and must not be reinstalled at go-live.
 - Match the Astro design as closely as possible. Little to no drift.
 - Owner can change brand colors; palette presets are defaults, custom pickers stay on.
 - Structured content (timeline, playlist, quotes, discography) = custom blocks edited on the page. No ACF, no custom post types.
