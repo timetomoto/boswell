@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once __DIR__ . '/inc/analytics.php';
 require_once __DIR__ . '/inc/bindings.php';
 require_once __DIR__ . '/inc/music-backdrop.php';
+require_once __DIR__ . '/inc/settings.php';
 
 /**
  * Head parity with Astro's Base.astro (~/boswell-poc/src/layouts/Base.astro

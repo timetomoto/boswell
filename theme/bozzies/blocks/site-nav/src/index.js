@@ -48,11 +48,19 @@ registerBlockType( metadata.name, {
 						/>
 					</PanelBody>
 					<PanelBody title={ __( 'Donate button', 'bozzies' ) } initialOpen={ false }>
+						<p style={ { margin: '0 0 8px' } }>
+							{ __( 'The header donate URL comes from the site-wide setting so it can be changed by the Editor role.', 'bozzies' ) }
+						</p>
+						<p style={ { margin: '0 0 12px' } }>
+							<a href="/wp-admin/admin.php?page=bozzies-settings" target="_blank" rel="noopener">
+								{ __( 'Open Bozzies → Donate URL', 'bozzies' ) }
+							</a>
+						</p>
 						<TextControl
-							label={ __( 'Donate URL', 'bozzies' ) }
-							value={ donateHref || '' }
-							onChange={ ( v ) => setAttributes( { donateHref: v } ) }
-							help={ __( 'Opens in a new tab.', 'bozzies' ) }
+							label={ __( 'Donate label', 'bozzies' ) }
+							value={ donateLabel || '' }
+							onChange={ ( v ) => setAttributes( { donateLabel: v } ) }
+							help={ __( 'The button text — e.g. "Donate", "Give", "Support the archive".', 'bozzies' ) }
 							__nextHasNoMarginBottom
 						/>
 					</PanelBody>

@@ -87,7 +87,14 @@ $mark_href    = '' !== $attrs['markHref'] ? (string) $attrs['markHref'] : '/';
 $mark_aria    = html_entity_decode( (string) $attrs['markAriaLabel'], ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 $mark_line_1  = html_entity_decode( (string) $attrs['markLine1'],     ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 $mark_line_2  = html_entity_decode( (string) $attrs['markLine2'],     ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-$donate_href  = (string) $attrs['donateHref'];
+// Site-wide donate URL comes from Settings → Bozzies (editable by the Editor
+// role that doesn't have manage_options). The block still stores a donateHref
+// attribute for backward compatibility with previously-authored template parts,
+// but the setting always wins.
+$donate_href  = bozzies_get_donate_url();
+if ( '' === $donate_href ) {
+	$donate_href = (string) $attrs['donateHref'];
+}
 $donate_label = html_entity_decode( (string) $attrs['donateLabel'],   ENT_QUOTES | ENT_HTML5, 'UTF-8' );
 ?>
 <div class="site-nav__inner container">
