@@ -1,18 +1,20 @@
-Read CLAUDE.md. You are one run in an unattended loop on branch astro-rebuild. Do not ask questions.
+Read the styling rules and the "## Rebuild queue" section of CLAUDE.md. Skip the inventory and hash log unless you need a specific entry. You are one run in an unattended loop on branch astro-rebuild. Do not ask questions.
 
-Do exactly one item: the first unchecked item in "## Rebuild queue". If it is too big to finish with full checks in this run, split it into smaller unchecked items in the queue, do the first one, and leave the rest.
+No verification steps of any kind: no style diffs, text diffs, editor save tests, owner tests, pixel overlays, screenshots, or audits. Keith does visual QA in the browser at the end.
 
-For that item:
-1. Read the Astro source. Copy its CSS unchanged into theme/bozzies/assets/css/astro/. Emit Astro's exact markup. Never port from chrome.css. No Custom HTML blocks. Blocks with inner blocks save InnerBlocks.Content.
-2. Owner surface: pattern in "Bozzies sections", block, or block style, with Astro classes pre-attached; owner content never wiped.
-3. Update the import helpers and re-import only the pages that use this item, so the new CSS is live.
-4. Remove the old code this item replaces.
-5. Checks, all required: computed-style diff against Vercel at 1440 and 390 paired by Astro class names (zero real mismatches, residuals explained); text diff on affected pages (zero outside placeholders); open each affected page in the editor, save, confirm no change and no validation warnings; owner tests A (inserter), B (pattern), C (pre-typed content) with at least one real sidebar click, test pages deleted; pixel overlay per section, reported as a number only (flag over 2%).
-6. Do not take or view screenshots for review. Keith will do visual QA in a browser at the end. The pixel overlay may capture images internally, but never open them.
-7. Keep context lean: write diff and audit output to files under _screens/, read only summaries and failures.
+First, make sure the queue has these changes; if not, apply them and include them in this run's commit:
+- The Group 3 audits item is replaced with: head tags and social previews, and favicon, matching Astro. Nothing else.
+- Before the dead code sweep item, these two items exist:
+  - Fix the photo hero: opening and saving a page with it in the editor reorders its saved attributes. Pages must save with zero changes.
+  - Release card links: replace the typed URL field with a media library picker for the PDF.
 
-Then commit on astro-rebuild with check results in the commit body, tick the item in the queue, and update "Current status". If every item is ticked, change the status line to REBUILD-STATUS: DONE. If you hit a real blocker (backup or data loss risk, or nothing can proceed), change it to REBUILD-STATUS: BLOCKED with the reason, commit, and stop.
+Then do exactly one item: the first unchecked item in the queue.
+1. Copy the Astro CSS unchanged into theme/bozzies/assets/css/astro/ and make WordPress output Astro's markup. No Custom HTML blocks. Blocks with inner blocks save InnerBlocks.Content.
+2. Give the owner a way to add it (pattern, block, or block style).
+3. Update the import helpers and re-import the affected pages.
+4. Remove the old code it replaces.
+5. Commit on astro-rebuild, tick the item in the queue. If every item is ticked, change the status line to REBUILD-STATUS: DONE. If something truly blocks all progress, change it to REBUILD-STATUS: BLOCKED with the reason.
 
-Never push. Never run wp-env clean or destroy. Never touch keith's user; use a throwaway admin and delete it. Never change main or astro-css-trial.
+Never push. Never run wp-env clean or destroy. Don't touch keith's user. Never change main or astro-css-trial.
 
-End with a short report: item done, files changed, check results, anything not matching and why, commit hash.
+End with one line: item done and commit hash.
