@@ -221,6 +221,15 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro discography CSS — verbatim port of the .disc-search / .disc-scope
+	// / .disc-session / .disc-track rules from media/discography.astro L175-265.
+	// Owned by the bozzies/discography block.
+	wp_enqueue_style(
+		'bozzies-astro-discography',
+		$dir_uri . '/assets/css/astro/discography.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -228,7 +237,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline', 'bozzies-astro-discography' ),
 		$ver
 	);
 
@@ -252,6 +261,19 @@ function bozzies_enqueue_chrome() {
 		wp_enqueue_script(
 			'bozzies-quotes-carousel',
 			$dir_uri . '/assets/js/quotes-carousel.js',
+			array(),
+			$ver,
+			true
+		);
+	}
+
+	// Discography search front-end JS — verbatim port of the client-side
+	// <script> at media/discography.astro L101-147. Enqueued only when the
+	// current page contains the bozzies/discography block.
+	if ( is_singular() && has_block( 'bozzies/discography' ) ) {
+		wp_enqueue_script(
+			'bozzies-discography-search',
+			$dir_uri . '/assets/js/discography-search.js',
 			array(),
 			$ver,
 			true
@@ -281,6 +303,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/playlist-player.css' );
 	add_editor_style( 'assets/css/astro/quotes-carousel.css' );
 	add_editor_style( 'assets/css/astro/timeline.css' );
+	add_editor_style( 'assets/css/astro/discography.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
