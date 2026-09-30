@@ -85,7 +85,8 @@ function bozzies_astro_head_strip() {
 	remove_action( 'wp_head', 'wp_oembed_add_host_js' );
 	remove_action( 'wp_head', 'rel_canonical' );
 	remove_action( 'wp_head', 'wp_robots', 1 );
-	remove_action( 'wp_head', 'wp_site_icon', 99 );
+	// wp_site_icon stays: emits <link rel="icon"> + apple-touch-icon from the
+	// Site Icon set at Settings → General (owner-changeable).
 	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
@@ -93,12 +94,28 @@ function bozzies_astro_head_strip() {
 	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
 }
 
-// Suppress the fallback /favicon.ico (`wp_site_icon` and the default WP
-// mystery favicon). Astro serves no favicon; the browser gets a 404 and
-// moves on. Matches Astro's live output.
-add_filter( 'get_site_icon_url', '__return_empty_string' );
-remove_action( 'do_favicon', 'wp_favicon_request', 10 );
-add_action( 'do_favicon', function () {
+// /favicon.ico → 302 redirect to the Site Icon URL set at
+// Settings → General. WordPress core's do_favicon path only fires when the
+// request parses as `is_favicon()`, which our custom /press/ rewrite rules
+// interfere with — so we handle the direct file request ourselves at
+// init (before rewrites can rewrite it into a page). The theme ships a
+// default Bozzies monogram (theme/bozzies/assets/img/favicon.svg + PNG sizes
+// rendered by scripts/dev/render-favicon.mjs) uploaded as attachment 873 and
+// set as the site icon on first install. Owners can replace it any time at
+// Settings → General → Site Icon.
+add_action( 'init', function () {
+	if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+	$path = strtok( (string) $_SERVER['REQUEST_URI'], '?' );
+	if ( '/favicon.ico' !== $path ) {
+		return;
+	}
+	$icon = get_site_icon_url( 32 );
+	if ( $icon ) {
+		wp_redirect( $icon, 302, 'bozzies-favicon' );
+		exit;
+	}
 	status_header( 404 );
 	nocache_headers();
 	exit;
