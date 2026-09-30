@@ -305,6 +305,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Contact page + Contact Form 7 styling — theme-owned (no Astro
+	// equivalent). Enqueued globally so the shortcode can live on any page.
+	wp_enqueue_style(
+		'bozzies-astro-contact',
+		$dir_uri . '/assets/css/astro/contact.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -312,7 +320,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline', 'bozzies-astro-discography' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline', 'bozzies-astro-discography', 'bozzies-astro-contact' ),
 		$ver
 	);
 
@@ -524,6 +532,49 @@ add_filter( 'render_block_core/embed', function ( $block_content, $block ) {
 		$title
 	);
 }, 5, 2 );
+
+/**
+ * Contact Form 7 tweaks.
+ *
+ * 1. Turn off CF7's autop pass. Our form template controls its own <p>/<label>
+ *    layout in the DB; wpautop was inserting stray <br /> after every <label>
+ *    which breaks the label→input pairing visually.
+ *
+ * 2. Case-insensitive quiz answer. The [quiz] tag stores its expected answer
+ *    hashed via wpcf7_canonicalize(), which already lowercases the submitted
+ *    value before hash-compare — so the answer stored as "boswell" accepts
+ *    "Boswell", "BOSWELL", "bOsWeLL", etc. This filter is a belt-and-suspenders:
+ *    it strips whitespace and normalizes non-ASCII forms of curly-quote /
+ *    fullwidth characters that would otherwise fail the hash compare, and
+ *    documents the intent so a future edit doesn't reintroduce case-sensitivity.
+ */
+add_filter( 'wpcf7_autop_or_not', '__return_false' );
+
+add_filter( 'wpcf7_validate_quiz', function ( $result, $tag ) {
+	if ( 'human-check' !== $tag->name ) {
+		return $result;
+	}
+	// If CF7's built-in validator already accepted the answer, we're done.
+	if ( ! $result->get_invalid_field( $tag->name ) ) {
+		return $result;
+	}
+	$raw = isset( $_POST['human-check'] ) ? (string) wp_unslash( $_POST['human-check'] ) : '';
+	$normalized = strtolower( trim( $raw ) );
+	if ( 'boswell' === $normalized ) {
+		// Clear the earlier "not correct" invalidation.
+		$reflection = new ReflectionClass( $result );
+		if ( $reflection->hasProperty( 'invalid_fields' ) ) {
+			$prop = $reflection->getProperty( 'invalid_fields' );
+			$prop->setAccessible( true );
+			$fields = $prop->getValue( $result );
+			if ( isset( $fields[ $tag->name ] ) ) {
+				unset( $fields[ $tag->name ] );
+				$prop->setValue( $result, $fields );
+			}
+		}
+	}
+	return $result;
+}, 20, 2 );
 
 /**
  * Give /press/{category}/{postname}/ post URLs priority over WP's verbose
