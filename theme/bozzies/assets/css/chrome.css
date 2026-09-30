@@ -547,90 +547,10 @@ header.wp-block-template-part {
 	max-width: calc(50% - 160px - 0.75rem);
 }
 
-/* ============================================================================
- * Pull-quote colour per ground — matches Astro's per-ground overrides.
- *   paper → oxblood (default from theme.json)
- *   ink   → champagne
- *   purple → #FFF, weight 500, subtle shadow (Astro: hardcoded white for
- *            contrast, not champagne)
- *   gold  → oxblood (default from theme.json)
- * Covers both the existing Group-based sections (is-style-*) and the new
- * bozzies/section block (ground-*).
- * ========================================================================= */
-.is-style-ink .wp-block-quote.is-style-pull-quote,
-.ground-ink .wp-block-quote.is-style-pull-quote {
-	color: var(--wp--custom--color--champagne);
-}
-.is-style-purple .wp-block-quote.is-style-pull-quote,
-.ground-purple .wp-block-quote.is-style-pull-quote {
-	color: #ffffff;
-	font-weight: 500;
-	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
-}
-.is-style-purple .wp-block-quote.is-style-pull-quote cite,
-.ground-purple .wp-block-quote.is-style-pull-quote cite {
-	color: var(--wp--custom--color--yellow-soft);
-	text-shadow: none;
-	font-weight: 500;
-}
-.is-style-ink .wp-block-quote.is-style-pull-quote p,
-.ground-ink .wp-block-quote.is-style-pull-quote p,
-.is-style-purple .wp-block-quote.is-style-pull-quote p,
-.ground-purple .wp-block-quote.is-style-pull-quote p {
-	color: inherit;
-}
-
-/* Core pullquote block (figure.wp-block-pullquote > blockquote): matches
- * Astro's PullQuote.astro — italic UI face, curly open/close marks via
- * `quotes` + generated content, uppercased brass citation. Per-ground colour
- * overrides mirror the `.wp-block-quote.is-style-pull-quote` block above. */
-.wp-block-pullquote {
-	text-align: center;
-	padding-block: var(--wp--preset--spacing--l);
-	margin-inline: auto;
-	max-width: var(--wp--custom--measure--wide);
-}
-.wp-block-pullquote blockquote {
-	font-family: var(--wp--preset--font-family--ui);
-	font-style: italic;
-	font-weight: 400;
-	line-height: var(--wp--custom--line-height--snug);
-	color: var(--wp--preset--color--oxblood);
-	max-width: 32ch;
-	margin-inline: auto;
-	quotes: "\201C" "\201D";
-}
-.wp-block-pullquote blockquote p { margin: 0; }
-.wp-block-pullquote blockquote p:first-of-type::before { content: open-quote; margin-right: 0.1em; }
-.wp-block-pullquote blockquote p:last-of-type::after { content: close-quote; margin-left: 0.1em; }
-.wp-block-pullquote cite {
-	display: block;
-	margin-top: var(--wp--preset--spacing--m);
-	font-family: var(--wp--preset--font-family--ui);
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--small);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-	color: var(--wp--preset--color--brass);
-	font-style: normal;
-}
-.ground-ink .wp-block-pullquote blockquote { color: var(--wp--custom--color--champagne); }
-.ground-purple .wp-block-pullquote blockquote {
-	color: #ffffff;
-	font-weight: 500;
-	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
-}
-.ground-purple .wp-block-pullquote cite {
-	color: var(--wp--custom--color--yellow-soft);
-	text-shadow: none;
-}
-
 /* Article-hero quote (Astro's `.article-hero__quote`): a plain wp:quote block
  * inside the purple hero, styled with a 3px yellow-soft left rule and
- * italic UI copy. Distinct from the centered curly-quote treatment used on
- * `.wp-block-pullquote` because article hero uses core/quote (not
- * core/pullquote) so the two selectors never fight. */
-.wp-block-bozzies-section.ground-purple .wp-block-quote:not(.is-style-pull-quote) {
+ * italic UI copy. */
+.wp-block-bozzies-section.ground-purple .wp-block-quote {
 	margin-top: var(--wp--preset--spacing--l);
 	padding-left: var(--wp--preset--spacing--m);
 	border-left: 3px solid var(--wp--custom--color--yellow-soft);
@@ -641,10 +561,10 @@ header.wp-block-template-part {
 	line-height: var(--wp--custom--line-height--normal);
 	color: #FBF3D6;
 }
-.wp-block-bozzies-section.ground-purple .wp-block-quote:not(.is-style-pull-quote) p {
+.wp-block-bozzies-section.ground-purple .wp-block-quote p {
 	margin: 0;
 }
-.wp-block-bozzies-section.ground-purple .wp-block-quote:not(.is-style-pull-quote) cite {
+.wp-block-bozzies-section.ground-purple .wp-block-quote cite {
 	display: block;
 	margin-top: var(--wp--preset--spacing--xs, 0.5rem);
 	font-family: var(--wp--preset--font-family--ui);

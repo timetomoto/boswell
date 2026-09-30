@@ -187,31 +187,6 @@ const variations = [
 		],
 		scope: [ 'inserter' ],
 	},
-	{
-		name: 'quote',
-		title: __( 'Pull quote', 'bozzies' ),
-		description: __( 'Editorial pull-quote section.', 'bozzies' ),
-		icon: 'format-quote',
-		attributes: {
-			backgroundStyle: 'purple',
-			backdrop: 'notes',
-			width: 'container',
-			headingWidth: 'reading',
-			spacing: 'standard',
-		},
-		innerBlocks: [
-			eyebrow( __( 'Voices', 'bozzies' ) ),
-			[ 'core/heading', { level: 2, content: __( 'What their peers said', 'bozzies' ), textAlign: 'center' } ],
-			[
-				'core/quote',
-				{ className: 'is-style-pull-quote' },
-				[
-					[ 'core/paragraph', { content: __( 'The girls were doing what nobody else was doing.', 'bozzies' ) } ],
-				],
-			],
-		],
-		scope: [ 'inserter' ],
-	},
 ];
 
 export default variations;

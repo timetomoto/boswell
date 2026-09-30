@@ -27,7 +27,6 @@ function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/separator', array( 'name' => 'hairline',      'label' => __( 'Hairline', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline-thin', 'label' => __( 'Hairline thin', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'jazz',          'label' => __( 'Jazz divider', 'bozzies' ) ) );
-	register_block_style( 'core/quote',     array( 'name' => 'pull-quote',    'label' => __( 'Pull quote', 'bozzies' ) ) );
 	register_block_style( 'core/group',     array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
 	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
 	/* "Card plain" — paper-ground variant used on Sisters hub etc. */
@@ -129,6 +128,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
 		$ver
 	);
+	// Astro pull-quote CSS — verbatim port of PullQuote.astro's <style>.
+	// Owned by the bozzies/pull-quote block.
+	wp_enqueue_style(
+		'bozzies-astro-pull-quote',
+		$dir_uri . '/assets/css/astro/pull-quote.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -136,7 +143,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote' ),
 		$ver
 	);
 }
@@ -152,6 +159,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/music-backdrop.css' );
 	add_editor_style( 'assets/css/astro/bio-hero.css' );
 	add_editor_style( 'assets/css/astro/pages.css' );
+	add_editor_style( 'assets/css/astro/pull-quote.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 

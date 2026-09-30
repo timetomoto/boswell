@@ -10,5 +10,5 @@
 <!-- wp:paragraph --><p><a href="#">← Back to section</a></p><!-- /wp:paragraph -->
 <!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Publication · Date · Author</p><!-- /wp:paragraph -->
 <!-- wp:heading {"level":1} --><h1 class="wp-block-heading">Article title</h1><!-- /wp:heading -->
-<!-- wp:quote {"className":"is-style-pull-quote"} --><blockquote class="wp-block-quote is-style-pull-quote"><p>An optional pull-quote hero.</p><cite>— Attribution</cite></blockquote><!-- /wp:quote -->
+<!-- wp:quote --><blockquote class="wp-block-quote"><p>An optional pull-quote hero.</p><cite>— Attribution</cite></blockquote><!-- /wp:quote -->
 <!-- /wp:bozzies/section -->

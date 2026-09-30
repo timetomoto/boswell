@@ -198,7 +198,7 @@ a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-ra
 .ground-purple a:hover { color: var(--link-on-dark-hover); border-color: var(--link-on-dark-hover); }
 .ground-purple .eyebrow { color: var(--yellow-soft); }
 
-/* Pull quote on purple: pure white */
+/* Pull quote on purple: pure white, defined here to bypass Astro scoped-style scoping */
 .ground-purple .pull-quote__quote {
 	color: #FFFFFF !important;
 	font-weight: 500;
