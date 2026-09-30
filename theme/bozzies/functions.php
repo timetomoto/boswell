@@ -212,6 +212,15 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro timeline CSS — verbatim port of Timeline.astro's <style>
+	// plus career-timeline.astro's `.timeline-section` wrapper rules.
+	// Owned by the bozzies/timeline block.
+	wp_enqueue_style(
+		'bozzies-astro-timeline',
+		$dir_uri . '/assets/css/astro/timeline.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -219,7 +228,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline' ),
 		$ver
 	);
 
@@ -271,6 +280,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/prose-body.css' );
 	add_editor_style( 'assets/css/astro/playlist-player.css' );
 	add_editor_style( 'assets/css/astro/quotes-carousel.css' );
+	add_editor_style( 'assets/css/astro/timeline.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 

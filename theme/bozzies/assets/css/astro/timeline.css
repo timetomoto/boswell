@@ -1,0 +1,127 @@
+/*
+ * Timeline component (Astro parity)
+ *
+ * Verbatim port of the <style> block in
+ * ~/boswell-poc/src/components/Timeline.astro lines 54-152.
+ *
+ * Also carries the two page-scoped tweaks Astro applies where the
+ * Timeline is embedded (Astro scopes these via `:global()` inside each
+ * page's <style>; WordPress uses per-slug/per-context selectors):
+ *   - `.timeline-section` padding + image cap from career-timeline.astro L65-70
+ *   - `.bio-timeline` background + head typography from sisters/[slug].astro L260-268
+ *     (already ported in cards.css at commit d04714c; kept there).
+ *
+ * Documented edits: none — Astro's rules paint on paper ground with
+ * no cascade conflict at this block's specificity.
+ */
+
+.timeline {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	position: relative;
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+}
+.timeline::before {
+	content: '';
+	position: absolute;
+	top: var(--space-3);
+	bottom: var(--space-3);
+	left: 6px;
+	width: 1px;
+	background: var(--tl-accent, var(--brass));
+	opacity: 0.35;
+}
+
+.timeline__entry {
+	display: grid;
+	grid-template-columns: 28px 8rem 1fr;
+	gap: var(--space-4);
+	padding-block: var(--space-5);
+	border-bottom: 1px solid var(--paper-hairline);
+	align-items: start;
+}
+.timeline__entry:last-child { border-bottom: 0; }
+.timeline__entry--alt {
+	background: color-mix(in oklab, var(--paper) 96%, var(--tl-accent, var(--brass)) 4%);
+	margin-inline: calc(var(--space-4) * -1);
+	padding-inline: var(--space-4);
+}
+
+.timeline__marker {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	padding-top: 6px;
+}
+.timeline__dot {
+	width: 13px;
+	height: 13px;
+	border-radius: 50%;
+	background: var(--tl-accent, var(--brass));
+	border: 3px solid var(--paper);
+	box-shadow: 0 0 0 1px var(--tl-accent, var(--brass));
+	z-index: 1;
+}
+
+.timeline__year {
+	font-family: var(--font-ui);
+	font-weight: 600;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--tl-accent, var(--brass));
+	padding-top: 6px;
+	line-height: 1.35;
+}
+
+.timeline__event { min-width: 0; }
+.timeline__event-text {
+	font-family: var(--font-body);
+	font-size: var(--step-0);
+	line-height: var(--leading-loose);
+	color: var(--text-on-paper);
+	margin: 0;
+	max-width: 64ch;
+}
+.timeline__image {
+	margin-top: var(--space-3);
+	max-width: 100%;
+	height: auto;
+	border: 1px solid var(--paper-hairline);
+}
+
+.timeline__empty {
+	font-family: var(--font-ui);
+	font-style: italic;
+	color: var(--text-on-paper-muted);
+	text-align: center;
+	padding-block: var(--space-6);
+}
+
+/* Mobile: collapse to a single column with the year above the event */
+@media (max-width: 640px) {
+	.timeline__entry {
+		grid-template-columns: 28px 1fr;
+		grid-template-rows: auto auto;
+		row-gap: var(--space-2);
+	}
+	.timeline__year { grid-column: 2; padding-top: 4px; }
+	.timeline__event { grid-column: 2; }
+	.timeline__marker { grid-row: 1 / span 2; padding-top: 8px; }
+}
+
+/*
+ * Per-page section wrappers.
+ *
+ * career-timeline.astro L65-70: `.timeline-section` gives the section
+ * extra vertical padding and caps timeline image size at 320px.
+ * WordPress hard-codes the wrapper class on the pattern's outer
+ * <section>, so this rule fires on the career-timeline page.
+ */
+.timeline-section { padding-block: clamp(var(--space-7), 5vw, var(--space-9)); }
+.timeline-section .timeline__image {
+	max-width: 320px;
+	height: auto;
+}

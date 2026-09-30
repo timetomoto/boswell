@@ -7,6 +7,36 @@
 
 import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { load } from 'js-yaml';
+
+const __dirname_group2 = dirname(fileURLToPath(import.meta.url));
+
+// Gutenberg's client-side JSON serializer (same as sisters-timeline.mjs).
+const gbJsonG2 = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+function readTimelineEntriesG2(subject) {
+  const src = readFileSync(
+    resolve(__dirname_group2, `../../../boswell-poc/src/content/timelines/${subject}.md`),
+    'utf8'
+  );
+  const m = src.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) throw new Error(`timelines/${subject}.md: no frontmatter found`);
+  const data = load(m[1]);
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  return entries.map((e) => ({
+    year:     e.year != null ? String(e.year) : '',
+    event:    e.event != null ? String(e.event) : '',
+    image:    e.image || '',
+    imageAlt: e.imageAlt || '',
+  }));
+}
 
 // ---------- Block helpers (mirror group1) ----------
 
@@ -367,16 +397,25 @@ function buildCareerTimeline() {
     ),
   );
 
-  const placeholder = section(
-    { backgroundStyle: 'paper', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Trio Years', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, '1905 – 1936, year by year', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
-    ].join('\n'),
+  // Astro's career-timeline.astro L33-37 emits <section class="section
+  // ground-paper timeline-section"><div class="container"><Timeline
+  // color="purple" /></div></section> — no header. The wp:group wrapper
+  // matches the pattern shipped in patterns/timeline.php.
+  const trioEntries = readTimelineEntriesG2('trio');
+  const timelineAttrs = gbJsonG2({ entries: trioEntries, color: 'purple' });
+  const timeline = (
+    `<!-- wp:group {"tagName":"section","align":"full","className":"section ground-paper timeline-section","layout":{"type":"constrained"}} -->\n` +
+    `<section class="wp-block-group alignfull section ground-paper timeline-section">` +
+      `<!-- wp:group {"className":"container","layout":{"type":"constrained"}} -->\n` +
+      `<div class="wp-block-group container">` +
+        `<!-- wp:bozzies/timeline ${timelineAttrs} /-->` +
+      `</div>\n` +
+      `<!-- /wp:group -->` +
+    `</section>\n` +
+    `<!-- /wp:group -->`
   );
 
-  return [hero, trioQuote, placeholder].join('\n\n');
+  return [hero, trioQuote, timeline].join('\n\n');
 }
 
 function buildLessonsHub(media) {

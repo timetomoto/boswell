@@ -7,7 +7,38 @@
 // content/pages/{about,sisters,bio-resources}.md, and the mirroring
 // Astro page structure in src/pages/about.astro and src/pages/sisters/*.astro.
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { load } from 'js-yaml';
 import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Gutenberg's client-side JSON serializer (same as sisters-timeline.mjs).
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+function readTimelineEntries(subject) {
+  const src = readFileSync(
+    resolve(__dirname, `../../../boswell-poc/src/content/timelines/${subject}.md`),
+    'utf8'
+  );
+  const m = src.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) throw new Error(`timelines/${subject}.md: no frontmatter found`);
+  const data = load(m[1]);
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  return entries.map((e) => ({
+    year:     e.year != null ? String(e.year) : '',
+    event:    e.event != null ? String(e.event) : '',
+    image:    e.image || '',
+    imageAlt: e.imageAlt || '',
+  }));
+}
 
 // ---------- Helper builders (WP block markup as strings) ----------
 
@@ -276,15 +307,33 @@ function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, 
 ${bodyBlocks.join('\n')}
 <!-- /wp:bozzies/bio-body -->`;
 
-  // Connee has a solo-career timeline embedded on her bio page.
-  const timelinePlaceholder = hasSoloTimeline ? section(
-    { backgroundStyle: 'paper', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Solo Years', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, 'Connee Boswell — Solo Career Timeline', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
-    ].join('\n'),
-  ) : '';
+  // Connee has a solo-career timeline embedded on her bio page —
+  // Astro's sisters/[slug].astro L98-111 emits <section class="section
+  // ground-paper bio-timeline"> with a header + <Timeline color="purple" />.
+  // The wp:group wrapper matches the pattern shipped in patterns/timeline.php.
+  const timelinePlaceholder = hasSoloTimeline
+    ? (() => {
+        const conneeEntries = readTimelineEntries('connee');
+        const tlAttrs = gbJson({ entries: conneeEntries, color: 'purple' });
+        return (
+          `<!-- wp:group {"tagName":"section","align":"full","className":"section ground-paper bio-timeline","layout":{"type":"constrained"}} -->\n` +
+          `<section class="wp-block-group alignfull section ground-paper bio-timeline">` +
+            `<!-- wp:group {"className":"container","layout":{"type":"constrained"}} -->\n` +
+            `<div class="wp-block-group container">` +
+              `<!-- wp:group {"tagName":"header","className":"bio-timeline__head","layout":{"type":"constrained"}} -->\n` +
+              `<header class="wp-block-group bio-timeline__head">` +
+                `<!-- wp:paragraph {"className":"eyebrow eyebrow--purple"} --><p class="eyebrow eyebrow--purple">The Solo Years</p><!-- /wp:paragraph -->\n` +
+                `<!-- wp:heading {"level":2,"className":"bio-timeline__title"} --><h2 class="wp-block-heading bio-timeline__title">Connee Boswell — Solo Career Timeline</h2><!-- /wp:heading -->` +
+              `</header>\n` +
+              `<!-- /wp:group -->\n` +
+              `<!-- wp:bozzies/timeline ${tlAttrs} /-->` +
+            `</div>\n` +
+            `<!-- /wp:group -->` +
+          `</section>\n` +
+          `<!-- /wp:group -->`
+        );
+      })()
+    : '';
 
   // Sister prev/all/next nav (mirrors Astro's bio-nav). Emits Astro's exact
   // <nav class="section-tight ground-paper bio-nav"> DOM via bozzies/bio-nav.
