@@ -186,6 +186,16 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro prose-body CSS — verbatim port of the .charts-body and
+	// .reviews-body page-scoped prose rules from charts.astro and
+	// reviews.astro. Owned by the bozzies/prose-body block. Base .prose
+	// rules already live in article.css.
+	wp_enqueue_style(
+		'bozzies-astro-prose-body',
+		$dir_uri . '/assets/css/astro/prose-body.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -193,7 +203,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body' ),
 		$ver
 	);
 }
@@ -216,6 +226,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/section-divider.css' );
 	add_editor_style( 'assets/css/astro/nav.css' );
 	add_editor_style( 'assets/css/astro/footer.css' );
+	add_editor_style( 'assets/css/astro/prose-body.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 

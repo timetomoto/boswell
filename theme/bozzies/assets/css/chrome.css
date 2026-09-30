@@ -406,32 +406,6 @@ body.admin-bar .wp-site-blocks {
 }
 
 
-/* Reviews list on /media/reviews/ — each h3 gets a hairline top separator
- * and the paragraph immediately after is italic in the UI face on muted-ink
- * (mirrors Astro's .reviews-body prose treatment). */
-.bozzies-reviews h3 {
-	margin-top: var(--wp--preset--spacing--xl, 3rem);
-	padding-top: var(--wp--preset--spacing--l, 2rem);
-	border-top: 1px solid rgba(24, 22, 21, 0.12);
-	font-family: var(--wp--preset--font-family--display);
-	font-weight: 400;
-	letter-spacing: var(--wp--custom--letter-spacing--tight);
-	color: var(--wp--preset--color--ink);
-}
-.bozzies-reviews h3:first-of-type {
-	margin-top: 0;
-	padding-top: 0;
-	border-top: 0;
-}
-.bozzies-reviews .bozzies-review-body,
-.bozzies-reviews h3 + .wp-block-paragraph {
-	margin-top: var(--wp--preset--spacing--s);
-	max-width: 60ch;
-	font-family: var(--wp--preset--font-family--ui);
-	font-style: italic;
-	color: rgba(24, 22, 21, 0.65);
-}
-
 /* Sister card nits: italic body copy (matches Astro .sister-card__quote) and
  * a display-face order number on the eyebrow row. */
 .wp-block-group.is-style-card-plain > p:not(.is-style-eyebrow) {
