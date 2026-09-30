@@ -492,6 +492,40 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 }, 20, 2 );
 
 /**
+ * Render core/embed YouTube blocks as Astro's .video-embed iframe so
+ * article bodies match press/[subhub]/[slug].astro L61-67 verbatim.
+ * The Astro markdown source stores videoEmbed as youtube.com/embed/{id}
+ * URLs (not the /watch?v= form). WordPress oEmbed doesn't resolve those,
+ * so out of the box the block renders the URL as plain text. This filter
+ * detects any YouTube URL (embed, watch, youtu.be, or nocookie) on a
+ * core/embed block and swaps the whole output for the iframe wrapper.
+ */
+add_filter( 'render_block_core/embed', function ( $block_content, $block ) {
+	$url = isset( $block['attrs']['url'] ) ? (string) $block['attrs']['url'] : '';
+	if ( '' === $url ) {
+		return $block_content;
+	}
+	$video_id = '';
+	if ( preg_match( '#youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	} elseif ( preg_match( '#youtube\.com/watch\?(?:.*&)?v=([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	} elseif ( preg_match( '#youtu\.be/([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	}
+	if ( '' === $video_id ) {
+		return $block_content;
+	}
+	$src   = 'https://www.youtube-nocookie.com/embed/' . $video_id;
+	$title = esc_attr( get_the_title() );
+	return sprintf(
+		'<div class="video-embed"><iframe src="%s" title="%s" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>',
+		esc_url( $src ),
+		$title
+	);
+}, 5, 2 );
+
+/**
  * Give /press/{category}/{postname}/ post URLs priority over WP's verbose
  * page-hierarchy resolution. Without this, WP treats /press/ as a page and
  * refuses to dispatch descendant URLs to posts (the "press" page hub blocks
