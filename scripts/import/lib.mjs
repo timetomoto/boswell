@@ -185,12 +185,19 @@ export function escAttr(s) {
 
 // Full-bleed photo hero — used for the hub pages that Astro renders with
 // title + subtitle overlaid on a photo (About, Sisters, Media, Press,
-// Lessons). Emits a bozzies/section block with `is-hero-photo` on it; the
+// Lessons). Emits a bozzies/section block with `heroPhoto:true` on it; the
 // section's PHP render adds Astro's own class names (hero, hero--full-bleed,
 // hero--medium, hero--center) and DOM structure (hero__image-wrap, tint,
 // scrim, frame corners, hero__content container, hero__glyph) so the ported
 // Astro hero CSS (assets/css/astro/hero.css) applies directly. Inner blocks
 // use Astro's class names for the eyebrow, title, and subtitle.
+//
+// Emitted markup must match Gutenberg's canonical serializer output byte-for-
+// byte, so opening + saving a page in the block editor yields no changes:
+//   - attributes appear in block.json order,
+//   - attributes matching the block's declared defaults are omitted,
+//   - inner block comments and their HTML sit on their own lines, separated
+//     by blank lines between blocks.
 //
 // opts = { media: {id,url,alt}, title, subtitle, credit, eyebrow }
 export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
@@ -201,22 +208,32 @@ export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
   const attrs = {
     backgroundStyle: 'ink',
     backgroundImage: bgImage,
-    overlayColor: '#181615',
     overlayStrength: 55,
+    spacing: 'spacious',
     heroFrame: true,
     imageGrayscale: true,
     imageZoom: true,
-    width: 'container',
-    headingWidth: 'container',
-    spacing: 'spacious',
-    align: 'full',
-    className: 'is-hero-photo',
+    heroPhoto: true,
   };
-  const inner = [
-    eyebrow ? `<!-- wp:paragraph {"className":"eyebrow hero__eyebrow"} --><p class="eyebrow hero__eyebrow">${eyebrow}</p><!-- /wp:paragraph -->` : '',
-    `<!-- wp:heading {"level":1,"className":"hero__title"} --><h1 class="wp-block-heading hero__title">${title}</h1><!-- /wp:heading -->`,
-    subtitle ? `<!-- wp:paragraph {"className":"hero__subtitle"} --><p class="hero__subtitle">${subtitle}</p><!-- /wp:paragraph -->` : '',
-    credit ? `<!-- wp:paragraph {"className":"hero__credit"} --><p class="hero__credit">${credit}</p><!-- /wp:paragraph -->` : '',
-  ].filter(Boolean).join('\n');
+  const blocks = [];
+  if (eyebrow) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"eyebrow hero__eyebrow"} -->\n<p class="eyebrow hero__eyebrow">${eyebrow}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  blocks.push(
+    `<!-- wp:heading {"level":1,"className":"hero__title"} -->\n<h1 class="wp-block-heading hero__title">${title}</h1>\n<!-- /wp:heading -->`
+  );
+  if (subtitle) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"hero__subtitle"} -->\n<p class="hero__subtitle">${subtitle}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  if (credit) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"hero__credit"} -->\n<p class="hero__credit">${credit}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  const inner = blocks.join('\n\n');
   return `<!-- wp:bozzies/section ${JSON.stringify(attrs)} -->\n${inner}\n<!-- /wp:bozzies/section -->`;
 }
