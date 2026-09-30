@@ -276,22 +276,6 @@
 	z-index: 1;
 }
 
-/* --- Hero corner brackets ---------------------------------------------- */
-.wp-block-bozzies-section__frame {
-	inset: clamp(0.75rem, 2vw, 2rem);
-	pointer-events: none;
-	z-index: 4;
-	opacity: 0.75;
-	background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-	background-position: top left, top right, bottom left, bottom right;
-	background-size: 88px 88px, 88px 88px, 88px 88px, 88px 88px;
-	background-image:
-		url("../../../assets/svg/hero-corner-tl.svg"),
-		url("../../../assets/svg/hero-corner-tr.svg"),
-		url("../../../assets/svg/hero-corner-bl.svg"),
-		url("../../../assets/svg/hero-corner-br.svg");
-}
-
 /* --- Full-bleed photo hero (is-hero-photo) ------------------------------
  * Styling for is-hero-photo now lives in assets/css/astro/hero.css, which
  * is a verbatim port of Astro's Hero.astro. The Section block's PHP
@@ -302,7 +286,10 @@
  * Similarly, split-hero styling now lives in assets/css/astro/hero.css and
  * is emitted by the standalone bozzies/hero-split block; the old
  * .wp-block-columns.bozzies-hero-split rules that used to live here were
- * removed when that block landed.
+ * removed when that block landed. The non-photo-hero corner-bracket SVGs
+ * (has-hero-frame) were retired at the dead-code sweep — every hero on
+ * the live site uses is-hero-photo, whose frame is emitted as inline
+ * hero__frame-corner SVGs by render.php + edit.js.
  * ---------------------------------------------------------------------- */
 
 /* Editor-only override kept: block editor iframe should hold still (no

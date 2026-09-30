@@ -7,34 +7,13 @@ require_once __DIR__ . '/inc/analytics.php';
 require_once __DIR__ . '/inc/bindings.php';
 require_once __DIR__ . '/inc/music-backdrop.php';
 
-add_action( 'init', 'bozzies_register_section_styles' );
-function bozzies_register_section_styles() {
-	$blocks = array( 'core/group', 'core/columns', 'core/cover' );
-	$styles = array(
-		array( 'name' => 'paper',  'label' => __( 'Paper',  'bozzies' ) ),
-		array( 'name' => 'ink',    'label' => __( 'Ink',    'bozzies' ) ),
-		array( 'name' => 'purple', 'label' => __( 'Purple', 'bozzies' ) ),
-		array( 'name' => 'gold',   'label' => __( 'Gold',   'bozzies' ) ),
-	);
-	foreach ( $styles as $style ) {
-		register_block_style( $blocks, $style );
-	}
-}
-
 add_action( 'init', 'bozzies_register_editor_style_variations' );
 function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/paragraph', array( 'name' => 'eyebrow',       'label' => __( 'Eyebrow', 'bozzies' ) ) );
 	register_block_style( 'core/paragraph', array( 'name' => 'lede',          'label' => __( 'Lede', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline',      'label' => __( 'Hairline', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline-thin', 'label' => __( 'Hairline thin', 'bozzies' ) ) );
-	register_block_style( 'core/group',     array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
-	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
-	/* "Card plain" — paper-ground variant used on Sisters hub etc. */
-	register_block_style( 'core/group',     array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
-	register_block_style( 'core/columns',   array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
-	/* "Play" button style prepends an inline play-icon SVG before the label. */
-	register_block_style( 'core/button', array( 'name' => 'play', 'label' => __( 'Play', 'bozzies' ) ) );
-	/* "Large" button style adds extra padding — Astro's .btn--purple CTA. */
+	/* "Large" button style adds extra padding — used on /sisters/bio-resources/. */
 	register_block_style( 'core/button', array( 'name' => 'large', 'label' => __( 'Large', 'bozzies' ) ) );
 }
 

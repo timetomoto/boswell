@@ -54,45 +54,6 @@ body.admin-bar .wp-site-blocks {
 	}
 }
 
-/* ============================================================================
- * Section-style groups behave like Astro's <section class="ground-*"> wrapping
- * a .container: the group is full-bleed via alignfull, has padding-inline for
- * the gutter, and its direct children span the container width (Astro's 84rem)
- * — not the theme's default 42rem contentSize. Prose caps below then narrow
- * paragraphs / headings the Astro way (42rem body, 34ch titles), left-aligned.
- * ========================================================================= */
-.wp-block-group[class*="is-style-paper"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-.wp-block-group[class*="is-style-ink"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-.wp-block-group[class*="is-style-purple"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)),
-.wp-block-group[class*="is-style-gold"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull)) {
-	max-width: var(--wp--custom--measure--max);
-}
-/* Prose caps inside sections match Astro's .container-narrow border-box math
- * (42rem outer − 2*gutter). At 1440 that yields ~641px; at ≤42rem viewports
- * the viewport gutter binds first. Headings are not capped here — they follow
- * Astro's per-selector treatment when needed; by default they span the
- * section's container width. Alignwide/full opt out. */
-.wp-block-group[class*="is-style-paper"] > p:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-ink"]   > p:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-purple"] > p:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-gold"]  > p:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-paper"] > .wp-block-paragraph:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-ink"]   > .wp-block-paragraph:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-purple"] > .wp-block-paragraph:not(.alignwide):not(.alignfull),
-.wp-block-group[class*="is-style-gold"]  > .wp-block-paragraph:not(.alignwide):not(.alignfull) {
-	max-width: calc(var(--wp--custom--measure--body) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8)));
-}
-/* Section content aligns to the left edge of the container (matching the
- * header wordmark), not centered — unless the author explicitly picks
- * "align text center" on the block. */
-.wp-block-group[class*="is-style-paper"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
-.wp-block-group[class*="is-style-ink"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
-.wp-block-group[class*="is-style-purple"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center),
-.wp-block-group[class*="is-style-gold"].is-layout-constrained > :where(:not(.alignleft):not(.alignright):not(.alignfull):not(.alignwide)):not(.has-text-align-center) {
-	margin-inline-start: 0 !important;
-	margin-inline-end: auto !important;
-}
-
 /* Prose in page/post content OUTSIDE sections: reproduce Astro's
    .container-narrow border-box math (max-width 42rem, padding-inline inside).
    Direct children of post-content only — content inside section-style groups
@@ -153,355 +114,16 @@ body.admin-bar .wp-site-blocks {
 }
 
 /* ============================================================================
- * Card style — Group / Columns "Card" variation
- * Astro's .music-teaser / .subpage-card / .see-also__card:
- *   dark-purple card on gold context, cream text, yellow-soft eyebrow,
- *   arrow CTA, oxblood hover, keyboard focus visible.
- * Owner applies "Card" style to a Group (or Columns). Inside, use a
- *   Buttons block with a plain-styled Button (or a paragraph.is-style-eyebrow)
- *   and a heading + paragraph.
- * ========================================================================= */
-.wp-block-group.is-style-card,
-.wp-block-columns.is-style-card {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wp--preset--spacing--s);
-	padding: clamp(var(--wp--preset--spacing--l), 2.4vw, var(--wp--preset--spacing--xl));
-	border: 1px solid color-mix(in oklab, var(--wp--preset--color--purple) 55%, black);
-	background: color-mix(in oklab, var(--wp--preset--color--purple) 92%, black);
-	color: var(--wp--preset--color--paper-warm);
-	text-decoration: none;
-	transition: transform var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart),
-		background var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-.wp-block-group.is-style-card:hover,
-.wp-block-group.is-style-card:focus-within,
-.wp-block-columns.is-style-card:hover,
-.wp-block-columns.is-style-card:focus-within {
-	transform: translateY(-3px);
-	background: var(--wp--preset--color--oxblood);
-}
-/* Card text elements — auto-color inside the card */
-.wp-block-group.is-style-card,
-.wp-block-group.is-style-card .wp-block-heading,
-.wp-block-group.is-style-card h1,
-.wp-block-group.is-style-card h2,
-.wp-block-group.is-style-card h3,
-.wp-block-group.is-style-card h4,
-.wp-block-group.is-style-card p,
-.wp-block-group.is-style-card .wp-block-paragraph {
-	color: var(--wp--preset--color--paper-warm);
-}
-.wp-block-group.is-style-card .is-style-eyebrow {
-	color: var(--wp--custom--color--yellow-soft);
-}
-/* Card link + arrow CTA */
-.wp-block-group.is-style-card a {
-	color: inherit;
-	text-decoration: none;
-	border: 0;
-}
-.wp-block-group.is-style-card .wp-block-button__link {
-	background: transparent;
-	color: var(--wp--custom--color--yellow-soft);
-	border: 0;
-	padding: 0;
-	padding-top: var(--wp--preset--spacing--s);
-	font-family: var(--wp--preset--font-family--ui);
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--small);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-}
-.wp-block-group.is-style-card .wp-block-button__link::after {
-	content: ' →';
-	display: inline-block;
-	transition: transform var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-.wp-block-group.is-style-card:hover .wp-block-button__link::after {
-	transform: translateX(4px);
-}
-/* Whole-card link: apply .card-link class to the wrapping link. Astro-style focus outline. */
-.wp-block-group.is-style-card:focus-within {
-	outline: 2px solid var(--wp--custom--color--yellow-soft);
-	outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.wp-block-group.is-style-card,
-	.wp-block-columns.is-style-card,
-	.wp-block-group.is-style-card .wp-block-button__link::after {
-		transition: none !important;
-	}
-}
-
-/* ============================================================================
- * Paper card variant (is-style-card-plain) — matches Astro's .sister-card:
- * inherits the section paper background, uses hairline right/bottom borders,
- * a 4px purple left accent, and body text on ink. Used where cards sit inside
- * ground-paper and should NOT carry the dark-purple fill of .is-style-card.
- * ========================================================================= */
-.wp-block-group.is-style-card-plain,
-.wp-block-columns.is-style-card-plain {
-	display: flex;
-	flex-direction: column;
-	gap: var(--wp--preset--spacing--s);
-	padding: clamp(var(--wp--preset--spacing--l), 2.4vw, var(--wp--preset--spacing--xl));
-	padding-left: calc(clamp(var(--wp--preset--spacing--l), 2.4vw, var(--wp--preset--spacing--xl)) + 6px);
-	border-right: 1px solid rgba(24, 22, 21, 0.12);
-	border-bottom: 1px solid rgba(24, 22, 21, 0.12);
-	background: transparent;
-	color: var(--wp--preset--color--ink);
-	position: relative;
-	transition: background var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-.wp-block-group.is-style-card-plain::before,
-.wp-block-columns.is-style-card-plain::before {
-	content: '';
-	position: absolute;
-	left: 0; top: 0; bottom: 0;
-	width: 4px;
-	background: var(--wp--preset--color--purple);
-	opacity: 0.85;
-}
-.wp-block-group.is-style-card-plain:hover,
-.wp-block-group.is-style-card-plain:focus-within,
-.wp-block-columns.is-style-card-plain:hover,
-.wp-block-columns.is-style-card-plain:focus-within {
-	background: color-mix(in oklab, var(--wp--preset--color--purple) 6%, transparent);
-}
-.wp-block-group.is-style-card-plain .is-style-eyebrow,
-.wp-block-columns.is-style-card-plain .is-style-eyebrow {
-	color: var(--wp--preset--color--purple);
-}
-.wp-block-group.is-style-card-plain .wp-block-button__link,
-.wp-block-columns.is-style-card-plain .wp-block-button__link {
-	background: transparent;
-	color: var(--wp--preset--color--purple);
-	border: 0;
-	padding: 0;
-	padding-top: var(--wp--preset--spacing--s);
-	font-family: var(--wp--preset--font-family--ui);
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--small);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-}
-.wp-block-group.is-style-card-plain .wp-block-button__link::after,
-.wp-block-columns.is-style-card-plain .wp-block-button__link::after {
-	content: ' →';
-	display: inline-block;
-	transition: transform var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-.wp-block-group.is-style-card-plain:hover .wp-block-button__link::after,
-.wp-block-columns.is-style-card-plain:hover .wp-block-button__link::after {
-	transform: translateX(4px);
-}
-@media (prefers-reduced-motion: reduce) {
-	.wp-block-group.is-style-card-plain,
-	.wp-block-columns.is-style-card-plain,
-	.wp-block-group.is-style-card-plain .wp-block-button__link::after {
-		transition: none !important;
-	}
-}
-
-/* Article-hero quote (Astro's `.article-hero__quote`): a plain wp:quote block
- * inside the purple hero, styled with a 3px yellow-soft left rule and
- * italic UI copy. */
-.wp-block-bozzies-section.ground-purple .wp-block-quote {
-	margin-top: var(--wp--preset--spacing--l);
-	padding-left: var(--wp--preset--spacing--m);
-	border-left: 3px solid var(--wp--custom--color--yellow-soft);
-	max-width: 52ch;
-	font-family: var(--wp--preset--font-family--ui);
-	font-style: italic;
-	font-weight: 400;
-	line-height: var(--wp--custom--line-height--normal);
-	color: #FBF3D6;
-}
-.wp-block-bozzies-section.ground-purple .wp-block-quote p {
-	margin: 0;
-}
-.wp-block-bozzies-section.ground-purple .wp-block-quote cite {
-	display: block;
-	margin-top: var(--wp--preset--spacing--xs, 0.5rem);
-	font-family: var(--wp--preset--font-family--ui);
-	font-style: normal;
-	font-weight: 500;
-	font-size: var(--wp--preset--font-size--small);
-	letter-spacing: var(--wp--custom--letter-spacing--caps);
-	text-transform: uppercase;
-	color: var(--wp--custom--color--yellow-soft);
-}
-
-/* Photo-hero styling now comes from assets/css/astro/hero.css, which is a
- * verbatim port of Astro's Hero.astro. The Section block's PHP render
- * emits Astro's own class names and DOM (hero, hero--full-bleed,
- * hero--medium, hero__image-wrap, tint, scrim, frame corners, glyph)
- * when className contains "is-hero-photo", so nothing here should also
- * try to style photo heroes. */
-
-/* Also lift the tall purple bio-hero / press-hero (`ground-purple` on
- * subpage-hero pattern) so it doesn't feel cramped compared to Astro's
- * `.page-hero.ground-purple` (padding-block clamp(--space-6, 4vw, --space-8)). */
-.wp-block-bozzies-section.ground-purple.has-spacing-spacious > .wp-block-bozzies-section__inner {
-	padding-block: clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--preset--spacing--xl));
-}
-
-/* ============================================================================
- * Full-card clickable pattern — every card that has a single CTA link
- * (`.wp-block-button__link` inside `.is-style-card` / `.is-style-card-plain`)
- * gets a `::before` overlay that expands the anchor's click area to cover
- * the whole card. Screen readers still only see one link (the CTA), keyboard
- * focus lands on the CTA and is drawn as a ring around the whole card via
- * `:focus-within`, and mouse users can click anywhere in the card.
- *
- * Buttons block is also pinned to the bottom of the card (margin-top:auto)
- * so cards in a row line up visually regardless of body length. The
- * containing `wp:columns` row stretches columns, and each card fills its
- * column height, so a row of cards is equal-height.
- * ========================================================================= */
-.wp-block-group.is-style-card,
-.wp-block-columns.is-style-card,
-.wp-block-group.is-style-card-plain,
-.wp-block-columns.is-style-card-plain {
-	position: relative;
-	height: 100%;
-	box-sizing: border-box;
-}
-.wp-block-column > .wp-block-group.is-style-card,
-.wp-block-column > .wp-block-group.is-style-card-plain {
-	height: 100%;
-}
-.wp-block-group.is-style-card .wp-block-buttons,
-.wp-block-group.is-style-card-plain .wp-block-buttons {
-	margin-top: auto;
-}
-.wp-block-group.is-style-card .wp-block-button__link::before,
-.wp-block-group.is-style-card-plain .wp-block-button__link::before {
-	content: '';
-	position: absolute;
-	inset: 0;
-	z-index: 1;
-	background: transparent;
-}
-.wp-block-group.is-style-card :where(a:not(.wp-block-button__link), button, input, [tabindex]),
-.wp-block-group.is-style-card-plain :where(a:not(.wp-block-button__link), button, input, [tabindex]) {
-	position: relative;
-	z-index: 2;
-}
-.wp-block-group.is-style-card:focus-within,
-.wp-block-group.is-style-card-plain:focus-within {
-	outline: 2px solid var(--wp--custom--color--yellow-soft);
-	outline-offset: 3px;
-}
-.wp-block-group.is-style-card-plain:focus-within {
-	outline-color: var(--wp--preset--color--purple);
-}
-.wp-block-group.is-style-card .wp-block-button__link:focus,
-.wp-block-group.is-style-card-plain .wp-block-button__link:focus,
-.wp-block-group.is-style-card .wp-block-button__link:focus-visible,
-.wp-block-group.is-style-card-plain .wp-block-button__link:focus-visible {
-	outline: 0;
-}
-
-
-/* Sister card nits: italic body copy (matches Astro .sister-card__quote) and
- * a display-face order number on the eyebrow row. */
-.wp-block-group.is-style-card-plain > p:not(.is-style-eyebrow) {
-	font-family: var(--wp--preset--font-family--ui);
-	font-style: italic;
-	line-height: var(--wp--custom--line-height--normal);
-	color: var(--wp--preset--color--oxblood);
-	max-width: 36ch;
-}
-.wp-block-group.is-style-card-plain .bozzies-card-order {
-	font-family: var(--wp--preset--font-family--display);
-	font-weight: 400;
-	font-size: var(--wp--preset--font-size--large, 1.5rem);
-	color: var(--wp--preset--color--purple);
-	line-height: 1;
-	margin-right: 0.6em;
-	letter-spacing: var(--wp--custom--letter-spacing--tight);
-	vertical-align: baseline;
-}
-
-/* Music backdrops formerly lived here as mask-image utilities on
- * .has-backdrop-{vinyl|staves|notes|diamond-grid}. Removed once bozzies/section
- * (and the dedicated blocks: bio-hero, music-teasers, release-cards,
- * donate-teaser, sample-section, page-hero) started emitting Astro's exact
- * <div class="music-backdrop"><svg>…</svg></div> DOM. The wrapper styles
- * live in assets/css/astro/music-backdrop.css; the SVGs come from the
- * inc/music-backdrop.php helper. */
-
-/* ============================================================================
- * Paragraph-width utilities — match Astro's --measure-* tokens so section
- * prose caps at the same character count regardless of the section width.
- * ========================================================================= */
-.wp-block-bozzies-section p.bozzies-para-body,
-.wp-block-bozzies-section .wp-block-paragraph.bozzies-para-body {
-	max-width: var(--wp--custom--measure--prose, 58ch);
-}
-.wp-block-bozzies-section p.bozzies-para-wide,
-.wp-block-bozzies-section .wp-block-paragraph.bozzies-para-wide {
-	max-width: 82ch;
-}
-.wp-block-bozzies-section p.bozzies-para-body.has-text-align-center,
-.wp-block-bozzies-section p.bozzies-para-wide.has-text-align-center,
-.wp-block-bozzies-section .wp-block-paragraph.bozzies-para-body.has-text-align-center,
-.wp-block-bozzies-section .wp-block-paragraph.bozzies-para-wide.has-text-align-center {
-	margin-inline: auto;
-}
-
-/* Per-section colour, heading, eyebrow, button, rhythm and padding rules used
- * to live here keyed on the home page's section anchors (#home-intro etc.).
- * They have moved into the bozzies/section block's own stylesheet, keyed on
- * the ground class (.ground-paper / .ground-purple / .ground-gold) and on
- * pattern classes (.has-backdrop-staves, .is-style-lede, .is-style-play), so
- * any section that uses those grounds/patterns picks up the same treatment
- * automatically. See theme/bozzies/blocks/section/src/style.scss. */
-
-/* ============================================================================
- * Heading-width utilities — a single set of measured widths that map to
- * Astro's per-section heading caps. Applied by:
- *   • the bozzies/section block via .has-heading-width-* on the wrapper
- *   • standalone headings via .bozzies-heading-* classes on the heading
- * Compound selectors bump specificity above the earlier is-style-*
- * children max-width rule so these utilities can narrow it further.
- * ========================================================================= */
-.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-container,
-.wp-block-heading.bozzies-heading-container,
-.bozzies-heading-container {
-	max-width: calc(var(--wp--custom--measure--max) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8)));
-	margin-inline: auto;
-}
-.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-title,
-.wp-block-heading.bozzies-heading-title,
-.bozzies-heading-title {
-	max-width: min(var(--wp--custom--measure--title), calc(var(--wp--custom--measure--max) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))));
-	margin-inline: auto;
-}
-.wp-block-group.is-layout-constrained > .wp-block-heading.bozzies-heading-reading,
-.wp-block-heading.bozzies-heading-reading,
-.bozzies-heading-reading {
-	max-width: min(var(--wp--custom--measure--title), calc(var(--wp--custom--measure--body) - 2 * clamp(var(--wp--preset--spacing--l), 4vw, var(--wp--custom--space--8))));
-	margin-inline: auto;
-}
-
-/* ============================================================================
- * Eyebrow layout — Astro's .eyebrow is display: inline-block, which makes
+ * .is-style-eyebrow — Astro's `.eyebrow` is display: inline-block, which makes
  * the element sit on a line-box baseline inside its centered parent, adding
  * a small (~3px) leading gap above the eyebrow that a plain block-level
  * paragraph doesn't have. Mirror that here so eyebrow-topped sections start
- * their content at the same y-offset as Astro.
+ * their content at the same y-offset as Astro. Applied via a paragraph block
+ * style variation (see functions.php).
  * ========================================================================= */
 .is-style-eyebrow {
 	display: inline-block;
 }
-/* When the author explicitly picks text-align:center on an eyebrow paragraph
- * we want the paragraph itself centered (inline-block sized to content), not
- * just the text inside it. `width: fit-content` + `margin-inline: auto`
- * centers the box; `display: block` keeps `text-align: center` meaningful. */
 .is-style-eyebrow.has-text-align-center {
 	display: block;
 	width: fit-content;
@@ -509,13 +131,11 @@ body.admin-bar .wp-site-blocks {
 	text-align: center;
 }
 
-/* Buttons block in a horizontal row (Contact us / Donate on About, Sample
- * the sound on Home, etc.) — force equal height across the row by stretching
- * button children and using consistent padding on the button links. Astro's
- * Sample-the-sound + Have-something-to-share sections put the two buttons at
- * the same visual height because both are baseline styles of the same
- * component; WP's core/button sizes each button to its own label so the
- * shorter one comes out visibly smaller. Stretch fixes that. */
+/* Buttons block in a horizontal row — force equal height across the row by
+ * stretching button children and using consistent padding on the button links.
+ * Used by /sisters/bio-resources/ (contact/donate CTA row); every other button
+ * row on the site is emitted by a dedicated block (about-cta, donate-teaser,
+ * sample-section) that owns its own button treatment. */
 .wp-block-buttons.is-content-justification-center,
 .wp-block-buttons.is-layout-flex {
 	align-items: stretch;
@@ -531,56 +151,9 @@ body.admin-bar .wp-site-blocks {
 	min-height: 3rem;
 }
 
-/* Eyebrow colour per ground and button colour per ground live in
- * blocks/section/src/style.scss (keyed on .ground-*). They are not repeated
- * here to avoid duplicated rules — see the styling-rules cleanup note. */
-
-/* ============================================================================
- * Button style variations — decoupled from Section ground so choosing a
- * background never changes the button's padding.
- *
- * "Large" (is-style-large): 0.75rem × 2rem padding — for a plain-text CTA
- * button that needs more room than the theme default (0.5rem × 1rem).
- * Left in place for the still-unported CTAs on /sisters/bio-resources/;
- * the /home/ donate teaser emits Astro's `.btn.btn--purple` via the
- * bozzies/donate-teaser block and /about/ emits `.btn.btn--outline` +
- * `.btn.btn--gold` via the bozzies/about-cta block.
- *
- * "Play"  (is-style-play): 1rem × 2rem padding + inline play-icon SVG
- * prepended via ::before. Matches Astro's .sample__cta.
- *
- * A button gets one style or the other, not both — WP block-style
- * variations are mutually exclusive by design, so there is no way to
- * accidentally combine them.
- * ========================================================================= */
+/* "Large" button style adds extra padding — used on /sisters/bio-resources/. */
 .wp-block-button.is-style-large .wp-block-button__link {
 	padding: var(--wp--preset--spacing--s) var(--wp--preset--spacing--xl);
-}
-.wp-block-button.is-style-play .wp-block-button__link {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--wp--preset--spacing--s);
-	padding: var(--wp--preset--spacing--m) var(--wp--preset--spacing--xl);
-}
-.wp-block-button.is-style-play .wp-block-button__link::before {
-	content: '';
-	display: block;
-	flex: 0 0 auto;
-	width: 24px;
-	height: 24px;
-	/* Astro's play icon: circle stroke + filled triangle. Painted via
-	 * mask-image so the icon inherits the button's text colour on any
-	 * ground (paper/purple/gold), no per-ground overrides needed. */
-	background-color: currentColor;
-	--play-icon-svg: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' aria-hidden='true'><circle cx='12' cy='12' r='11' fill='none' stroke='%23000' stroke-width='1.4'/><path d='M9 7 L17 12 L9 17 Z' fill='%23000'/></svg>");
-	-webkit-mask-image: var(--play-icon-svg);
-	        mask-image: var(--play-icon-svg);
-	-webkit-mask-size: contain;
-	        mask-size: contain;
-	-webkit-mask-repeat: no-repeat;
-	        mask-repeat: no-repeat;
-	-webkit-mask-position: center;
-	        mask-position: center;
 }
 
 /* ============================================================================
@@ -631,66 +204,13 @@ body.admin-bar .wp-site-blocks {
 }
 
 /* ============================================================================
- * Article row (Astro's [NN][title][arrow] list). For a Query Loop template.
- * The hairline lives on the parent <li> (`.bozzies-article-list > li`), not
- * on the row itself — otherwise both draw a border and the list gets a
- * doubled bottom edge under each row.
- * ========================================================================= */
-.bozzies-article-row {
-	/* No border here — the parent <li> owns the hairline. */
-}
-.bozzies-article-row a {
-	display: grid;
-	grid-template-columns: auto 1fr auto;
-	gap: clamp(var(--wp--preset--spacing--m), 2.5vw, var(--wp--preset--spacing--xl));
-	align-items: center;
-	padding: var(--wp--preset--spacing--m) 0;
-	color: inherit;
-	text-decoration: none;
-	border: 0;
-	transition: background var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-.bozzies-article-row a:hover,
-.bozzies-article-row a:focus-visible {
-	/* Match Astro — background wash only, no horizontal slide. */
-	background: color-mix(in oklab, var(--wp--preset--color--purple) 5%, transparent);
-}
-
-/* ============================================================================
- * Hero corner brackets — ported from Astro's Hero.astro (.hero__frame). Four
- * SVG corner marks (tl, tr, bl, br) anchored inside a frame inset from the
- * container's edges by clamp(space-3, 2vw, space-6). Rendered as a single
- * decorative ::before with four background layers, so it never affects layout,
- * pointer events, or screen readers.
- * ========================================================================= */
-.has-hero-frame {
-	position: relative;
-}
-/* Photo heroes (is-hero-photo) render their own real .hero__frame SVGs in
- * PHP so Astro's hero CSS can style them; suppress this decorative
- * background-only version for that branch to avoid double corners. */
-.has-hero-frame:not(.is-hero-photo)::before {
-	content: '';
-	position: absolute;
-	inset: clamp(0.75rem, 2vw, 2rem);
-	pointer-events: none;
-	opacity: 0.75;
-	z-index: 3;
-	background-repeat: no-repeat, no-repeat, no-repeat, no-repeat;
-	background-position: top left, top right, bottom left, bottom right;
-	background-size: 88px 88px, 88px 88px, 88px 88px, 88px 88px;
-	background-image:
-		url("../svg/hero-corner-tl.svg"),
-		url("../svg/hero-corner-tr.svg"),
-		url("../svg/hero-corner-bl.svg"),
-		url("../svg/hero-corner-br.svg");
-}
-
-/* ============================================================================
  * Article row numbering — CSS counters on the Query Loop's post-template list.
  * WP core renders <ul class="wp-block-post-template bozzies-article-list"> with
- * an <li> per post. We reset the counter on the list, increment per <li>, and
- * inject "01", "02"… via ::before with the Astro article-row number treatment.
+ * an <li> per post. Astro's `article-row` DOM (link + num span + body + arrow
+ * svg) is assembled server-side by `bozzies_astro_article_rows()` in
+ * functions.php. The hairlines + hover wash below are WP-specific — Astro
+ * puts them on the row itself; WP puts them on the <li> because the ported
+ * article.css `.article-row` selector matches <a> not <li>.
  * ========================================================================= */
 .wp-block-post-template.bozzies-article-list {
 	list-style: none;
@@ -700,38 +220,18 @@ body.admin-bar .wp-site-blocks {
 }
 .wp-block-post-template.bozzies-article-list > li {
 	border-bottom: 1px solid var(--wp--custom--color--paper-hairline);
-	display: grid;
-	grid-template-columns: auto 1fr;
-	gap: clamp(var(--wp--preset--spacing--m), 2.5vw, var(--wp--preset--spacing--xl));
-	align-items: center;
-	padding: var(--wp--preset--spacing--m) 0;
-	transition: padding var(--wp--custom--motion--duration--base) var(--wp--custom--motion--easing--out-quart);
-}
-/* Row number injected by bozzies_number_article_rows() — see functions.php. */
-.wp-block-post-template.bozzies-article-list > li > .bozzies-article-row__num {
-	font-family: var(--wp--preset--font-family--display);
-	font-size: var(--wp--preset--font-size--large);
-	line-height: 1;
-	color: var(--wp--preset--color--purple);
-	font-feature-settings: 'tnum';
-	min-width: 3ch;
 }
 .wp-block-post-template.bozzies-article-list > li:hover,
 .wp-block-post-template.bozzies-article-list > li:focus-within {
-	/* Match Astro — background wash only, no horizontal slide. */
 	background: color-mix(in oklab, var(--wp--preset--color--purple) 5%, transparent);
 }
-.wp-block-post-template.bozzies-article-list > li .bozzies-article-row {
-	background: transparent;
-}
-.wp-block-post-template.bozzies-article-list > li .bozzies-article-row__title a {
-	color: var(--wp--preset--color--ink);
-	text-decoration: none;
-	border: 0;
-}
-.wp-block-post-template.bozzies-article-list > li .bozzies-article-row__meta {
-	color: var(--wp--custom--color--text-on-paper-muted);
-}
-@media (prefers-reduced-motion: reduce) {
-	.wp-block-post-template.bozzies-article-list > li { transition: none !important; }
+
+/* ============================================================================
+ * Paragraph-width utilities — match Astro's --measure-* tokens so section
+ * prose caps at the same character count regardless of the section width.
+ * Used on the /press/ hub blurbs and /media/ hub blurb.
+ * ========================================================================= */
+.wp-block-bozzies-section p.bozzies-para-body,
+.wp-block-bozzies-section .wp-block-paragraph.bozzies-para-body {
+	max-width: var(--wp--custom--measure--prose, 58ch);
 }

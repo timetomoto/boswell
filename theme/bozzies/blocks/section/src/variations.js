@@ -7,11 +7,6 @@ const eyebrow = ( text ) => [
 	'core/paragraph',
 	{ content: text, className: 'is-style-eyebrow' },
 ];
-const button = ( text ) => [
-	'core/buttons',
-	{},
-	[ [ 'core/button', { text } ] ],
-];
 
 const variations = [
 	{
@@ -92,98 +87,6 @@ const variations = [
 					[ 'core/column', {}, [ img() ] ],
 				],
 			],
-		],
-		scope: [ 'inserter' ],
-	},
-	{
-		name: 'card-grid-2',
-		title: __( 'Card grid (2)', 'bozzies' ),
-		description: __( 'Two cards side by side.', 'bozzies' ),
-		icon: 'grid-view',
-		attributes: {
-			backgroundStyle: 'gold',
-			width: 'container',
-			headingWidth: 'reading',
-			spacing: 'standard',
-		},
-		innerBlocks: [
-			eyebrow( __( 'Eyebrow', 'bozzies' ) ),
-			h( 2, __( 'Section heading', 'bozzies' ) ),
-			[
-				'core/columns',
-				{},
-				[
-					[ 'core/column', { className: 'is-style-card' }, [ h( 3, __( 'Card one', 'bozzies' ) ), p( __( 'Card copy.', 'bozzies' ) ) ] ],
-					[ 'core/column', { className: 'is-style-card' }, [ h( 3, __( 'Card two', 'bozzies' ) ), p( __( 'Card copy.', 'bozzies' ) ) ] ],
-				],
-			],
-		],
-		scope: [ 'inserter' ],
-	},
-	{
-		name: 'card-grid-3',
-		title: __( 'Card grid (3)', 'bozzies' ),
-		description: __( 'Three cards in a row.', 'bozzies' ),
-		icon: 'grid-view',
-		attributes: {
-			backgroundStyle: 'gold',
-			width: 'container',
-			headingWidth: 'reading',
-			spacing: 'standard',
-		},
-		innerBlocks: [
-			eyebrow( __( 'Eyebrow', 'bozzies' ) ),
-			h( 2, __( 'Section heading', 'bozzies' ) ),
-			[
-				'core/columns',
-				{},
-				[
-					[ 'core/column', { className: 'is-style-card' }, [ h( 3, __( 'Card one', 'bozzies' ) ), p( __( 'Card copy.', 'bozzies' ) ) ] ],
-					[ 'core/column', { className: 'is-style-card' }, [ h( 3, __( 'Card two', 'bozzies' ) ), p( __( 'Card copy.', 'bozzies' ) ) ] ],
-					[ 'core/column', { className: 'is-style-card' }, [ h( 3, __( 'Card three', 'bozzies' ) ), p( __( 'Card copy.', 'bozzies' ) ) ] ],
-				],
-			],
-		],
-		scope: [ 'inserter' ],
-	},
-	{
-		name: 'cta',
-		title: __( 'Call to action', 'bozzies' ),
-		description: __( 'Centred pitch with a button.', 'bozzies' ),
-		icon: 'megaphone',
-		attributes: {
-			backgroundStyle: 'gold',
-			backdrop: 'diamond-grid',
-			width: 'container',
-			headingWidth: 'reading',
-			spacing: 'standard',
-		},
-		innerBlocks: [
-			eyebrow( __( 'Support the archive', 'bozzies' ) ),
-			[ 'core/heading', { level: 2, content: __( 'Keep the sound alive', 'bozzies' ), textAlign: 'center' } ],
-			[ 'core/paragraph', { content: __( 'A short pitch that fits inside 34 characters wide.', 'bozzies' ), align: 'center' } ],
-			button( __( 'Donate', 'bozzies' ) ),
-		],
-		scope: [ 'inserter' ],
-	},
-	{
-		name: 'hero-full',
-		title: __( 'Hero full-bleed', 'bozzies' ),
-		description: __( 'Full-bleed image behind centred text.', 'bozzies' ),
-		icon: 'cover-image',
-		attributes: {
-			backgroundStyle: 'ink',
-			width: 'edge',
-			headingWidth: 'reading',
-			spacing: 'spacious',
-			heroFrame: true,
-			imageGrayscale: true,
-			imageZoom: true,
-		},
-		innerBlocks: [
-			eyebrow( __( 'Eyebrow', 'bozzies' ) ),
-			[ 'core/heading', { level: 1, content: __( 'Hero title', 'bozzies' ), textAlign: 'center' } ],
-			[ 'core/paragraph', { content: __( 'Supporting subtitle.', 'bozzies' ), align: 'center' } ],
 		],
 		scope: [ 'inserter' ],
 	},
