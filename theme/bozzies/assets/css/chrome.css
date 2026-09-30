@@ -14,10 +14,10 @@
 /* Post-content block-gap sits between successive top-level blocks: at the
  * 112.5% root that's an 18px gap between each Section, which Astro does not
  * have (its .section elements are back-to-back). Collapse the gap for
- * sections and the jazz separator so section-to-section rhythm matches the
+ * sections and the divider block so section-to-section rhythm matches the
  * Astro landing page exactly. */
 .wp-block-post-content > .wp-block-bozzies-section,
-.wp-block-post-content > .wp-block-separator.is-style-jazz {
+.wp-block-post-content > .wp-block-bozzies-divider {
 	margin-block: 0;
 }
 
@@ -509,42 +509,6 @@ header.wp-block-template-part {
 	.wp-block-group.is-style-card-plain .wp-block-button__link::after {
 		transition: none !important;
 	}
-}
-
-/* ============================================================================
- * Jazz separator — ported from Astro's SectionDivider.astro (jazz variant).
- * Reproduces the flex wrapper with a flanking 1px hairline on each side and
- * a 44px staff-and-notes SVG ornament centred between them (max width
- * min(420px, 60vw), padding-inline 0.75rem to match Astro's --space-3).
- * The color prop is baked into the SVG (purple) to match the landing page.
- * ========================================================================= */
-.wp-block-separator.is-style-jazz {
-	border: 0;
-	background: transparent;
-	height: 44px;
-	width: 100%;
-	max-width: none;
-	margin-inline: auto;
-	margin-block: clamp(var(--wp--preset--spacing--s), 1vw, var(--wp--preset--spacing--m));
-	color: var(--wp--preset--color--purple);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.75rem;
-	background-image: url("../svg/divider-jazz.svg");
-	background-repeat: no-repeat;
-	background-position: center center;
-	background-size: auto 44px;
-	opacity: 1;
-}
-.wp-block-separator.is-style-jazz::before,
-.wp-block-separator.is-style-jazz::after {
-	content: '';
-	flex: 1;
-	height: 1px;
-	background: currentColor;
-	opacity: 0.5;
-	max-width: calc(50% - 160px - 0.75rem);
 }
 
 /* Article-hero quote (Astro's `.article-hero__quote`): a plain wp:quote block

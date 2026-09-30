@@ -1,0 +1,26 @@
+/*
+ * Astro <SectionDivider> CSS — verbatim port of
+ * ~/boswell-poc/src/components/SectionDivider.astro lines 255-268.
+ *
+ * Owner of these rules: the bozzies/divider block. The block emits Astro's
+ * exact DOM (`<div class="divider" role="presentation" style="color:…">
+ * <span class="divider__line"/> [optional <div class="divider__ornament-wrap">
+ * <svg class="divider__ornament">…</svg></div>] <span class="divider__line"/>
+ * </div>`).
+ *
+ * Documented edits vs Astro source: none. The rules paint on any ground
+ * without cascade conflict at their (0-1-0) specificity.
+ */
+
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  margin-block: clamp(var(--space-3), 1vw, var(--space-4));
+}
+.divider__line { flex: 1; height: 1px; background: currentColor; opacity: 0.5; }
+.divider__ornament-wrap { flex: none; display: flex; align-items: center; padding-inline: var(--space-3); }
+.divider__ornament { height: 20px; width: auto; }
+.divider__ornament--wide { height: 26px; }
+.divider__ornament--jazz { height: 44px; max-width: min(420px, 60vw); }

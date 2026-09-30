@@ -14,7 +14,7 @@
 <!-- wp:paragraph {"fontSize":"lead"} --><p class="has-lead-font-size">Discover the velvet tones of Connie Boswell — inspiration to singers from Ella Fitzgerald to Wynonna Judd, seller of more than 75 million records, and one of America's greatest voices, delivered entirely from a wheelchair. Whether you're a nonplussed novice or a crusty old jazzbo, you'll be delighted by the sounds and stories of the Boswells.</p><!-- /wp:paragraph -->
 <!-- /wp:bozzies/section -->
 
-<!-- wp:separator {"className":"is-style-jazz","align":"wide"} --><hr class="wp-block-separator alignwide is-style-jazz"/><!-- /wp:separator -->
+<!-- wp:bozzies/divider /-->
 
 <!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"vinyl","headingWidth":"reading","align":"full"} -->
 <!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Music Playlist</p><!-- /wp:paragraph -->
