@@ -110,10 +110,17 @@ for (let n = 1; n <= 5; n++) {
 
   // Match the entire existing (unregistered) lesson-player block, including
   // its inner paragraph and closing tag.
-  const re = /<!-- wp:bozzies\/lesson-player [\s\S]*?<!-- \/wp:bozzies\/lesson-player -->/;
+  const reBlock = /<!-- wp:bozzies\/lesson-player [\s\S]*?<!-- \/wp:bozzies\/lesson-player -->/;
+  // Also match the pre-rebuild lesson-player section that group2.mjs emits:
+  // a bozzies/section {backgroundStyle:"paper",width:"narrow",…} wrapping a
+  // wp:audio block. This is what a fresh group2 re-import leaves behind
+  // before this patcher migrates it to the new block.
+  const reSection = /<!-- wp:bozzies\/section \{"backgroundStyle":"paper","width":"narrow"[^>]*?\} -->\s*(?:<!-- wp:[^>]+? -->[\s\S]*?<!-- \/wp:[^>]+? -->\s*)*?<!-- wp:audio [\s\S]*?<!-- \/wp:audio -->[\s\S]*?<!-- \/wp:bozzies\/section -->/;
   let after;
-  if (re.test(before)) {
-    after = before.replace(re, newBlock);
+  if (reBlock.test(before)) {
+    after = before.replace(reBlock, newBlock);
+  } else if (reSection.test(before)) {
+    after = before.replace(reSection, newBlock);
   } else {
     console.log(`  ${slug} (id=${id}): existing lesson-player block not matched; skipping`);
     summary.notFound++;

@@ -64,21 +64,26 @@ const RE_EXISTING_DIVIDER = /<!-- wp:bozzies\/divider[^>]*\/-->/g;
 //                     replaceAllOld pass (used on /about/ to strip the
 //                     spurious divider between hero and intro).
 const PAGES = [
-  // /home/ — 1 old separator, replace it with the new block.
-  { slug: 'home',            replaceAllOld: true },
-  // /about/ — 2 old separators. Remove the first (between hero and intro),
-  // then replace the remaining one (between intro and about-cta).
-  { slug: 'about',           removeFirstOld: 1, replaceAllOld: true },
-  // /sisters/ — 1 old separator, replace.
-  { slug: 'sisters',         replaceAllOld: true },
-  // /media/ — 2 old separators, replace both. Already in the right places.
-  { slug: 'media',           replaceAllOld: true },
-  // /press/ — no old separator, insert one BEFORE the first subhub section
-  // (matched by the first "The Latest News" eyebrow paragraph).
-  { slug: 'press',           insertBefore: [ { needle: '<!-- wp:bozzies/section {"headingWidth":"reading","spacing":"compact"} -->', count: 1 } ] },
-  // /sisters/connee/ — no old separator, insert one BEFORE the deferred
-  // bio-timeline placeholder section.
-  { slug: 'connee',          insertBefore: [ { needle: '<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"staves","headingWidth":"reading","align":"full"} -->', count: 1 } ] },
+  // /home/ — insert 1 divider between intro-section and playlist-section
+  // (index.astro L53).
+  { slug: 'home',            replaceAllOld: true, insertBefore: [ { needle: '<!-- wp:bozzies/playlist-section', count: 1 } ] },
+  // /about/ — insert 1 divider between section-intro and about-cta
+  // (about.astro L39). Also strip any leading old separators (safety).
+  { slug: 'about',           removeFirstOld: 1, replaceAllOld: true, insertBefore: [ { needle: '<!-- wp:bozzies/about-cta', count: 1 } ] },
+  // /sisters/ — insert 1 divider between section-intro and sisters-grid.
+  // Match the paper+reading section wrapping the bozzies/sister-cards block.
+  { slug: 'sisters',         replaceAllOld: true, insertBefore: [ { needle: '<!-- wp:bozzies/section {"backgroundStyle":"paper","headingWidth":"reading","align":"full"} -->', count: 1 } ] },
+  // /media/ — insert 2 dividers: before playlist-section (paper+vinyl
+  // wrapper) and before lessons-grid (bozzies/lesson-cards).
+  { slug: 'media',           replaceAllOld: true, insertBefore: [
+    { needle: '<!-- wp:bozzies/section {"backgroundStyle":"paper","backdrop":"vinyl"', count: 1 },
+    { needle: '<!-- wp:bozzies/lesson-cards', count: 1 },
+  ] },
+  // /press/ — no old separator, insert one BEFORE the first subhub section.
+  { slug: 'press',           insertBefore: [ { needle: '<!-- wp:bozzies/section {"backgroundStyle":"paper","headingWidth":"reading","align":"full","spacing":"compact"} -->', count: 1 } ] },
+  // /sisters/connee/ — no old separator, insert one BEFORE the bio-timeline
+  // wp:group section that wraps the bozzies/timeline block.
+  { slug: 'connee',          insertBefore: [ { needle: '<!-- wp:group {"tagName":"section","align":"full","className":"section ground-paper bio-timeline"', count: 1 } ] },
   // /sisters/bio-resources/ — no old separator, insert one BEFORE the prose
   // section that follows the pull-quote.
   { slug: 'bio-resources',   insertBefore: [ { needle: '<!-- wp:bozzies/section {"backgroundStyle":"paper","width":"container","headingWidth":"container","align":"full"} -->', count: 1 } ] },

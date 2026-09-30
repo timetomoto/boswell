@@ -72,9 +72,19 @@ function patchPage({ slug, attrs }) {
 
   // Match any existing bozzies/pull-quote self-closing block.
   const reBlock = /<!-- wp:bozzies\/pull-quote [^>]*\/-->/;
+  // Match the pre-rebuild bozzies/section wrapping a wp:pullquote — the
+  // shape group1/group2 emit before this patcher runs.
+  const reSection = /<!-- wp:bozzies\/section \{"backgroundStyle":"purple","backdrop":"notes"[^>]*?\} -->\s*<!-- wp:pullquote -->[\s\S]*?<!-- \/wp:pullquote -->\s*<!-- \/wp:bozzies\/section -->/;
+  // Match a pre-rebuild bozzies/section without a notes backdrop wrapping a
+  // wp:pullquote (career-timeline + bio-resources — no MusicBackdrop in Astro).
+  const rePlainSection = /<!-- wp:bozzies\/section \{"backgroundStyle":"purple"[^>]*?\} -->\s*<!-- wp:pullquote -->[\s\S]*?<!-- \/wp:pullquote -->\s*<!-- \/wp:bozzies\/section -->/;
   let after;
   if (reBlock.test(before)) {
     after = before.replace(reBlock, newBlock);
+  } else if (reSection.test(before)) {
+    after = before.replace(reSection, newBlock);
+  } else if (rePlainSection.test(before)) {
+    after = before.replace(rePlainSection, newBlock);
   } else {
     console.log(`  ${slug}: no bozzies/pull-quote block found, aborting.`);
     return;
