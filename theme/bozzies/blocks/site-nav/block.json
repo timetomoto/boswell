@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/site-nav",
+	"version": "1.0.0",
+	"title": "Site nav",
+	"category": "theme",
+	"icon": "menu-alt",
+	"description": "Sticky site header — wordmark + primary nav (from WP nav menu) + Donate button. Emits Astro's exact <header class=\"site-nav\"> DOM verbatim from ~/boswell-poc/src/components/Nav.astro.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": false,
+		"multiple": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"markLine1":     { "type": "string", "default": "The Boswell Sisters" },
+		"markLine2":     { "type": "string", "default": "1925 to 1936" },
+		"markHref":      { "type": "string", "default": "/" },
+		"markAriaLabel": { "type": "string", "default": "The Boswell Sisters, home" },
+		"donateLabel":   { "type": "string", "default": "Donate" },
+		"donateHref":    { "type": "string", "default": "" },
+		"navRef":        { "type": "number", "default": 4 }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

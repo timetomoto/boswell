@@ -144,6 +144,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global' ),
 		$ver
 	);
+	// Astro nav CSS — verbatim port of Nav.astro's <style>. Owned by the
+	// bozzies/site-nav block; used by parts/header.html.
+	wp_enqueue_style(
+		'bozzies-astro-nav',
+		$dir_uri . '/assets/css/astro/nav.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -151,7 +159,7 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav' ),
 		$ver
 	);
 }
@@ -169,6 +177,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/pages.css' );
 	add_editor_style( 'assets/css/astro/pull-quote.css' );
 	add_editor_style( 'assets/css/astro/section-divider.css' );
+	add_editor_style( 'assets/css/astro/nav.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
@@ -198,6 +207,29 @@ function bozzies_enqueue_article_meta_panel() {
 // auto-textures apostrophes and quotes into curly typographers' variants;
 // switch that off so straight quotes stay straight and match the source.
 add_filter( 'run_wptexturize', '__return_false' );
+
+/**
+ * Inject `site-nav` className into the header template-part so Astro's
+ * `.site-nav { position: sticky; top: 0; … }` rules apply to the outermost
+ * `<header>` (the template-part wrapper). The wrapper's containing block is
+ * `.wp-site-blocks` (full page height), which is what makes sticky work
+ * across the whole document.
+ *
+ * The bozzies/site-nav block's render.php emits only inner DOM (starting at
+ * `.site-nav__inner`); this filter is what turns the surrounding
+ * `<header class="wp-block-template-part">` into
+ * `<header class="wp-block-template-part site-nav">`.
+ */
+add_filter( 'render_block_data', function ( $block ) {
+	if ( 'core/template-part' === ( $block['blockName'] ?? '' )
+		&& 'header' === ( $block['attrs']['slug'] ?? '' ) ) {
+		$existing = isset( $block['attrs']['className'] ) ? trim( (string) $block['attrs']['className'] ) : '';
+		if ( '' === $existing || false === strpos( ' ' . $existing . ' ', ' site-nav ' ) ) {
+			$block['attrs']['className'] = trim( $existing . ' site-nav' );
+		}
+	}
+	return $block;
+} );
 
 // Add a `page-slug-<slug>` class to <body> on singular pages/posts so per-page
 // CSS can hook off the slug (Astro's scoped <style> blocks are equivalent to

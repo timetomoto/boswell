@@ -1,0 +1,123 @@
+/* -----------------------------------------------------------------------
+ * Astro nav.css — verbatim port of the <style> block in
+ *   ~/boswell-poc/src/components/Nav.astro (L37-132).
+ * Owned by the bozzies/site-nav block.
+ *
+ * Documented edits:
+ *   1. `.site-nav { min-height: 0 }` — added so the computed min-height
+ *      matches Astro's `0px`. On Astro the `<header class="site-nav">` is a
+ *      direct child of `<body>` (`display: block`); its `min-height: auto`
+ *      resolves to `0px` per CSS 2.1. On WP the `<header class="site-nav">`
+ *      is the wrapper emitted by the header template-part, sitting inside
+ *      `<div class="wp-site-blocks">` which chrome.css gives `display: flex`
+ *      (so the footer can stick to the bottom on short pages). On a flex
+ *      item, `min-height: auto` computes to `auto` rather than `0px` per
+ *      CSS Flexbox spec. Setting `min-height: 0` explicitly lines both up.
+ *      No paint impact either way — the header has real content that
+ *      establishes its size — the edit is purely to keep the computed-style
+ *      diff clean.
+ *
+ * No other selector was renamed or altered. None of the `.site-nav*`
+ * selectors below conflict with global.css cascades (the class-level
+ * `.site-nav__mark { border: 0 }` and `.site-nav__link { border: 0 }` rules
+ * win against global.css's element-level `a { border-bottom: 1px solid
+ * var(--link) }` on specificity 0-1-0 vs 0-0-1; `.site-nav__donate
+ * { border: 1px solid var(--purple) }` overrides the same base by
+ * specificity + border-color).
+ * -------------------------------------------------------------------- */
+
+.site-nav {
+	position: sticky;
+	top: 0;
+	z-index: 40;
+	background: color-mix(in oklab, var(--paper) 92%, transparent);
+	backdrop-filter: saturate(140%) blur(10px);
+	-webkit-backdrop-filter: saturate(140%) blur(10px);
+	border-bottom: 1px solid var(--paper-hairline);
+	min-height: 0; /* edit 1 — see file header */
+}
+.site-nav__inner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-6);
+	padding-block: var(--space-4);
+}
+.site-nav__mark {
+	display: inline-flex;
+	flex-direction: column;
+	text-decoration: none;
+	border: 0;
+	line-height: 1;
+}
+.site-nav__mark-line-1 {
+	font-family: var(--font-display);
+	font-weight: 500;
+	font-size: var(--step-2);
+	color: var(--ink);
+}
+.site-nav__mark-line-2 {
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--2);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--brass);
+	margin-top: 0.15em;
+}
+.site-nav__list {
+	display: flex;
+	align-items: center;
+	gap: clamp(var(--space-4), 2.5vw, var(--space-6));
+}
+.site-nav__link {
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--text-on-paper);
+	border: 0;
+	padding-block: var(--space-2);
+	position: relative;
+	transition: color var(--dur) var(--ease-out-quart);
+}
+.site-nav__link::after {
+	content: '';
+	position: absolute;
+	left: 0; right: 0; bottom: 2px;
+	height: 1px;
+	background: var(--brass);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform var(--dur) var(--ease-out-quart);
+}
+.site-nav__link:hover, .site-nav__link:focus-visible { color: var(--brass); }
+.site-nav__link:hover::after, .site-nav__link.is-active::after { transform: scaleX(1); }
+
+/* Donate CTA — stands out from the plain nav links */
+.site-nav__donate {
+	font-family: var(--font-ui);
+	font-weight: 600;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--paper);
+	background: var(--purple);
+	border: 1px solid var(--purple);
+	padding: var(--space-2) var(--space-4);
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
+}
+.site-nav__donate:hover, .site-nav__donate:focus-visible {
+	background: var(--oxblood);
+	border-color: var(--oxblood);
+	color: var(--paper);
+}
+
+@media (max-width: 900px) {
+	.site-nav__inner { flex-direction: column; gap: var(--space-3); align-items: flex-start; }
+	.site-nav__list { flex-wrap: wrap; gap: var(--space-4) var(--space-5); }
+	.site-nav__link { font-size: var(--step--2); }
+	.site-nav__donate { font-size: var(--step--2); }
+}
