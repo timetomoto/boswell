@@ -20,7 +20,8 @@
 		"documentType": { "type": "string", "default": "PDF" },
 		"title":        { "type": "string", "default": "" },
 		"releaseDate":  { "type": "string", "default": "" },
-		"href":         { "type": "string", "default": "" }
+		"href":         { "type": "string", "default": "" },
+		"hrefId":       { "type": "number" }
 	},
 	"editorScript": "file:./build/index.js",
 	"render": "file:./render.php"

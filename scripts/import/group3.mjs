@@ -342,13 +342,17 @@ const gbJson = (obj) =>
 // from ~/boswell-poc/src/pages/press/index.astro lines 104-111 via the block's
 // server-render. Attributes-only; empty releaseDate omitted so Gutenberg's
 // default-attr elision doesn't change the serialization on save.
-const releaseCard = ({ documentUrl, documentType, title, releaseDate }) => {
+const releaseCard = ({ documentUrl, documentId, documentType, title, releaseDate }) => {
   const attrs = {
     documentType: decodeReleaseValue(documentType || 'PDF'),
     title:        decodeReleaseValue(title),
     href:         documentUrl,
   };
   if (releaseDate) attrs.releaseDate = decodeReleaseValue(releaseDate);
+  // hrefId lets the block's MediaUpload picker show "Replace PDF" (rather
+  // than "Choose PDF") when the block is opened in the editor. Attribute
+  // order matches block.json so Gutenberg's serializer round-trip is stable.
+  if (documentId) attrs.hrefId = documentId;
   return `<!-- wp:bozzies/release-card ${gbJson(attrs)} /-->`;
 };
 
@@ -552,6 +556,7 @@ function run() {
     const pdf = importMedia(data.document, data.title);
     releases.push({
       documentUrl: pdf.url,
+      documentId: pdf.id,
       documentType: data.documentType || 'PDF',
       title: data.title,
       releaseDate: data.releaseDate || null,
