@@ -123,13 +123,14 @@ function writeTmpContent(slug, content) {
 export function upsertPage(opts) {
   return upsertPost({ ...opts, postType: 'page' });
 }
-export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug, postDate, menuOrder, meta = {} }) {
+export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug, postDate, menuOrder, excerpt, meta = {} }) {
   const existing = findPostBySlug(slug, postType);
   const containerPath = writeTmpContent(`${postType}-${slug}`, content);
 
   const extra = [];
   if (postDate) extra.push(`'post_date'=>${phpStr(postDate)}`, `'post_date_gmt'=>${phpStr(postDate)}`);
   if (typeof menuOrder === 'number') extra.push(`'menu_order'=>${menuOrder}`);
+  if (typeof excerpt === 'string') extra.push(`'post_excerpt'=>${phpStr(excerpt)}`);
   const extraStr = extra.length ? ',' + extra.join(',') : '';
 
   let id;

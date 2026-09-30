@@ -7,6 +7,102 @@ require_once __DIR__ . '/inc/analytics.php';
 require_once __DIR__ . '/inc/bindings.php';
 require_once __DIR__ . '/inc/music-backdrop.php';
 
+/**
+ * Head parity with Astro's Base.astro (~/boswell-poc/src/layouts/Base.astro
+ * L14-23). Astro emits, in order:
+ *   <meta charset="utf-8" />
+ *   <meta name="viewport" content="width=device-width, initial-scale=1" />
+ *   <title>{title} — The Boswell Sisters</title>
+ *   {description && <meta name="description" content="…" />}
+ *   <meta name="theme-color" content="#181615" />
+ *   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ * — nothing else. No OG, no Twitter cards, no favicon, no RSS, no oEmbed,
+ * no generator, no shortlink, no canonical, no robots, no emoji.
+ */
+add_action( 'after_setup_theme', 'bozzies_astro_head_supports' );
+function bozzies_astro_head_supports() {
+	add_theme_support( 'title-tag' );
+	// Owner-editable page description — surfaces the "Excerpt" panel in the
+	// editor. post_excerpt drives <meta name="description">. Populated from
+	// Astro frontmatter by scripts/import/head-descriptions.mjs.
+	add_post_type_support( 'page', 'excerpt' );
+}
+
+// Astro renders `${title} — The Boswell Sisters`, always. No tagline
+// concatenation, no other title parts.
+add_filter( 'document_title_separator', function () { return '—'; } );
+add_filter( 'document_title_parts', 'bozzies_astro_title_parts' );
+function bozzies_astro_title_parts( $parts ) {
+	$parts['site'] = 'The Boswell Sisters';
+	unset( $parts['tagline'] );
+	// Home: Astro passes `data.title` from ~/boswell-poc/src/content/pages/home.md
+	// L2 which is "Meet the Boswells". WP's post_title on the front page is
+	// "Home".
+	if ( is_front_page() ) {
+		$parts['title'] = 'Meet the Boswells';
+	}
+	// Press subhubs: Astro's press/[subhub]/index.astro L16 renders
+	// `${hub.data.label} — Press`.
+	if ( is_category() ) {
+		$parts['title'] = single_cat_title( '', false ) . ' — Press';
+	}
+	return $parts;
+}
+
+// Fixed head meta emitted early so it lands near <title>. Description reads
+// post_excerpt on singulars and the term description on categories; empty
+// values suppress the tag (matches Astro's `{description && <meta …/>}`).
+add_action( 'wp_head', 'bozzies_astro_head_meta', 1 );
+function bozzies_astro_head_meta() {
+	$desc = '';
+	if ( is_singular() ) {
+		$obj = get_queried_object();
+		if ( $obj && ! empty( $obj->post_excerpt ) ) {
+			$desc = trim( wp_strip_all_tags( $obj->post_excerpt ) );
+		}
+	} elseif ( is_category() ) {
+		$desc = trim( wp_strip_all_tags( term_description() ) );
+	}
+	if ( '' !== $desc ) {
+		echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
+	}
+	echo '<meta name="theme-color" content="#181615" />' . "\n";
+	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />' . "\n";
+}
+
+// Strip everything Astro doesn't emit.
+add_action( 'init', 'bozzies_astro_head_strip' );
+function bozzies_astro_head_strip() {
+	remove_action( 'wp_head', 'wp_generator' );
+	remove_action( 'wp_head', 'feed_links', 2 );
+	remove_action( 'wp_head', 'feed_links_extra', 3 );
+	remove_action( 'wp_head', 'rsd_link' );
+	remove_action( 'wp_head', 'wlwmanifest_link' );
+	remove_action( 'wp_head', 'wp_shortlink_wp_head', 10 );
+	remove_action( 'wp_head', 'rest_output_link_wp_head', 10 );
+	remove_action( 'wp_head', 'wp_oembed_add_discovery_links', 10 );
+	remove_action( 'wp_head', 'wp_oembed_add_host_js' );
+	remove_action( 'wp_head', 'rel_canonical' );
+	remove_action( 'wp_head', 'wp_robots', 1 );
+	remove_action( 'wp_head', 'wp_site_icon', 99 );
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+}
+
+// Suppress the fallback /favicon.ico (`wp_site_icon` and the default WP
+// mystery favicon). Astro serves no favicon; the browser gets a 404 and
+// moves on. Matches Astro's live output.
+add_filter( 'get_site_icon_url', '__return_empty_string' );
+remove_action( 'do_favicon', 'wp_favicon_request', 10 );
+add_action( 'do_favicon', function () {
+	status_header( 404 );
+	nocache_headers();
+	exit;
+}, 1 );
+
 add_action( 'init', 'bozzies_register_editor_style_variations' );
 function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/paragraph', array( 'name' => 'eyebrow',       'label' => __( 'Eyebrow', 'bozzies' ) ) );
