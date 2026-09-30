@@ -9,7 +9,5 @@
  */
 ?>
 <!-- wp:bozzies/voices-section {"anchor":"home-voices","eyebrow":"In Their Words","title":"What the world has said about the Boswells"} -->
-<!-- wp:paragraph {"align":"center"} -->
-<p class="has-text-align-center">[Quotes carousel: interactive block pending]</p>
-<!-- /wp:paragraph -->
+<!-- wp:bozzies/quotes-carousel {"quotes":[],"intervalMs":7000} /-->
 <!-- /wp:bozzies/voices-section -->

@@ -1,0 +1,108 @@
+/*
+ * Quotes carousel — verbatim port of
+ * ~/boswell-poc/src/components/QuotesCarousel.astro lines 93-191.
+ *
+ * Owned by the bozzies/quotes-carousel block; the .qc module sits inside
+ * bozzies/voices-section on /home/ (Astro `<section class="section ground-purple voices-section">`).
+ *
+ * Edits from the Astro source:
+ *   (none)
+ */
+
+.qc {
+	position: relative;
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+	padding-block: clamp(var(--space-6), 4vw, var(--space-8));
+	outline: none;
+}
+.qc:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 8px; border-radius: 4px; }
+
+.qc__viewport {
+	position: relative;
+	min-height: 12rem;
+	display: grid;
+}
+.qc__slide {
+	grid-column: 1;
+	grid-row: 1;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 500ms var(--ease-out-quart);
+	margin: 0;
+	text-align: center;
+	padding-inline: clamp(var(--space-4), 4vw, var(--space-6));
+}
+.qc__slide[data-active='true'] { opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) {
+	.qc__slide { transition: none; }
+}
+
+.qc__quote {
+	font-family: var(--font-ui);
+	font-style: italic;
+	font-weight: 500;
+	font-size: clamp(var(--step-2), 2.4vw + 0.4rem, var(--step-4));
+	line-height: var(--leading-snug);
+	color: #FFFFFF;
+	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
+	max-width: 32ch;
+	margin: 0 auto;
+}
+.qc__attr {
+	display: block;
+	margin-top: var(--space-4);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--yellow-soft);
+	font-style: normal;
+}
+
+/* Controls */
+.qc__controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-4);
+	margin-top: var(--space-6);
+}
+.qc__btn {
+	width: 44px;
+	height: 44px;
+	border-radius: 999px;
+	background: transparent;
+	border: 1px solid var(--yellow-soft);
+	color: var(--yellow-soft);
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
+}
+.qc__btn:hover, .qc__btn:focus-visible { background: var(--yellow-soft); color: var(--purple); outline: none; }
+.qc__btn:focus-visible { box-shadow: 0 0 0 3px rgba(225, 194, 99, 0.35); }
+.qc__dots {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.qc__dot {
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
+	background: rgba(225, 194, 99, 0.35);
+	border: 0;
+	cursor: pointer;
+	padding: 0;
+	transition: background var(--dur) var(--ease-out-quart), transform var(--dur) var(--ease-out-quart);
+}
+.qc__dot[aria-selected='true'] { background: var(--yellow-soft); transform: scale(1.25); }
+.qc__dot:hover { background: var(--yellow-soft); }
+.qc__dot:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 3px; }
