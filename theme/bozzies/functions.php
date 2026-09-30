@@ -196,6 +196,14 @@ function bozzies_enqueue_chrome() {
 		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
 		$ver
 	);
+	// Astro playlist-player CSS — verbatim port of PlaylistPlayer.astro's
+	// <style>. Owned by the bozzies/playlist-player block.
+	wp_enqueue_style(
+		'bozzies-astro-playlist-player',
+		$dir_uri . '/assets/css/astro/playlist-player.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
 	// will end up holding only WordPress-specific plumbing (or be deleted
@@ -203,9 +211,22 @@ function bozzies_enqueue_chrome() {
 	wp_enqueue_style(
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
-		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body' ),
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player' ),
 		$ver
 	);
+
+	// Playlist player front-end JS — verbatim port of PlaylistPlayer.astro's
+	// <script>. Enqueued only when the current page contains the
+	// bozzies/playlist-player block, so pages without a player pay nothing.
+	if ( is_singular() && has_block( 'bozzies/playlist-player' ) ) {
+		wp_enqueue_script(
+			'bozzies-playlist-player',
+			$dir_uri . '/assets/js/playlist-player.js',
+			array(),
+			$ver,
+			true
+		);
+	}
 }
 
 add_action( 'after_setup_theme', 'bozzies_add_editor_styles' );
@@ -227,6 +248,7 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/nav.css' );
 	add_editor_style( 'assets/css/astro/footer.css' );
 	add_editor_style( 'assets/css/astro/prose-body.css' );
+	add_editor_style( 'assets/css/astro/playlist-player.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
