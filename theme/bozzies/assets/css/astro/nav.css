@@ -95,8 +95,15 @@
 .site-nav__link:hover, .site-nav__link:focus-visible { color: var(--brass); }
 .site-nav__link:hover::after, .site-nav__link.is-active::after { transform: scaleX(1); }
 
-/* Donate CTA — stands out from the plain nav links */
+/* Donate CTA — stands out from the plain nav links. Rendered as a direct
+ * sibling of `.site-nav__mark` and the `<nav>` list (not nested inside the
+ * list) so the mobile layout can place it on the title row. `order: 3`
+ * keeps the desktop visual order mark → nav → donate; the source order
+ * stays mark → donate → nav so keyboard/SR tab order is title → Donate →
+ * nav links on both breakpoints.
+ */
 .site-nav__donate {
+	order: 3;
 	font-family: var(--font-ui);
 	font-weight: 600;
 	font-size: var(--step--1);
@@ -107,6 +114,7 @@
 	border: 1px solid var(--purple);
 	padding: var(--space-2) var(--space-4);
 	text-decoration: none;
+	white-space: nowrap;
 	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
 }
 .site-nav__donate:hover, .site-nav__donate:focus-visible {
@@ -116,8 +124,31 @@
 }
 
 @media (max-width: 900px) {
-	.site-nav__inner { flex-direction: column; gap: var(--space-3); align-items: flex-start; }
-	.site-nav__list { flex-wrap: wrap; gap: var(--space-4) var(--space-5); }
+	/* Row 1: mark on left, donate on right (`justify-content: space-between`
+	 * from the base rule handles the gap). Row 2: nav list wrapping full-
+	 * width underneath. Reset the desktop `order: 3` on donate so visual
+	 * order matches source (mark → donate → nav) at mobile. */
+	.site-nav__inner {
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--space-3) var(--space-4);
+	}
+	.site-nav__donate { order: 0; }
+	.site-nav__inner > nav { flex-basis: 100%; }
+	.site-nav__list { flex-wrap: wrap; gap: var(--space-4) var(--space-5); justify-content: flex-start; }
 	.site-nav__link { font-size: var(--step--2); }
 	.site-nav__donate { font-size: var(--step--2); }
+}
+
+/* Narrow mobile — shrink the mark, tighten the container padding and the
+ * donate padding so the mark + donate button fit on row 1 at 320px without
+ * wrapping or overlapping. */
+@media (max-width: 360px) {
+	.site-nav .site-nav__inner {
+		padding-inline: var(--space-3);
+		gap: var(--space-2) var(--space-3);
+	}
+	.site-nav__mark-line-1 { font-size: var(--step-1); }
+	.site-nav__mark-line-2 { font-size: var(--step--3); }
+	.site-nav__donate { padding: var(--space-2) var(--space-3); }
 }

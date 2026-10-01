@@ -2,22 +2,34 @@
 /**
  * Server-side render for bozzies/site-nav.
  *
- * Emits Astro's exact inner DOM verbatim from
- * ~/boswell-poc/src/components/Nav.astro L14-34:
+ * Based on Astro's Nav.astro L14-34 but with a mobile-friendly
+ * reorganization: the Donate button is emitted as a direct child of
+ * `.site-nav__inner`, not inside the `<nav>` list. That puts the button
+ * in a sibling position so the mobile layout can place it on row 1 next
+ * to the mark while the nav list wraps full-width to row 2.
  *
  *   <div class="site-nav__inner container">
  *     <a class="site-nav__mark" href="/" aria-label="…">
  *       <span class="site-nav__mark-line-1">…</span>
  *       <span class="site-nav__mark-line-2">…</span>
  *     </a>
+ *     <a class="site-nav__donate" target="_blank" rel="noopener noreferrer">…</a>
  *     <nav aria-label="Primary">
  *       <ul class="site-nav__list" role="list">
  *         <li><a class="site-nav__link [is-active]">…</a></li>
  *         …
- *         <li><a class="site-nav__donate" target="_blank" rel="noopener noreferrer">…</a></li>
  *       </ul>
  *     </nav>
  *   </div>
+ *
+ * Source order is deliberately `mark → donate → nav` so keyboard and screen
+ * reader users tab mark → Donate → nav links on both breakpoints, matching
+ * what the owner requested. On desktop the donate button is still visually
+ * the far-right item (via `.site-nav__donate { order: 3 }` in nav.css);
+ * tab order and visual order therefore differ on desktop (donate reads
+ * mid-tab but renders far right), the a11y trade documented in the owner
+ * spec. On mobile source order == visual order (mark + donate on row 1,
+ * nav on row 2) so no mismatch there.
  *
  * The outer `<header class="site-nav">` is the template-part wrapper itself.
  * `bozzies_site_nav_add_class()` in `functions.php` injects the `site-nav`
@@ -102,6 +114,7 @@ $donate_label = html_entity_decode( (string) $attrs['donateLabel'],   ENT_QUOTES
 		<span class="site-nav__mark-line-1"><?php echo esc_html( $mark_line_1 ); ?></span>
 		<span class="site-nav__mark-line-2"><?php echo esc_html( $mark_line_2 ); ?></span>
 	</a>
+	<a href="<?php echo esc_url( $donate_href ); ?>" class="site-nav__donate" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $donate_label ); ?></a>
 	<nav aria-label="Primary">
 		<ul class="site-nav__list" role="list">
 <?php foreach ( $items as $item ) :
@@ -114,9 +127,6 @@ $donate_label = html_entity_decode( (string) $attrs['donateLabel'],   ENT_QUOTES
 				<a href="<?php echo esc_url( $href ); ?>" class="<?php echo esc_attr( $cls ); ?>"><?php echo esc_html( $label ); ?></a>
 			</li>
 <?php endforeach; ?>
-			<li>
-				<a href="<?php echo esc_url( $donate_href ); ?>" class="site-nav__donate" target="_blank" rel="noopener noreferrer"><?php echo esc_html( $donate_label ); ?></a>
-			</li>
 		</ul>
 	</nav>
 </div>
