@@ -43,17 +43,21 @@
 
 /* Scope blocks */
 .disc-scope + .disc-scope { margin-top: var(--space-8); border-top: 1px solid var(--paper-hairline); padding-top: var(--space-7); }
-.disc-scope__head { max-width: var(--measure-wide); margin-bottom: var(--space-5); }
+/* Centered to match the Press subhub + Media Video head pattern (eyebrow,
+ * title, and description all read as a centered column above the list). */
+.disc-scope__head { max-width: var(--measure-wide); margin: 0 auto var(--space-5); text-align: center; }
 .disc-scope__title {
 	font-family: var(--font-display); font-weight: 300;
 	font-size: clamp(var(--step-3), 2.4vw, var(--step-5));
 	letter-spacing: var(--track-tight);
 	color: var(--ink); margin: 0;
+	text-align: center;
 }
 .disc-scope__subtitle {
-	margin-top: var(--space-2);
+	margin: var(--space-2) auto 0;
 	font-family: var(--font-body); font-size: var(--step-0);
 	color: var(--text-on-paper); max-width: var(--measure-body);
+	text-align: center;
 }
 .disc-scope__attribution {
 	margin-top: var(--space-6);
