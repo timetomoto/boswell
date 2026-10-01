@@ -8,7 +8,14 @@ Boswell Sisters tribute archive, migrating from an Astro site to WordPress. One 
 
 ## Decisions (do not revisit)
 - WordPress native, standalone block theme "bozzies" at theme/bozzies/. No parent theme, no page builder.
-- Free WordPress.org plugins are allowed when they solve a real need better than custom code. Currently installed: Contact Form 7 (contact form runtime), CF7 Apps Honeypot (spam), Flamingo (contact submissions log in the dashboard), WP Mail SMTP (Dreamhost SMTP relay for outbound mail). Configure plugin settings via wp-config constants (WPMS_*) where the plugin supports it, not the database. WordPress's default "Hello Dolly" and "Akismet" plugins are removed and must not be reinstalled at go-live.
+- Free WordPress.org plugins are allowed when they solve a real need better than custom code. Currently installed (five): Contact Form 7 (contact form runtime), CF7 Apps Honeypot (spam), Flamingo (contact submissions log in the dashboard), WP Mail SMTP (Dreamhost SMTP relay for outbound mail), and **WP Duplicate as Draft** (our own one-click duplicate for pages and posts — see "WP Duplicate as Draft" below). Configure plugin settings via wp-config constants (WPMS_*) where the plugin supports it, not the database. WordPress's default "Hello Dolly" and "Akismet" plugins are removed and must not be reinstalled at go-live.
+
+### WP Duplicate as Draft
+- Our own plugin. Lives in its own private repo at **https://github.com/timetomoto/WP-duplicate-as-draft** (not part of boswell, not vendored). Local working copy at `~/code/wp-duplicate-as-draft/`; live install at `/home/khalboz/bozzies.org/wp-content/plugins/wp-duplicate-as-draft/`.
+- Self-contained (no theme dependency): one PHP file plus README + LICENSE. GPL-2.0-or-later, matching WordPress core.
+- Adds a "Duplicate" row action on Pages and Posts and a Duplicate admin-bar item on singular views. Creates a draft owned by the current user with content, excerpt, page template, parent, menu_order, featured image, all taxonomies, and all custom fields (skipping WP's internal housekeeping keys `_edit_lock`, `_edit_last`, `_wp_old_slug`, `_wp_old_date`, trash metadata, `_wp_desired_post_slug`).
+- **Deploy an update**: edit in `~/code/wp-duplicate-as-draft`, `git push`, then rsync the folder to live: `rsync -az --delete --exclude '.git/' ~/code/wp-duplicate-as-draft/ khalboz@bozzies.org:/home/khalboz/bozzies.org/wp-content/plugins/wp-duplicate-as-draft/`. No DB migration needed; the plugin stores nothing.
+- **Remove**: `ssh khalboz@bozzies.org "cd /home/khalboz/bozzies.org && wp plugin deactivate wp-duplicate-as-draft && wp plugin delete wp-duplicate-as-draft"`. Zero DB state to clean.
 - Match the Astro design as closely as possible. Little to no drift.
 - Owner can change brand colors; palette presets are defaults, custom pickers stay on.
 - Structured content (timeline, playlist, quotes, discography) = custom blocks edited on the page. No ACF, no custom post types.

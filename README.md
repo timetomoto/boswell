@@ -644,7 +644,8 @@ local overrides would overwrite their work.
 
 ## 12. Plugins and why we use them
 
-Four plugins, all free from WordPress.org:
+Five plugins. Four are free from WordPress.org; one is ours, in its
+own private repo:
 
 - **Contact Form 7** — one form on `/contact/`. Runtime for the
   message box, email delivery, success / error UX.
@@ -660,6 +661,22 @@ Four plugins, all free from WordPress.org:
   password-reset mails, etc.) actually land. Configured through
   `WPMS_*` constants in `wp-config.php`; the password is injected by
   `scripts/deploy/set-live-secrets.sh` and lives in that file alone.
+- **WP Duplicate as Draft** — our own plugin, repo at
+  <https://github.com/timetomoto/WP-duplicate-as-draft> (private).
+  Adds a "Duplicate" row action on Pages and Posts and a Duplicate
+  admin-bar item on singular views; creates a draft owned by the
+  current user that carries over content, excerpt, template, parent,
+  menu order, featured image, all taxonomies, and all custom fields.
+  Self-contained, no theme dependency, works on any WordPress site.
+  Not part of this repo; keep local working copy under
+  `~/code/wp-duplicate-as-draft/`.
+  - **Deploy an update**: `rsync -az --delete --exclude '.git/'
+    ~/code/wp-duplicate-as-draft/
+    khalboz@bozzies.org:/home/khalboz/bozzies.org/wp-content/plugins/
+    wp-duplicate-as-draft/`.
+  - **Remove**: `wp plugin deactivate wp-duplicate-as-draft && wp
+    plugin delete wp-duplicate-as-draft` on the server. The plugin
+    stores nothing in the database — nothing to clean up.
 
 WordPress's own "Hello Dolly" and "Akismet" are explicitly **not**
 installed on the live site. If a one-click install ever re-adds
@@ -707,7 +724,7 @@ cause silent data loss:
 - The `contact@bozzies.org` DreamHost mailbox. Changing its password
   breaks outbound CF7 delivery until `WPMS_SMTP_PASS` in wp-config is
   re-injected via `scripts/deploy/set-live-secrets.sh`.
-- The four plugins listed in section 12. The theme assumes they are
+- The five plugins listed in section 12. The theme assumes they are
   present and active.
 - The `bozzies` theme folder on the server. The site has no fallback
   theme — breaking the active theme breaks the site.
