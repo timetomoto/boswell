@@ -317,3 +317,6 @@ Actions to take when the site moves from wp-env → live at https://bozzies.org.
 - Local commits only. Never push. Never stage `admin-credentials.txt` or `_screens/`.
 - If running low on context room, stop at a clean point, commit (with the CLAUDE.md status update), and report what's done and what remains.
 - Verify with browser measurements, colour checks, and by viewing your own cropped screenshots — don't claim "identical" without numbers.
+- **Commit messages**: a short summary line, then a body explaining what changed and why, in plain language. The body is for the owner reading `git log` later, not for the compiler.
+- **Code comments**: explain anything non-obvious in theme code — especially why something differs from Astro, WordPress-specific workarounds, and which Astro file and lines a ported rule or markup came from. Don't comment the obvious.
+- **When editing an existing file**, add or fix comments in the parts you touch, so the "why" stays current with the "what".
