@@ -5,8 +5,13 @@
 
 	<!-- wp:group {"align":"full","className":"page-hero ground-purple","layout":{"type":"default"}} -->
 	<div class="wp-block-group alignfull page-hero ground-purple">
-		<!-- wp:group {"className":"page-hero__inner container","layout":{"type":"default"}} -->
-		<div class="wp-block-group page-hero__inner container">
+		<!-- Narrow container matches every other purple page hero on the site
+		     (article-hero, bio-hero, lesson-hero, page-hero on media/sisters
+		     subpages, contact, 404, privacy): 42rem content measure instead
+		     of the 84rem `.container` max — fixes the left-flush category
+		     header outlier on /press/{sub}/ pages. -->
+		<!-- wp:group {"className":"page-hero__inner container-narrow","layout":{"type":"default"}} -->
+		<div class="wp-block-group page-hero__inner container-narrow">
 			<!-- wp:paragraph {"className":"page-hero__back"} --><p class="page-hero__back"><a href="/press/">&larr; Press</a></p><!-- /wp:paragraph -->
 			<!-- wp:paragraph {"className":"eyebrow page-hero__eyebrow","metadata":{"bindings":{"content":{"source":"bozzies/term-kicker"}}}} -->
 			<p class="eyebrow page-hero__eyebrow"></p>
