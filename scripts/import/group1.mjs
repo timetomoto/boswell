@@ -232,8 +232,8 @@ function buildSisters(media) {
   const sistersGrid = section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
     [
-      p('Meet the Sisters', { className: 'is-style-eyebrow sisters-grid__eyebrow' }),
-      h(2, 'Martha, Connie and Vet', { fontSize: 'section-title' }),
+      p('Meet the Sisters', { className: 'is-style-eyebrow sisters-grid__eyebrow', align: 'center' }),
+      h(2, 'Martha, Connie and Vet', { fontSize: 'section-title', align: 'center' }),
       `<!-- wp:bozzies/sister-cards -->
 ${sisterCard({ order: '01', nickname: 'MBoz', name: 'Martha Boswell', quote: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.', href: '/sisters/martha/' })}
 ${sisterCard({ order: '02', nickname: 'CBoz', name: 'Connee Boswell', quote: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, "They also sing".', href: '/sisters/connee/' })}
