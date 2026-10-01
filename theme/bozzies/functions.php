@@ -701,8 +701,15 @@ function bozzies_media_video_archive_redirect() {
  * emitted by every WP helper (post-title isLink, article nav, REST responses)
  * all go through this.
  */
-add_filter( 'post_link', 'bozzies_video_post_link', 10, 2 );
-function bozzies_video_post_link( $url, $post ) {
+// Rebuild every article permalink to /press/{category}/{slug}/ (or
+// /media/video/{slug}/ for the video category — see the item-1 move).
+// Without this filter WordPress returns the raw permalink_structure
+// output — /%year%/%monthnum%/%day%/%postname%/ — because our custom
+// /press/… URL isn't a stock permalink tag it can compose on its own.
+// Called by get_permalink(), so every post-title isLink, article-nav
+// anchor, REST response, and sitemap entry runs through this.
+add_filter( 'post_link', 'bozzies_post_press_link', 10, 2 );
+function bozzies_post_press_link( $url, $post ) {
 	if ( ! $post instanceof WP_Post || 'post' !== $post->post_type ) {
 		return $url;
 	}
@@ -710,7 +717,51 @@ function bozzies_video_post_link( $url, $post ) {
 	if ( in_array( 'video', $slugs, true ) ) {
 		return home_url( '/media/video/' . $post->post_name . '/' );
 	}
-	return $url;
+	// Pick the first non-video category — "uncategorized" is the fallback
+	// so a stray un-categorised draft still gets a usable URL instead of
+	// a leading "//".
+	$sub = 'uncategorized';
+	foreach ( $slugs as $s ) {
+		if ( 'uncategorized' === $s ) {
+			continue;
+		}
+		$sub = $s;
+		break;
+	}
+	return home_url( '/press/' . $sub . '/' . $post->post_name . '/' );
+}
+
+// 301-redirect the stale date-based URLs WordPress used to publish at
+// (`/2026/09/27/02-cats-hepped/`) over to the new /press/{sub}/{slug}/
+// (or /media/video/{slug}/) address so any owner-saved link or search
+// hit lands on the right page instead of the stock date archive.
+add_action( 'template_redirect', 'bozzies_redirect_date_post_urls', 1 );
+function bozzies_redirect_date_post_urls() {
+	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+	$path = strtok( (string) $_SERVER['REQUEST_URI'], '?' );
+	// Match `/YYYY/MM/DD/slug/` with optional trailing slash. Captures the
+	// slug only; the date components aren't needed because post_name is
+	// unique across the site.
+	if ( ! preg_match( '#^/\d{4}/\d{2}/\d{2}/([^/]+)/?$#', $path, $m ) ) {
+		return;
+	}
+	$posts = get_posts( array(
+		'name'           => $m[1],
+		'post_type'      => 'post',
+		'post_status'    => 'publish',
+		'posts_per_page' => 1,
+	) );
+	if ( empty( $posts ) ) {
+		return;
+	}
+	$target = get_permalink( $posts[0] );
+	if ( ! $target ) {
+		return;
+	}
+	wp_redirect( $target, 301, 'bozzies-date-url-redirect' );
+	exit;
 }
 
 /**
