@@ -554,45 +554,17 @@ add_filter( 'render_block_core/embed', function ( $block_content, $block ) {
 /**
  * Contact Form 7 tweaks.
  *
- * 1. Turn off CF7's autop pass. Our form template controls its own <p>/<label>
- *    layout in the DB; wpautop was inserting stray <br /> after every <label>
- *    which breaks the label→input pairing visually.
+ * Turn off CF7's autop pass. Our form template controls its own <p>/<label>
+ * layout in the DB; wpautop was inserting stray <br /> after every <label>
+ * which breaks the label→input pairing visually.
  *
- * 2. Case-insensitive quiz answer. The [quiz] tag stores its expected answer
- *    hashed via wpcf7_canonicalize(), which already lowercases the submitted
- *    value before hash-compare — so the answer stored as "boswell" accepts
- *    "Boswell", "BOSWELL", "bOsWeLL", etc. This filter is a belt-and-suspenders:
- *    it strips whitespace and normalizes non-ASCII forms of curly-quote /
- *    fullwidth characters that would otherwise fail the hash compare, and
- *    documents the intent so a future edit doesn't reintroduce case-sensitivity.
+ * Case-insensitive quiz: no filter needed. CF7's wpcf7_canonicalize() runs
+ * strtolower() on the submitted answer BEFORE hashing it to compare against
+ * the stored hash of "boswell" (see contact-form-7/modules/quiz.php L100-105
+ * and includes/formatting.php L240-250). So the stored lowercase "boswell"
+ * matches "Boswell", "BOSWELL", "bOsWeLL", etc. automatically.
  */
 add_filter( 'wpcf7_autop_or_not', '__return_false' );
-
-add_filter( 'wpcf7_validate_quiz', function ( $result, $tag ) {
-	if ( 'human-check' !== $tag->name ) {
-		return $result;
-	}
-	// If CF7's built-in validator already accepted the answer, we're done.
-	if ( ! $result->get_invalid_field( $tag->name ) ) {
-		return $result;
-	}
-	$raw = isset( $_POST['human-check'] ) ? (string) wp_unslash( $_POST['human-check'] ) : '';
-	$normalized = strtolower( trim( $raw ) );
-	if ( 'boswell' === $normalized ) {
-		// Clear the earlier "not correct" invalidation.
-		$reflection = new ReflectionClass( $result );
-		if ( $reflection->hasProperty( 'invalid_fields' ) ) {
-			$prop = $reflection->getProperty( 'invalid_fields' );
-			$prop->setAccessible( true );
-			$fields = $prop->getValue( $result );
-			if ( isset( $fields[ $tag->name ] ) ) {
-				unset( $fields[ $tag->name ] );
-				$prop->setValue( $result, $fields );
-			}
-		}
-	}
-	return $result;
-}, 20, 2 );
 
 /**
  * Give /press/{category}/{postname}/ post URLs priority over WP's verbose
