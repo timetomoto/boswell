@@ -31,21 +31,20 @@ function bozzies_analytics_enqueue() {
 	if ( ! bozzies_analytics_active() ) {
 		return;
 	}
-	$ver     = wp_get_theme()->get( 'Version' );
 	$dir_uri = get_stylesheet_directory_uri();
 
 	wp_enqueue_style(
 		'bozzies-consent',
 		$dir_uri . '/assets/css/consent.css',
 		array(),
-		$ver
+		bozzies_asset_ver( 'assets/css/consent.css' )
 	);
 
 	wp_enqueue_script(
 		'bozzies-consent',
 		$dir_uri . '/assets/js/consent.js',
 		array(),
-		$ver,
+		bozzies_asset_ver( 'assets/js/consent.js' ),
 		array(
 			'strategy'  => 'defer',
 			'in_footer' => true,

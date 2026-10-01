@@ -9,6 +9,31 @@ require_once __DIR__ . '/inc/music-backdrop.php';
 require_once __DIR__ . '/inc/settings.php';
 
 /**
+ * Theme asset version — returns `filemtime()` of a theme-relative path as a
+ * string, falling back to the theme's declared version if the file is missing.
+ * Used in place of a fixed theme version on wp_enqueue_style/script so each
+ * edit to a CSS or JS file cache-busts without a theme-wide bump.
+ *
+ * Front-end asset URLs come out like `/wp-content/themes/bozzies/assets/css/
+ * astro/global.css?ver=1727733123`. Browsers see a new version each time the
+ * file changes, so stale cached CSS can't survive a rebuild.
+ *
+ * Editor styles added via add_editor_style() are inlined into the editor's
+ * initial payload by get_block_editor_theme_styles() (file_get_contents at
+ * page-load time), so they're always fresh without a version arg.
+ */
+function bozzies_asset_ver( $rel_path ) {
+	$abs = get_stylesheet_directory() . '/' . ltrim( $rel_path, '/' );
+	if ( file_exists( $abs ) ) {
+		$mtime = @filemtime( $abs );
+		if ( $mtime ) {
+			return (string) $mtime;
+		}
+	}
+	return (string) wp_get_theme()->get( 'Version' );
+}
+
+/**
  * Head parity with Astro's Base.astro (~/boswell-poc/src/layouts/Base.astro
  * L14-23). Astro emits, in order:
  *   <meta charset="utf-8" />
@@ -155,7 +180,6 @@ function bozzies_register_theme_blocks() {
 
 add_action( 'wp_enqueue_scripts', 'bozzies_enqueue_chrome' );
 function bozzies_enqueue_chrome() {
-	$ver     = wp_get_theme()->get( 'Version' );
 	$dir_uri = get_stylesheet_directory_uri();
 	// Astro's global styles — the sitewide reset + typography + grounds
 	// + layout helpers + eyebrow + hairline + skip-link + visually-hidden.
@@ -164,7 +188,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-global',
 		$dir_uri . '/assets/css/astro/global.css',
 		array(),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/global.css' )
 	);
 	// Astro hero CSS — verbatim port of Hero.astro's <style>. Owned by
 	// the section block's is-hero-photo variant.
@@ -172,7 +196,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-hero',
 		$dir_uri . '/assets/css/astro/hero.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/hero.css' )
 	);
 	// Astro article CSS — verbatim port of the article-list, article-row,
 	// article-hero, page-hero, article-nav, prose and video-embed rules
@@ -181,7 +205,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-article',
 		$dir_uri . '/assets/css/astro/article.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/article.css' )
 	);
 	// Astro cards CSS — sister-card, subpage-card, bio-body, bio-portrait,
 	// facts, bio-timeline, bio-nav (from sisters/**), release-card (from
@@ -191,7 +215,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-cards',
 		$dir_uri . '/assets/css/astro/cards.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/cards.css' )
 	);
 	// Astro music-backdrop CSS — verbatim port of MusicBackdrop.astro's
 	// <style>. Currently used by the bozzies/bio-hero block (staves variant);
@@ -200,7 +224,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-music-backdrop',
 		$dir_uri . '/assets/css/astro/music-backdrop.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/music-backdrop.css' )
 	);
 	// Astro bio-hero CSS — verbatim port of sisters/[slug].astro's .bio-hero*
 	// rules. Owned by the bozzies/bio-hero block.
@@ -208,7 +232,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-bio-hero',
 		$dir_uri . '/assets/css/astro/bio-hero.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/bio-hero.css' )
 	);
 	// Astro lesson-hero CSS — verbatim port of media/lessons/[order].astro's
 	// .lesson-hero* rules. Owned by the bozzies/lesson-hero block.
@@ -216,7 +240,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-lesson-hero',
 		$dir_uri . '/assets/css/astro/lesson-hero.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/lesson-hero.css' )
 	);
 	// Astro lesson-player CSS — verbatim port of media/lessons/[order].astro's
 	// .lesson-player* + .lesson-notes rules. Owned by the bozzies/lesson-player
@@ -226,7 +250,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-lesson-player',
 		$dir_uri . '/assets/css/astro/lesson-player.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/lesson-player.css' )
 	);
 	// Astro lesson-nav CSS — verbatim port of media/lessons/[order].astro's
 	// .lesson-nav* rules. Owned by the bozzies/lesson-nav block.
@@ -234,7 +258,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-lesson-nav',
 		$dir_uri . '/assets/css/astro/lesson-nav.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/lesson-nav.css' )
 	);
 	// Astro pages CSS — per-page scoped rules from Astro pages that live
 	// outside a component. Holds the home intro (index.astro L117-135),
@@ -245,7 +269,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-pages',
 		$dir_uri . '/assets/css/astro/pages.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/pages.css' )
 	);
 	// Astro pull-quote CSS — verbatim port of PullQuote.astro's <style>.
 	// Owned by the bozzies/pull-quote block.
@@ -253,7 +277,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-pull-quote',
 		$dir_uri . '/assets/css/astro/pull-quote.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/pull-quote.css' )
 	);
 	// Astro section-divider CSS — verbatim port of SectionDivider.astro's
 	// <style>. Owned by the bozzies/divider block.
@@ -261,7 +285,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-section-divider',
 		$dir_uri . '/assets/css/astro/section-divider.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/section-divider.css' )
 	);
 	// Astro nav CSS — verbatim port of Nav.astro's <style>. Owned by the
 	// bozzies/site-nav block; used by parts/header.html.
@@ -269,7 +293,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-nav',
 		$dir_uri . '/assets/css/astro/nav.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/nav.css' )
 	);
 	// Astro footer CSS — verbatim port of Footer.astro's <style>. Owned by
 	// the bozzies/site-footer block; used by parts/footer.html.
@@ -277,7 +301,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-footer',
 		$dir_uri . '/assets/css/astro/footer.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/footer.css' )
 	);
 	// Astro prose-body CSS — verbatim port of the .charts-body and
 	// .reviews-body page-scoped prose rules from charts.astro and
@@ -287,7 +311,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-prose-body',
 		$dir_uri . '/assets/css/astro/prose-body.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/prose-body.css' )
 	);
 	// Astro playlist-player CSS — verbatim port of PlaylistPlayer.astro's
 	// <style>. Owned by the bozzies/playlist-player block.
@@ -295,7 +319,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-playlist-player',
 		$dir_uri . '/assets/css/astro/playlist-player.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/playlist-player.css' )
 	);
 	// Astro quotes-carousel CSS — verbatim port of QuotesCarousel.astro's
 	// <style>. Owned by the bozzies/quotes-carousel block.
@@ -303,7 +327,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-quotes-carousel',
 		$dir_uri . '/assets/css/astro/quotes-carousel.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/quotes-carousel.css' )
 	);
 	// Astro timeline CSS — verbatim port of Timeline.astro's <style>
 	// plus career-timeline.astro's `.timeline-section` wrapper rules.
@@ -312,7 +336,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-timeline',
 		$dir_uri . '/assets/css/astro/timeline.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/timeline.css' )
 	);
 	// Astro discography CSS — verbatim port of the .disc-search / .disc-scope
 	// / .disc-session / .disc-track rules from media/discography.astro L175-265.
@@ -321,7 +345,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-discography',
 		$dir_uri . '/assets/css/astro/discography.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/discography.css' )
 	);
 	// Contact page + Contact Form 7 styling — theme-owned (no Astro
 	// equivalent). Enqueued globally so the shortcode can live on any page.
@@ -329,7 +353,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-contact',
 		$dir_uri . '/assets/css/astro/contact.css',
 		array( 'bozzies-astro-global' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/contact.css' )
 	);
 	// Shared list-width rule — caps vertical content lists (article lists,
 	// release grid, lesson cards, music teasers grid, discography sessions,
@@ -339,7 +363,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-astro-lists',
 		$dir_uri . '/assets/css/astro/lists.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-cards', 'bozzies-astro-article', 'bozzies-astro-discography' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/astro/lists.css' )
 	);
 	// chrome.css is what remains of the pre-rebuild theme CSS. During the
 	// rebuild it is being pared down commit-by-commit as ports land; it
@@ -349,7 +373,7 @@ function bozzies_enqueue_chrome() {
 		'bozzies-chrome',
 		$dir_uri . '/assets/css/chrome.css',
 		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline', 'bozzies-astro-discography', 'bozzies-astro-contact', 'bozzies-astro-lists' ),
-		$ver
+		bozzies_asset_ver( 'assets/css/chrome.css' )
 	);
 
 	// Playlist player front-end JS — verbatim port of PlaylistPlayer.astro's
@@ -360,7 +384,7 @@ function bozzies_enqueue_chrome() {
 			'bozzies-playlist-player',
 			$dir_uri . '/assets/js/playlist-player.js',
 			array(),
-			$ver,
+			bozzies_asset_ver( 'assets/js/playlist-player.js' ),
 			true
 		);
 	}
@@ -373,7 +397,7 @@ function bozzies_enqueue_chrome() {
 			'bozzies-quotes-carousel',
 			$dir_uri . '/assets/js/quotes-carousel.js',
 			array(),
-			$ver,
+			bozzies_asset_ver( 'assets/js/quotes-carousel.js' ),
 			true
 		);
 	}
@@ -386,7 +410,7 @@ function bozzies_enqueue_chrome() {
 			'bozzies-discography-search',
 			$dir_uri . '/assets/js/discography-search.js',
 			array(),
-			$ver,
+			bozzies_asset_ver( 'assets/js/discography-search.js' ),
 			true
 		);
 	}
@@ -429,12 +453,11 @@ function bozzies_enqueue_article_meta_panel() {
 	if ( $screen && isset( $screen->post_type ) && 'post' !== $screen->post_type ) {
 		return;
 	}
-	$ver = wp_get_theme()->get( 'Version' );
 	wp_enqueue_script(
 		'bozzies-article-meta-panel',
 		get_stylesheet_directory_uri() . '/assets/js/article-meta-panel.js',
 		array( 'wp-plugins', 'wp-edit-post', 'wp-element', 'wp-components', 'wp-data', 'wp-core-data', 'wp-i18n' ),
-		$ver,
+		bozzies_asset_ver( 'assets/js/article-meta-panel.js' ),
 		true
 	);
 }
