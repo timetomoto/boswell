@@ -83,8 +83,13 @@
 	padding: 0;
 	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
 }
-.qc__btn:hover, .qc__btn:focus-visible { background: var(--yellow-soft); color: var(--purple); outline: none; }
-.qc__btn:focus-visible { box-shadow: 0 0 0 3px rgba(225, 194, 99, 0.35); }
+.qc__btn:hover { background: var(--yellow-soft); color: var(--purple); }
+/* Solid yellow-soft outline on purple ground is ~6.6:1 contrast, well past
+ * WCAG 1.4.11's 3:1 for a non-text UI indicator. The translucent box-shadow
+ * ring here used to disappear against the backdrop pattern; drop it in
+ * favour of a hard outline that reads at a glance. (WCAG 2.4.7 Focus
+ * Visible.) */
+.qc__btn:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 3px; }
 .qc__dots {
 	display: flex;
 	align-items: center;

@@ -64,8 +64,11 @@
 		}
 	}
 
+	// The footer "Cookie settings" button renders unconditionally (visible
+	// + focusable from first paint). This file used to flip el.hidden off
+	// here; the a11y remediation branch removed the `hidden` attribute from
+	// the button so we only need to attach the click handler.
 	Array.prototype.forEach.call(settingsButtons, function (el) {
-		el.hidden = false;
 		el.addEventListener('click', function () {
 			showBanner();
 		});

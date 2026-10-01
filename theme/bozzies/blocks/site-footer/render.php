@@ -36,9 +36,10 @@
  * Astro's footer reuses the primary nav menu (Footer.astro L10-11).
  *
  * The cookie-settings button is theme plumbing that Astro doesn't have (the
- * Astro site has no cookie consent flow). It's a `<button hidden>` inside
- * the meta panel, revealed by `assets/js/consent.js` only after the consent
- * banner has been dismissed. Kept when `showCookieButton` is true (default).
+ * Astro site has no cookie consent flow). It renders unconditionally so
+ * keyboard and screen reader users always have a persistent way back to
+ * the consent choice; `assets/js/consent.js` wires the click handler.
+ * Kept when `showCookieButton` is true (default).
  *
  * @package bozzies
  */
@@ -106,7 +107,11 @@ $year           = gmdate( 'Y' );
 		<p><?php echo esc_html( $footer_credits ); ?></p>
 		<p>&copy; <?php echo esc_html( $year ); ?></p>
 <?php if ( ! empty( $attrs['showCookieButton'] ) ) : ?>
-		<button type="button" class="bozzies-cookie-settings" hidden><?php esc_html_e( 'Cookie settings', 'bozzies' ); ?></button>
+		<?php /* Always rendered + always focusable (no `hidden`, no
+		    visually-hidden shim, no tabindex=-1) so keyboard and screen
+		    reader users have a persistent way back to the consent choice.
+		    assets/js/consent.js wires the click. WCAG 2.4.7 + 2.5.8. */ ?>
+		<button type="button" class="bozzies-cookie-settings"><?php esc_html_e( 'Cookie settings', 'bozzies' ); ?></button>
 <?php endif; ?>
 	</div>
 </div>

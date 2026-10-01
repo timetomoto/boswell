@@ -56,14 +56,24 @@
 	padding: 0; cursor: pointer;
 	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
 }
-.pp__btn:hover, .pp__btn:focus-visible { background: var(--purple); color: var(--paper); outline: none; }
+.pp__btn:hover { background: var(--purple); color: var(--paper); }
+/* `:focus-visible` draws an ink ring with 3 px offset so the ring sits on
+ * the paper ground even when the button fill flips to purple. Purple
+ * outline on a purple fill would fall below WCAG 1.4.11's 3:1 minimum;
+ * ink on paper is ~15:1 and ink next to a purple fill is still ≥ 3:1.
+ * The hover state keeps its own colour change for mouse users.
+ * (WCAG 2.4.7 Focus Visible.) */
+.pp__btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .pp__btn--play { width: 56px; height: 56px; background: var(--purple); color: var(--paper); }
-.pp__btn--play:hover, .pp__btn--play:focus-visible { background: var(--oxblood); border-color: var(--oxblood); }
+.pp__btn--play:hover { background: var(--oxblood); border-color: var(--oxblood); }
+.pp__btn--play:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 
 .pp__progress-wrap { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--space-3); }
 .pp__time { font-family: var(--font-ui); font-size: var(--step--1); color: var(--text-on-paper-muted); font-variant-numeric: tabular-nums; }
-.pp__progress { position: relative; height: 6px; background: color-mix(in oklab, var(--paper) 85%, var(--purple) 15%); cursor: pointer; outline: none; }
-.pp__progress:focus-visible { outline: 2px solid var(--purple); outline-offset: 3px; }
+.pp__progress { position: relative; height: 6px; background: color-mix(in oklab, var(--paper) 85%, var(--purple) 15%); cursor: pointer; }
+/* Ink outline here too — the pale purple-mixed background is close to the
+ * `--purple` token so a purple ring would blend; ink gives 15:1. */
+.pp__progress:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
 .pp__progress-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 0%; background: var(--purple); transition: width 120ms linear; }
 
 .pp__list {
@@ -95,7 +105,13 @@
 	transition: background var(--dur) var(--ease-out-quart);
 }
 .pp__track:last-child { border-bottom: 0; }
-.pp__track:hover, .pp__track:focus-visible { background: color-mix(in oklab, var(--purple) 6%, transparent); outline: none; }
+.pp__track:hover { background: color-mix(in oklab, var(--purple) 6%, transparent); }
+/* Inset outline on the track button: the row is full-width inside the
+ * scrollable list, so an outer outline would clip against the neighbour.
+ * `outline-offset: -3px` pulls the ring inside the row by 3 px, keeping
+ * the ink stroke on the paper-tinted background (≥ 15:1 contrast).
+ * (WCAG 2.4.7.) */
+.pp__track:focus-visible { background: color-mix(in oklab, var(--purple) 6%, transparent); outline: 2px solid var(--ink); outline-offset: -3px; }
 .pp__track[aria-current='true'] { background: color-mix(in oklab, var(--purple) 10%, transparent); }
 .pp__track-index { font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1); color: var(--purple); font-feature-settings: 'tnum'; min-width: 2ch; }
 .pp__track-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }

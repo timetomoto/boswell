@@ -101,15 +101,32 @@ body.admin-bar .wp-site-blocks {
 
 /* Cookie settings button on the purple footer — theme plumbing that
  * Astro doesn't have (no cookie consent flow on the Astro site). Rendered
- * inside .site-footer__meta by the bozzies/site-footer block; hidden by
- * default via the `hidden` attribute, revealed by assets/js/consent.js
- * once the banner is dismissed. */
+ * inside .site-footer__meta by the bozzies/site-footer block. Renders
+ * unconditionally — a11y branch removed the `hidden` attribute so the
+ * button is visible + focusable from first paint. assets/js/consent.js
+ * attaches the click handler that opens the consent banner. */
 .site-footer__meta .bozzies-cookie-settings {
-	color: var(--wp--custom--color--text-on-purple);
+	display: inline-block;
+	appearance: none;
+	background: transparent;
+	border: 0;
+	padding: 0;
 	margin-top: var(--wp--preset--spacing--s);
+	font: inherit;
+	color: var(--wp--custom--color--text-on-purple);
+	cursor: pointer;
+	text-decoration: underline;
+	text-underline-offset: 0.2em;
 }
-.site-footer__meta .bozzies-cookie-settings:hover,
+.site-footer__meta .bozzies-cookie-settings:hover {
+	color: var(--wp--custom--color--yellow-soft);
+}
+/* Yellow-soft on purple = ~6.6:1 (easily past WCAG 1.4.11's 3:1 for a
+ * UI indicator). The ring offsets 2 px from the text so it stays on
+ * purple ground rather than hugging the glyphs. (WCAG 2.4.7.) */
 .site-footer__meta .bozzies-cookie-settings:focus-visible {
+	outline: 2px solid var(--wp--custom--color--yellow-soft);
+	outline-offset: 2px;
 	color: var(--wp--custom--color--yellow-soft);
 }
 
