@@ -1,0 +1,28 @@
+/*
+ * Shared list-width rule — every vertical content list on the site caps
+ * at the same measure the timeline uses on /sisters/connee/ (li.timeline__entry).
+ *
+ * Measured on /sisters/connee/ @1440 viewport:
+ *   .timeline            max-width = var(--measure-wide) = 60rem
+ *   computed             1080px (because global.css sets html font-size to
+ *                        112.5%, so 1rem = 18px → 60rem = 1080px).
+ *   li.timeline__entry   stretches full width (border-box, 0 padding, 0
+ *                        margin), so entry width == parent width == 1080px.
+ *
+ * This file applies the same cap + centering to the vertical lists on
+ * /press/, /media/, every press subhub archive, every media sub-page that
+ * holds a listing, and any owner-added core/list (`.wp-block-list`) in page
+ * content. Nav + footer `<ul>`s are untouched — they don't use any of
+ * these class names.
+ */
+
+.article-list,
+.bozzies-article-list,
+.releases-grid,
+.lessons-cards,
+.music-teasers__grid,
+.disc-sessions,
+.wp-site-blocks main .wp-block-list {
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+}
