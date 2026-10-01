@@ -362,7 +362,7 @@ function buildPressHub({ hubs, releases, media }) {
   const hero = heroPhoto({
     media: media.bozbuz,
     title: 'Press',
-    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.',
+    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, and interviews.',
   });
 
   const intro = proseSection([
@@ -372,7 +372,9 @@ function buildPressHub({ hubs, releases, media }) {
     p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body', fontSize: 'lead' }),
   ]);
 
-  const subhubs = hubs.filter(h => h.hasEntries).map(buildSubhubSection);
+  // Video is no longer rendered on /press/ — the video category lives under
+  // /media/video/ and appears in the Media hub instead.
+  const subhubs = hubs.filter(h => h.hasEntries && PRESS_HUB_SLUGS.has(h.slug)).map(buildSubhubSection);
 
   // Astro's press-releases section is emitted verbatim by the
   // bozzies/release-cards + bozzies/release-card blocks. Container renders
@@ -413,9 +415,14 @@ function buildArticleContent(data, bodyBlocks) {
   // + width edge, plus an inner wp:group with class "container article-hero__inner"
   // holding the four child blocks. The meta paragraph is a bindings paragraph
   // so post_meta (bozzies/article-meta) fills it at render time.
+  // Video features live under /media/video/ instead of /press/video/ — the
+  // owner reorganized the content hierarchy (video is Media-adjacent).
+  // Astro's source still groups video under press, so this is a deliberate
+  // WP-only divergence.
+  const isVideo = data.subhub === 'video';
   const hubLabel = (HUB_ORDER.find(h => h.slug === data.subhub) || {}).label || 'Press';
-  const backHref = `/press/${data.subhub}/`;
-  const backText = `← Press &middot; ${hubLabel}`;
+  const backHref = isVideo ? '/media/video/' : `/press/${data.subhub}/`;
+  const backText = isVideo ? '← Media &middot; Video' : `← Press &middot; ${hubLabel}`;
   const backAnchor = `<!-- wp:paragraph {"className":"article-hero__back"} --><p class="article-hero__back"><a href="${backHref}">${backText}</a></p><!-- /wp:paragraph -->`;
   const titleH1 = `<!-- wp:heading {"level":1,"className":"article-hero__title"} --><h1 class="wp-block-heading article-hero__title">${data.title}</h1><!-- /wp:heading -->`;
   const hasMeta = !!(data.author || data.publication || data.publicationDate);
@@ -469,6 +476,10 @@ function updateCategoryDescriptions() {
 }
 
 // The 5 press sub-hubs in Astro's stated `order` (from src/content/press-hubs/*.md).
+// Press sub-hubs listed on /press/ in this order. Video is intentionally
+// absent: videos are a Media feature now, listed on /media/video/ and
+// surfaced on the Media hub. HUB_ORDER still keeps the video entry below so
+// article back-link labels + the perSubhubIndex ordering keep working.
 const HUB_ORDER = [
   { slug: 'vintage',            kicker: 'From the 1930s',  label: 'Vintage Articles' },
   { slug: 'in-their-own-words', kicker: 'Interviews',      label: 'In Their Own Words' },
@@ -476,6 +487,7 @@ const HUB_ORDER = [
   { slug: 'feature',            kicker: 'Modern Writing',  label: 'Features' },
   { slug: 'essay',              kicker: 'Bozzies.org',     label: 'About the Site' },
 ];
+const PRESS_HUB_SLUGS = new Set( HUB_ORDER.filter(h => h.slug !== 'video').map(h => h.slug) );
 const HUB_BLURBS = {
   vintage: 'Newspaper and magazine pieces published while the trio was in full swing.',
   'in-their-own-words': 'Firsthand accounts and interview transcripts.',

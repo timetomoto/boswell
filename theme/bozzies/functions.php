@@ -572,6 +572,12 @@ add_filter( 'wpcf7_autop_or_not', '__return_false' );
  * refuses to dispatch descendant URLs to posts (the "press" page hub blocks
  * all article URLs). See settled decisions: articles are posts, sub-hubs are
  * categories, article URLs are /press/{category}/{slug}/.
+ *
+ * Video is a sibling exception: the `video` category lives under /media/ in
+ * the owner's content organization even though it uses the same `category`
+ * taxonomy as the press subhubs. The two /media/video/* rules + the
+ * post_link / term_link filters below let the video category serve from
+ * /media/video/ while every other category uses the /press/ base.
  */
 add_action( 'init', 'bozzies_press_rewrite_rule', 11 );
 function bozzies_press_rewrite_rule() {
@@ -580,6 +586,49 @@ function bozzies_press_rewrite_rule() {
 		'index.php?category_name=$matches[1]&name=$matches[2]',
 		'top'
 	);
+	// Video category lives under /media/. Order matters: the longer, more
+	// specific `/media/video/{slug}` rule is added first so it wins when both
+	// match.
+	add_rewrite_rule(
+		'^media/video/([^/]+)/?$',
+		'index.php?category_name=video&name=$matches[1]',
+		'top'
+	);
+	add_rewrite_rule(
+		'^media/video/?$',
+		'index.php?category_name=video',
+		'top'
+	);
+}
+
+/**
+ * Make posts in the `video` category have canonical URL /media/video/{slug}/
+ * instead of /press/video/{slug}/. Called by `get_permalink()`, so permalinks
+ * emitted by every WP helper (post-title isLink, article nav, REST responses)
+ * all go through this.
+ */
+add_filter( 'post_link', 'bozzies_video_post_link', 10, 2 );
+function bozzies_video_post_link( $url, $post ) {
+	if ( ! $post instanceof WP_Post || 'post' !== $post->post_type ) {
+		return $url;
+	}
+	$slugs = wp_get_post_categories( $post->ID, array( 'fields' => 'slugs' ) );
+	if ( in_array( 'video', $slugs, true ) ) {
+		return home_url( '/media/video/' . $post->post_name . '/' );
+	}
+	return $url;
+}
+
+/**
+ * The Video Features category archive lives at /media/video/, not
+ * /category/video/ (WP default) or /press/video/ (the sibling press hubs).
+ */
+add_filter( 'term_link', 'bozzies_video_term_link', 10, 3 );
+function bozzies_video_term_link( $url, $term, $taxonomy ) {
+	if ( 'category' === $taxonomy && isset( $term->slug ) && 'video' === $term->slug ) {
+		return home_url( '/media/video/' );
+	}
+	return $url;
 }
 
 /**

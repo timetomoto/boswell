@@ -17,8 +17,8 @@ const PAGES = [
   '/sisters/bio-resources/', '/sisters/career-timeline/',
   '/media/', '/media/charts/', '/media/reviews/', '/media/discography/',
   '/media/lessons/', '/media/lessons/lesson-1/', '/media/lessons/lesson-2/', '/media/lessons/lesson-3/', '/media/lessons/lesson-4/', '/media/lessons/lesson-5/',
-  '/press/', '/press/vintage/', '/press/feature/', '/press/video/', '/press/essay/', '/press/in-their-own-words/',
-  '/press/feature/home-at-last/', '/press/vintage/12-bozzin-brian/', '/press/video/boswell-documentary/', '/press/feature/its-the-girls/',
+  '/press/', '/press/vintage/', '/press/feature/', '/media/video/', '/press/essay/', '/press/in-their-own-words/',
+  '/press/feature/home-at-last/', '/press/vintage/12-bozzin-brian/', '/media/video/boswell-documentary/', '/press/feature/its-the-girls/',
   '/press/essay/what-is-getting-bozzed/', '/press/in-their-own-words/martha-the-spotlight/',
 ];
 

@@ -31,12 +31,14 @@ const PAGES = [
   ['press',               '/press/',                              '/press/'],
   ['press-vintage',       '/press/vintage/',                      '/press/vintage/'],
   ['press-feature',       '/press/feature/',                      '/press/feature/'],
-  ['press-video',         '/press/video/',                        '/press/video/'],
+  ['media-video',         '/media/video/',                        '/press/video/'],
   ['press-essay',         '/press/essay/',                        '/press/essay/'],
   ['press-itow',          '/press/in-their-own-words/',           '/press/in-their-own-words/'],
   ['art-vintage',         '/press/vintage/02-cats-hepped/',       '/press/vintage/02-cats-hepped/'],
   ['art-andrews',         '/press/feature/andrews-sisters/',      '/press/feature/andrews-sisters/'],
-  ['art-video',           '/press/video/alexanders-ragtime-band/','/press/video/alexanders-ragtime-band/'],
+  // Video articles live under /media/video/ on WP but Astro keeps them under
+  // /press/video/ (owner-only content reorg).
+  ['art-video',           '/media/video/alexanders-ragtime-band/','/press/video/alexanders-ragtime-band/'],
 ];
 
 const rows = [];
