@@ -15,15 +15,41 @@
 		"customClassName": true,
 		"reusable": false,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":    { "type": "string", "default": "full" },
-		"order":    { "type": "number", "default": 0 },
-		"title":    { "type": "string", "default": "" },
-		"audioUrl": { "type": "string", "default": "" },
-		"audioId":  { "type": "number", "default": 0 }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"order": {
+			"type": "number",
+			"default": 0
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"audioUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"audioId": {
+			"type": "number",
+			"default": 0
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	}
 }

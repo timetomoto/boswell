@@ -15,20 +15,66 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"prevHref":   { "type": "string", "default": "" },
-		"prevLabel":  { "type": "string", "default": "Previous" },
-		"prevName":   { "type": "string", "default": "" },
-		"allHref":    { "type": "string", "default": "/media/" },
-		"allLabel":   { "type": "string", "default": "All" },
-		"allName":    { "type": "string", "default": "Lessons" },
-		"nextHref":   { "type": "string", "default": "" },
-		"nextLabel":  { "type": "string", "default": "Next" },
-		"nextName":   { "type": "string", "default": "" },
-		"ariaLabel":  { "type": "string", "default": "Lessons navigation" }
+		"prevHref": {
+			"type": "string",
+			"default": ""
+		},
+		"prevLabel": {
+			"type": "string",
+			"default": "Previous"
+		},
+		"prevName": {
+			"type": "string",
+			"default": ""
+		},
+		"allHref": {
+			"type": "string",
+			"default": "/media/"
+		},
+		"allLabel": {
+			"type": "string",
+			"default": "All"
+		},
+		"allName": {
+			"type": "string",
+			"default": "Lessons"
+		},
+		"nextHref": {
+			"type": "string",
+			"default": ""
+		},
+		"nextLabel": {
+			"type": "string",
+			"default": "Next"
+		},
+		"nextName": {
+			"type": "string",
+			"default": ""
+		},
+		"ariaLabel": {
+			"type": "string",
+			"default": "Lessons navigation"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"prevHref": "/media/lessons/lesson-1/",
+			"prevLabel": "Previous",
+			"prevName": "Lesson 1 — The Blend",
+			"allHref": "/media/",
+			"allLabel": "All lessons",
+			"allName": "Media",
+			"nextHref": "/media/lessons/lesson-3/",
+			"nextLabel": "Next",
+			"nextName": "Lesson 3 — The Riffs",
+			"ariaLabel": "Lesson navigation"
+		}
+	}
 }

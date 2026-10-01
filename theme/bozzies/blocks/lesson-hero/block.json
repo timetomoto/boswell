@@ -15,16 +15,46 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":     { "type": "string", "default": "full" },
-		"eyebrow":   { "type": "string", "default": "" },
-		"title":     { "type": "string", "default": "" },
-		"summary":   { "type": "string", "default": "" },
-		"backHref":  { "type": "string", "default": "/media/" },
-		"backLabel": { "type": "string", "default": "Media" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"summary": {
+			"type": "string",
+			"default": ""
+		},
+		"backHref": {
+			"type": "string",
+			"default": "/media/"
+		},
+		"backLabel": {
+			"type": "string",
+			"default": "Media"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Lesson 01",
+			"title": "The Blend",
+			"summary": "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound.",
+			"backHref": "/media/",
+			"backLabel": "Media"
+		}
+	}
 }

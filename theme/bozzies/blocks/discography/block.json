@@ -29,8 +29,17 @@
 		"searchPlaceholder": {
 			"type": "string",
 			"default": "e.g. Heebie Jeebies, Brunswick, Dorsey"
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	}
 }

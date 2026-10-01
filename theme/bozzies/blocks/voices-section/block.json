@@ -15,13 +15,40 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "full" },
-		"eyebrow": { "type": "string", "default": "" },
-		"title":   { "type": "string", "default": "" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "In Their Words",
+			"title": "What the world has said about the Boswells"
+		},
+		"innerBlocks": [
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "[Quotes carousel goes here]",
+					"align": "center"
+				}
+			}
+		]
+	}
 }

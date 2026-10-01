@@ -15,14 +15,64 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "full" },
-		"eyebrow": { "type": "string", "default": "" },
-		"title":   { "type": "string", "default": "" },
-		"blurb":   { "type": "string", "default": "" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"blurb": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"eyebrow": "The Press Room",
+			"title": "Press releases & media",
+			"blurb": "Original press releases, event announcements, and archival documents. Each opens as a PDF."
+		},
+		"innerBlocks": [
+			{
+				"name": "bozzies/release-card",
+				"attributes": {
+					"documentType": "PDF",
+					"title": "Boswell Sisters Centennial Program, 2025",
+					"releaseDate": "2025-03-01",
+					"href": ""
+				}
+			},
+			{
+				"name": "bozzies/release-card",
+				"attributes": {
+					"documentType": "PDF",
+					"title": "Boswell Sisters Tribute Dinner",
+					"releaseDate": "2024-10-14",
+					"href": ""
+				}
+			},
+			{
+				"name": "bozzies/release-card",
+				"attributes": {
+					"documentType": "PDF",
+					"title": "Centennial Press Release",
+					"releaseDate": "2024-06-03",
+					"href": ""
+				}
+			}
+		]
+	}
 }

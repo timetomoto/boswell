@@ -15,12 +15,52 @@
 		"customClassName": true,
 		"reusable": false,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "full" },
-		"variant": { "type": "string", "default": "generic", "enum": [ "generic", "charts", "reviews" ] }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"variant": {
+			"type": "string",
+			"default": "generic",
+			"enum": [
+				"generic",
+				"charts",
+				"reviews"
+			]
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"variant": "default"
+		},
+		"innerBlocks": [
+			{
+				"name": "core/heading",
+				"attributes": {
+					"level": 2,
+					"content": "The Boswell Sisters on the Radio"
+				}
+			},
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "From 1931 the Boswells were a prime draw on the Woodbury’s cosmetics variety show on CBS, where their rhythmic arrangements reached millions each week."
+				}
+			},
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "Many of the broadcast transcriptions survive. Together with their commercial Victor and Brunswick sides, they document a sound no vocal group had made before and few have attempted since."
+				}
+			}
+		]
+	}
 }

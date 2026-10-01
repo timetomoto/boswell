@@ -15,20 +15,66 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"prevHref":   { "type": "string", "default": "" },
-		"prevLabel":  { "type": "string", "default": "Previous" },
-		"prevName":   { "type": "string", "default": "" },
-		"allHref":    { "type": "string", "default": "/sisters/" },
-		"allLabel":   { "type": "string", "default": "All" },
-		"allName":    { "type": "string", "default": "The Sisters" },
-		"nextHref":   { "type": "string", "default": "" },
-		"nextLabel":  { "type": "string", "default": "Next" },
-		"nextName":   { "type": "string", "default": "" },
-		"ariaLabel":  { "type": "string", "default": "Sisters navigation" }
+		"prevHref": {
+			"type": "string",
+			"default": ""
+		},
+		"prevLabel": {
+			"type": "string",
+			"default": "Previous"
+		},
+		"prevName": {
+			"type": "string",
+			"default": ""
+		},
+		"allHref": {
+			"type": "string",
+			"default": "/sisters/"
+		},
+		"allLabel": {
+			"type": "string",
+			"default": "All"
+		},
+		"allName": {
+			"type": "string",
+			"default": "The Sisters"
+		},
+		"nextHref": {
+			"type": "string",
+			"default": ""
+		},
+		"nextLabel": {
+			"type": "string",
+			"default": "Next"
+		},
+		"nextName": {
+			"type": "string",
+			"default": ""
+		},
+		"ariaLabel": {
+			"type": "string",
+			"default": "Sisters navigation"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"prevHref": "/sisters/martha/",
+			"prevLabel": "Previous",
+			"prevName": "Martha Boswell",
+			"allHref": "/sisters/",
+			"allLabel": "All",
+			"allName": "The Sisters",
+			"nextHref": "/sisters/vet/",
+			"nextLabel": "Next",
+			"nextName": "Vet Boswell",
+			"ariaLabel": "Sisters navigation"
+		}
+	}
 }

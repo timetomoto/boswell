@@ -15,11 +15,53 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align": { "type": "string", "default": "full" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full"
+		},
+		"innerBlocks": [
+			{
+				"name": "bozzies/music-teaser",
+				"attributes": {
+					"eyebrow": "Discography",
+					"title": "Boz on the Charts",
+					"body": "Chart positions from Brunswick 6083 in 1931 to Decca in the late 1930s.",
+					"href": "/media/charts/",
+					"ctaLabel": "Explore the charts"
+				}
+			},
+			{
+				"name": "bozzies/music-teaser",
+				"attributes": {
+					"eyebrow": "Reviews",
+					"title": "Album reviews from the experts",
+					"body": "Hand-picked reviews for anyone starting a Boz collection.",
+					"href": "/media/reviews/",
+					"ctaLabel": "Read the reviews"
+				}
+			},
+			{
+				"name": "bozzies/music-teaser",
+				"attributes": {
+					"eyebrow": "Discography",
+					"title": "Every session, every track",
+					"body": "128 recording sessions spanning 1925 to 1957.",
+					"href": "/media/discography/",
+					"ctaLabel": "Browse the sessions"
+				}
+			}
+		]
+	}
 }

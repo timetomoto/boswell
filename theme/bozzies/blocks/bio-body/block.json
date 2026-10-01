@@ -15,14 +15,49 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"portraitId":      { "type": "number", "default": 0 },
-		"portraitUrl":     { "type": "string", "default": "" },
-		"portraitAlt":     { "type": "string", "default": "" },
-		"portraitCaption": { "type": "string", "default": "" }
+		"portraitId": {
+			"type": "number",
+			"default": 0
+		},
+		"portraitUrl": {
+			"type": "string",
+			"default": ""
+		},
+		"portraitAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"portraitCaption": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"portraitUrl": "",
+			"portraitAlt": "Connee Boswell portrait",
+			"portraitCaption": "Connee Boswell, 1935."
+		},
+		"innerBlocks": [
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "The middle sister whose solo career outlasted the trio by three decades. Connee Boswell shaped American popular singing in ways we’re only now beginning to credit."
+				}
+			},
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "From the Boswell Sisters’ Victor sides in 1925 through her final Sy Oliver sessions in 1957, Connee kept finding new ways to swing."
+				}
+			}
+		]
+	}
 }

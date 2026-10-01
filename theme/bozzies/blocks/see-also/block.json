@@ -15,16 +15,46 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":    { "type": "string", "default": "full" },
-		"eyebrow":  { "type": "string", "default": "See also" },
-		"title":    { "type": "string", "default": "" },
-		"body":     { "type": "string", "default": "" },
-		"href":     { "type": "string", "default": "" },
-		"ctaLabel": { "type": "string", "default": "Explore" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "See also"
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"body": {
+			"type": "string",
+			"default": ""
+		},
+		"href": {
+			"type": "string",
+			"default": ""
+		},
+		"ctaLabel": {
+			"type": "string",
+			"default": "Explore"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "See also",
+			"title": "Every session, every track",
+			"body": "Explore the full discography of 128 recording sessions, searchable by title, matrix, or personnel.",
+			"href": "/media/discography/",
+			"ctaLabel": "Explore"
+		}
+	}
 }

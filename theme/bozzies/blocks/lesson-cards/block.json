@@ -15,14 +15,68 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "full" },
-		"eyebrow": { "type": "string", "default": "" },
-		"title":   { "type": "string", "default": "" },
-		"lede":    { "type": "string", "default": "" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"lede": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Audio Lessons",
+			"title": "Five keys to the Boswell sound",
+			"lede": "Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did."
+		},
+		"innerBlocks": [
+			{
+				"name": "bozzies/lesson-card",
+				"attributes": {
+					"order": 1,
+					"title": "The Blend",
+					"summary": "Three sisters singing so closely blended they sometimes read as one voice.",
+					"href": "/media/lessons/lesson-1/",
+					"ctaLabel": "Listen"
+				}
+			},
+			{
+				"name": "bozzies/lesson-card",
+				"attributes": {
+					"order": 2,
+					"title": "The Tempo",
+					"summary": "Signature four-to-five tempo shifts within a single arrangement.",
+					"href": "/media/lessons/lesson-2/",
+					"ctaLabel": "Listen"
+				}
+			},
+			{
+				"name": "bozzies/lesson-card",
+				"attributes": {
+					"order": 3,
+					"title": "The Riffs",
+					"summary": "Instrumental-style rhythmic figures the Boswells pulled off with their voices.",
+					"href": "/media/lessons/lesson-3/",
+					"ctaLabel": "Listen"
+				}
+			}
+		]
+	}
 }

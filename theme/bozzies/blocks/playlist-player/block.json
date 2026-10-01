@@ -20,8 +20,17 @@
 		"tracks": {
 			"type": "array",
 			"default": []
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	}
 }

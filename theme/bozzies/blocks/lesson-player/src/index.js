@@ -23,6 +23,22 @@ const TEMPLATE = [
 
 registerBlockType( metadata.name, {
 	edit: ( { attributes, setAttributes } ) => {
+			// Inserter preview thumbnail — rendered when the block's example
+			// in block.json sets isPreview:true. Avoids the JS/audio UI the
+			// real edit view uses, which doesn't read well in the small preview.
+			if ( attributes.isPreview ) {
+				const base = ( typeof window !== 'undefined' && window.__BOZZIES_PREVIEW_BASE__ ) || '/wp-content/themes/bozzies/assets/img/block-previews/';
+				return (
+					<div { ...useBlockProps() }>
+						<img
+							src={ base + 'lesson-player.png' }
+							alt=""
+							style={ { display: 'block', width: '100%', height: 'auto', borderRadius: 4 } }
+						/>
+					</div>
+				);
+			}
+
 		const { order, title, audioUrl, audioId } = attributes;
 
 		const blockProps = useBlockProps( { className: 'section ground-paper lesson-player-section' } );

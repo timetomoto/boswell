@@ -15,14 +15,45 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "full" },
-		"eyebrow": { "type": "string", "default": "" },
-		"title":   { "type": "string", "default": "" },
-		"blurb":   { "type": "string", "default": "" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"blurb": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Music Playlist",
+			"title": "The Boswell Sisters Collection Volume One",
+			"blurb": "Twenty-six sides from Brunswick and Decca, 1925–1935."
+		},
+		"innerBlocks": [
+			{
+				"name": "core/paragraph",
+				"attributes": {
+					"content": "[Playlist player goes here]",
+					"align": "center"
+				}
+			}
+		]
+	}
 }

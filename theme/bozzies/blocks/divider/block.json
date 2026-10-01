@@ -15,13 +15,51 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "wide", "full" ]
+		"align": [
+			"wide",
+			"full"
+		]
 	},
 	"attributes": {
-		"align":   { "type": "string", "default": "wide" },
-		"variant": { "type": "string", "enum": [ "line", "jazz", "second-line", "bar-line", "fan", "step", "rays", "fleur", "deco", "notes", "diamond" ], "default": "jazz" },
-		"color":   { "type": "string", "enum": [ "brass", "purple", "yellow", "copper" ], "default": "purple" }
+		"align": {
+			"type": "string",
+			"default": "wide"
+		},
+		"variant": {
+			"type": "string",
+			"enum": [
+				"line",
+				"jazz",
+				"second-line",
+				"bar-line",
+				"fan",
+				"step",
+				"rays",
+				"fleur",
+				"deco",
+				"notes",
+				"diamond"
+			],
+			"default": "jazz"
+		},
+		"color": {
+			"type": "string",
+			"enum": [
+				"brass",
+				"purple",
+				"yellow",
+				"copper"
+			],
+			"default": "purple"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "wide",
+			"variant": "jazz",
+			"color": "purple"
+		}
+	}
 }

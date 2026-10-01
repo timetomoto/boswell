@@ -15,16 +15,46 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":    { "type": "string", "default": "full" },
-		"eyebrow":  { "type": "string", "default": "Support the Work" },
-		"title":    { "type": "string", "default": "" },
-		"body":     { "type": "string", "default": "" },
-		"href":     { "type": "string", "default": "" },
-		"ctaLabel": { "type": "string", "default": "Donate" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Support the Work"
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"body": {
+			"type": "string",
+			"default": ""
+		},
+		"href": {
+			"type": "string",
+			"default": ""
+		},
+		"ctaLabel": {
+			"type": "string",
+			"default": "Donate"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Support the Work",
+			"title": "Keep the Boswell legacy alive",
+			"body": "The archive runs on sweat and goodwill. If you can help with hosting, scanning, or research, we’re grateful.",
+			"href": "",
+			"ctaLabel": "Donate"
+		}
+	}
 }

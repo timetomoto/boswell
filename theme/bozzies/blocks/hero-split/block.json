@@ -15,19 +15,60 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":       { "type": "string", "default": "full" },
-		"eyebrow":     { "type": "string", "default": "" },
-		"title":       { "type": "string", "default": "" },
-		"subtitle":    { "type": "string", "default": "" },
-		"tagline":     { "type": "string", "default": "" },
-		"image":       { "type": "object", "default": null },
-		"imageAlt":    { "type": "string", "default": "" },
-		"imageCredit": { "type": "string", "default": "" },
-		"height":      { "type": "string", "default": "tall" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"subtitle": {
+			"type": "string",
+			"default": ""
+		},
+		"tagline": {
+			"type": "string",
+			"default": ""
+		},
+		"image": {
+			"type": "object",
+			"default": null
+		},
+		"imageAlt": {
+			"type": "string",
+			"default": ""
+		},
+		"imageCredit": {
+			"type": "string",
+			"default": ""
+		},
+		"height": {
+			"type": "string",
+			"default": "tall"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "The Boswell Sisters",
+			"title": "Meet the Boswells",
+			"subtitle": "Three sisters from New Orleans who taught America to sing with each other.",
+			"tagline": "1925 to 1936",
+			"imageAlt": "The Boswell Sisters, c. 1932.",
+			"imageCredit": "c. 1932",
+			"height": "tall"
+		}
+	}
 }

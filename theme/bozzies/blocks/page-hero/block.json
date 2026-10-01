@@ -15,18 +15,65 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":     { "type": "string", "default": "full" },
-		"backHref":  { "type": "string", "default": "/" },
-		"backLabel": { "type": "string", "default": "Home" },
-		"eyebrow":   { "type": "string", "default": "" },
-		"title":     { "type": "string", "default": "" },
-		"subtitle":  { "type": "string", "default": "" },
-		"ground":    { "type": "string", "default": "purple", "enum": [ "purple", "gold" ] },
-		"backdrop":  { "type": "string", "default": "none", "enum": [ "none", "staves", "vinyl" ] }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"backHref": {
+			"type": "string",
+			"default": "/"
+		},
+		"backLabel": {
+			"type": "string",
+			"default": "Home"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"subtitle": {
+			"type": "string",
+			"default": ""
+		},
+		"ground": {
+			"type": "string",
+			"default": "purple",
+			"enum": [
+				"purple",
+				"gold"
+			]
+		},
+		"backdrop": {
+			"type": "string",
+			"default": "none",
+			"enum": [
+				"none",
+				"staves",
+				"vinyl"
+			]
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"backHref": "/media/",
+			"backLabel": "Media",
+			"eyebrow": "Discography",
+			"title": "Every session, every track",
+			"subtitle": "128 sessions, 500+ tracks — searchable by title, matrix, or personnel.",
+			"ground": "purple",
+			"backdrop": "none"
+		}
+	}
 }

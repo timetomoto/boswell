@@ -466,6 +466,12 @@ function bozzies_add_editor_styles() {
 	add_editor_style( 'assets/css/astro/quotes-carousel.css' );
 	add_editor_style( 'assets/css/astro/timeline.css' );
 	add_editor_style( 'assets/css/astro/discography.css' );
+	// Shared list + card-grid widths and the center-paragraph rule — needed
+	// in the editor so inserter previews measure the same as the front end.
+	add_editor_style( 'assets/css/astro/lists.css' );
+	// Contact-form styling — editor-side so a /contact/ page preview looks
+	// right too.
+	add_editor_style( 'assets/css/astro/contact.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
@@ -474,6 +480,23 @@ function bozzies_add_editor_styles() {
  * The meta keys are underscore-prefixed so Custom Fields hides them; this
  * panel gives the owner a normal Gutenberg control that writes through REST.
  */
+/**
+ * Expose the block-previews image directory to the inserter preview. The
+ * five JS/audio-dependent blocks (playlist-player, quotes-carousel,
+ * discography, lesson-player, timeline) render a static <img> when their
+ * example sets isPreview:true, pulling the file from here.
+ */
+add_action( 'enqueue_block_editor_assets', 'bozzies_block_preview_base' );
+function bozzies_block_preview_base() {
+	wp_register_script( 'bozzies-block-preview-base', '', array( 'wp-blocks' ), null, false );
+	wp_enqueue_script( 'bozzies-block-preview-base' );
+	wp_add_inline_script(
+		'bozzies-block-preview-base',
+		'window.__BOZZIES_PREVIEW_BASE__ = ' . wp_json_encode( get_stylesheet_directory_uri() . '/assets/img/block-previews/' ) . ';',
+		'after'
+	);
+}
+
 add_action( 'enqueue_block_editor_assets', 'bozzies_enqueue_article_meta_panel' );
 function bozzies_enqueue_article_meta_panel() {
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;

@@ -15,14 +15,40 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":       { "type": "string", "default": "full" },
-		"quote":       { "type": "string", "default": "" },
-		"attribution": { "type": "string", "default": "" },
-		"backdrop":    { "type": "string", "enum": [ "none", "notes" ], "default": "none" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"quote": {
+			"type": "string",
+			"default": ""
+		},
+		"attribution": {
+			"type": "string",
+			"default": ""
+		},
+		"backdrop": {
+			"type": "string",
+			"enum": [
+				"none",
+				"notes"
+			],
+			"default": "none"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"quote": "They (the Boswell Sisters) changed popular music from the 1930s forward.",
+			"attribution": "James Von Schilling",
+			"backdrop": "notes"
+		}
+	}
 }

@@ -18,5 +18,43 @@
 	},
 	"attributes": {},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {},
+		"innerBlocks": [
+			{
+				"name": "bozzies/sister-card",
+				"attributes": {
+					"order": "01",
+					"nickname": "MBoz",
+					"name": "Martha Boswell",
+					"quote": "If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.",
+					"href": "/sisters/martha/",
+					"ctaLabel": "Read the bio"
+				}
+			},
+			{
+				"name": "bozzies/sister-card",
+				"attributes": {
+					"order": "02",
+					"nickname": "CBoz",
+					"name": "Connee Boswell",
+					"quote": "We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, \"They also sing\".",
+					"href": "/sisters/connee/",
+					"ctaLabel": "Read the bio"
+				}
+			},
+			{
+				"name": "bozzies/sister-card",
+				"attributes": {
+					"order": "03",
+					"nickname": "VBoz",
+					"name": "Vet Boswell",
+					"quote": "A tribute to Charles M. Boswell, our father, who taught us three girls to love and respect music.",
+					"href": "/sisters/vet/",
+					"ctaLabel": "Read the bio"
+				}
+			}
+		]
+	}
 }

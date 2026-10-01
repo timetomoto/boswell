@@ -15,11 +15,43 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align": { "type": "string", "default": "full" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full"
+		},
+		"innerBlocks": [
+			{
+				"name": "bozzies/subpage-card",
+				"attributes": {
+					"eyebrow": "A Family Affair",
+					"title": "Boz Biography",
+					"body": "The definitive family biography of the Boswell Sisters.",
+					"href": "/sisters/bio-resources/",
+					"ctaLabel": "Open the biography"
+				}
+			},
+			{
+				"name": "bozzies/subpage-card",
+				"attributes": {
+					"eyebrow": "Career Timeline",
+					"title": "Sessions, broadcasts, films",
+					"body": "The Boswells’ career on a single timeline, 1925 to 1976.",
+					"href": "/sisters/career-timeline/",
+					"ctaLabel": "Open the timeline"
+				}
+			}
+		]
+	}
 }

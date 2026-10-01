@@ -18,5 +18,38 @@
 	},
 	"attributes": {},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {},
+		"innerBlocks": [
+			{
+				"name": "bozzies/fact",
+				"attributes": {
+					"label": "Born",
+					"value": "Dec 3, 1907 — New Orleans"
+				}
+			},
+			{
+				"name": "bozzies/fact",
+				"attributes": {
+					"label": "Died",
+					"value": "Oct 11, 1976 — New York City"
+				}
+			},
+			{
+				"name": "bozzies/fact",
+				"attributes": {
+					"label": "Instrument",
+					"value": "Voice, cello"
+				}
+			},
+			{
+				"name": "bozzies/fact",
+				"attributes": {
+					"label": "Years active",
+					"value": "1925 — 1957"
+				}
+			}
+		]
+	}
 }

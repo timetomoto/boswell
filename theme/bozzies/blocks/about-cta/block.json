@@ -15,18 +15,56 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":           { "type": "string", "default": "full" },
-		"eyebrow":         { "type": "string", "default": "Get in touch" },
-		"title":           { "type": "string", "default": "" },
-		"body":            { "type": "string", "default": "" },
-		"contactHref":     { "type": "string", "default": "" },
-		"contactLabel":    { "type": "string", "default": "Contact" },
-		"donateHref":      { "type": "string", "default": "" },
-		"donateLabel":     { "type": "string", "default": "Donate" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": "Get in touch"
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"body": {
+			"type": "string",
+			"default": ""
+		},
+		"contactHref": {
+			"type": "string",
+			"default": ""
+		},
+		"contactLabel": {
+			"type": "string",
+			"default": "Contact"
+		},
+		"donateHref": {
+			"type": "string",
+			"default": ""
+		},
+		"donateLabel": {
+			"type": "string",
+			"default": "Donate"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Get in touch",
+			"title": "Have something to share, or want to help?",
+			"body": "Reach out with material for the archive, corrections, or collaboration ideas — or make a donation to help keep the Boswells’ legacy alive.",
+			"contactHref": "/contact/",
+			"contactLabel": "Contact us",
+			"donateHref": "",
+			"donateLabel": "Donate"
+		}
+	}
 }

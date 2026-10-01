@@ -24,8 +24,17 @@
 		"color": {
 			"type": "string",
 			"default": "purple"
+		},
+		"isPreview": {
+			"type": "boolean",
+			"default": false
 		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"isPreview": true
+		}
+	}
 }

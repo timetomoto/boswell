@@ -15,16 +15,46 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":    { "type": "string", "default": "full" },
-		"eyebrow":  { "type": "string", "default": "" },
-		"title":    { "type": "string", "default": "" },
-		"body":     { "type": "string", "default": "" },
-		"href":     { "type": "string", "default": "/media/lessons/1/" },
-		"ctaLabel": { "type": "string", "default": "Play Lesson 1" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"title": {
+			"type": "string",
+			"default": ""
+		},
+		"body": {
+			"type": "string",
+			"default": ""
+		},
+		"href": {
+			"type": "string",
+			"default": "/media/lessons/1/"
+		},
+		"ctaLabel": {
+			"type": "string",
+			"default": "Play Lesson 1"
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "Sample the Sound",
+			"title": "A little lesson, to start",
+			"body": "Hear what makes the Boswells, the Boswells. Lesson one is a four-minute primer on the famous Boswell blend.",
+			"href": "/media/lessons/lesson-1/",
+			"ctaLabel": "Play Lesson 1"
+		}
+	}
 }

@@ -15,15 +15,41 @@
 		"customClassName": true,
 		"reusable": true,
 		"inserter": true,
-		"align": [ "full" ]
+		"align": [
+			"full"
+		]
 	},
 	"attributes": {
-		"align":    { "type": "string", "default": "full" },
-		"eyebrow":  { "type": "string", "default": "" },
-		"lede":     { "type": "string", "default": "" },
-		"bodyLead": { "type": "string", "default": "" },
-		"body":     { "type": "string", "default": "" }
+		"align": {
+			"type": "string",
+			"default": "full"
+		},
+		"eyebrow": {
+			"type": "string",
+			"default": ""
+		},
+		"lede": {
+			"type": "string",
+			"default": ""
+		},
+		"bodyLead": {
+			"type": "string",
+			"default": ""
+		},
+		"body": {
+			"type": "string",
+			"default": ""
+		}
 	},
 	"editorScript": "file:./build/index.js",
-	"render": "file:./render.php"
+	"render": "file:./render.php",
+	"example": {
+		"attributes": {
+			"align": "full",
+			"eyebrow": "",
+			"lede": "Three sisters from New Orleans whose vocal arrangements changed what American popular music could sound like.",
+			"bodyLead": "The Boswell Sisters recorded for Victor, Brunswick, and Decca between 1925 and 1936.",
+			"body": "Their rhythmic feel, harmonic daring, and tempo-shifting arrangements influenced every vocal group that followed — the Andrews Sisters, the Pointer Sisters, Lambert, Hendricks & Ross, Manhattan Transfer."
+		}
+	}
 }
