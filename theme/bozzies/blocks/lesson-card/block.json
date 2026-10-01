@@ -4,7 +4,7 @@
 	"name": "bozzies/lesson-card",
 	"version": "1.0.0",
 	"title": "Lesson card",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "media-audio",
 	"parent": [ "bozzies/lesson-cards" ],
 	"description": "One numbered lesson row on the Media hub. Order, title, summary, link, and CTA label are all editable.",

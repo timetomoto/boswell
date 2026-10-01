@@ -4,7 +4,7 @@
 	"name": "bozzies/playlist-player",
 	"version": "1.0.0",
 	"title": "Playlist player",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "playlist-audio",
 	"description": "Astro's interactive playlist player — the .pp module with player controls, progress bar, and scrollable track list. Verbatim from ~/boswell-poc/src/components/PlaylistPlayer.astro. Track metadata (title / artist / year / duration / audio URL) is stored on the block; front-end JS wires up play/pause, seeking, keyboard control.",
 	"textdomain": "bozzies",

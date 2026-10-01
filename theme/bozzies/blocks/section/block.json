@@ -4,7 +4,7 @@
 	"name": "bozzies/section",
 	"version": "1.0.0",
 	"title": "Section",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "align-full-width",
 	"description": "Full-bleed section with ground color, optional background image and pattern, width, heading width, spacing, and hero options.",
 	"textdomain": "bozzies",

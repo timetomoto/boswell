@@ -4,7 +4,7 @@
 	"name": "bozzies/divider",
 	"version": "1.0.0",
 	"title": "Section divider",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "minus",
 	"description": "Astro's <SectionDivider> component — a brass-hairline pair flanking an optional centered ornament (11 variants: line, jazz, second-line, bar-line, fan, step, rays, fleur, deco, notes, diamond) in 4 colors (brass, purple, yellow, copper). The live site uses jazz + purple everywhere; the other variants are available for parity. Verbatim from ~/boswell-poc/src/components/SectionDivider.astro.",
 	"textdomain": "bozzies",

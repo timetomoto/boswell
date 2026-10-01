@@ -4,7 +4,7 @@
 	"name": "bozzies/subpage-cards",
 	"version": "1.0.0",
 	"title": "Subpage cards",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "grid-view",
 	"description": "The two dark-purple teaser cards on gold ground for the Sisters hub. Contains bozzies/subpage-card children; renders Astro's exact <section class=\"section ground-gold sisters-subpages\"><div class=\"container sisters-subpages__grid\"> DOM.",
 	"textdomain": "bozzies",

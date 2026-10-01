@@ -4,7 +4,7 @@
 	"name": "bozzies/pull-quote",
 	"version": "1.0.0",
 	"title": "Pull quote",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "format-quote",
 	"description": "Astro's <PullQuote> component — a centered <figure class=\"pull-quote\"> holding <blockquote class=\"pull-quote__quote\"> plus optional <figcaption class=\"pull-quote__attr\">, wrapped in a full-bleed <section class=\"section ground-purple\"> with an optional notes music-backdrop. Verbatim from ~/boswell-poc/src/components/PullQuote.astro plus the wrapping section from sisters/index.astro, career-timeline.astro, and bio-resources.astro.",
 	"textdomain": "bozzies",

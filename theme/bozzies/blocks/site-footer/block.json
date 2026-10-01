@@ -4,7 +4,7 @@
 	"name": "bozzies/site-footer",
 	"version": "1.0.0",
 	"title": "Site footer",
-	"category": "theme",
+	"category": "boz-custom-component",
 	"icon": "align-full-width",
 	"description": "Site footer — wordmark + tagline + secondary nav + copyright / credits. Emits Astro's exact <footer class=\"site-footer ground-purple\"> DOM verbatim from ~/boswell-poc/src/components/Footer.astro.",
 	"textdomain": "bozzies",

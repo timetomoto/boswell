@@ -4,7 +4,7 @@
 	"name": "bozzies/release-card",
 	"version": "1.0.0",
 	"title": "Press release card",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "media-document",
 	"parent": [ "bozzies/release-cards" ],
 	"description": "One dark-purple press-release card on the Press hub. Document type, title, release date and PDF URL are all editable.",

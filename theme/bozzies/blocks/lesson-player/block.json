@@ -4,7 +4,7 @@
 	"name": "bozzies/lesson-player",
 	"version": "1.0.0",
 	"title": "Lesson player",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "controls-play",
 	"description": "Astro's paper-ground lesson audio player + narration section — <section class=\"section ground-paper lesson-player-section\"> holding the audio player (label + <audio controls> + Download MP3 link) and a .prose.lesson-notes block with the narration. Verbatim from ~/boswell-poc/src/pages/media/lessons/[order].astro lines 37-68.",
 	"textdomain": "bozzies",

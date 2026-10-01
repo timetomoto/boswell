@@ -4,7 +4,7 @@
 	"name": "bozzies/see-also",
 	"version": "1.0.0",
 	"title": "See also",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "external",
 	"description": "The dark-purple cross-link card on the /media/charts/ + /media/discography/ pages. Single card, centered on ground-gold. Eyebrow, title, body, link and CTA label are all editable.",
 	"textdomain": "bozzies",

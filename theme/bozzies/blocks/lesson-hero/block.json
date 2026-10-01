@@ -4,7 +4,7 @@
 	"name": "bozzies/lesson-hero",
 	"version": "1.0.0",
 	"title": "Lesson hero",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "controls-play",
 	"description": "Astro's compact purple lesson-page hero — <section class=\"lesson-hero ground-purple\"> with a staves music backdrop, back link, eyebrow (Lesson 01), big display title, and optional summary.",
 	"textdomain": "bozzies",

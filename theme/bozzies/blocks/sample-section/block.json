@@ -4,7 +4,7 @@
 	"name": "bozzies/sample-section",
 	"version": "1.0.0",
 	"title": "Sample the Sound",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "controls-play",
 	"description": "Astro's home Sample the Sound lesson CTA — <section class=\"section ground-paper sample-section\"> with staves music-backdrop, centered eyebrow + h2 + body copy, and a filled purple <a class=\"sample__cta\"> button with an inline play-circle SVG. Verbatim from index.astro lines 80-97.",
 	"textdomain": "bozzies",

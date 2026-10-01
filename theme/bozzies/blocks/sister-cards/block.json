@@ -4,7 +4,7 @@
 	"name": "bozzies/sister-cards",
 	"version": "1.0.0",
 	"title": "Sister cards",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "grid-view",
 	"description": "The three-card grid on the Sisters hub. Contains bozzies/sister-card children; renders Astro's exact <ul class=\"sisters-cards\"> DOM.",
 	"textdomain": "bozzies",

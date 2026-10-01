@@ -4,7 +4,7 @@
 	"name": "bozzies/intro-section",
 	"version": "1.0.0",
 	"title": "Intro section",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "editor-alignleft",
 	"description": "Astro's home welcome/mission section — <section class=\"section ground-paper intro-section\"><div class=\"container-narrow intro\">… eyebrow + lede + first body paragraph (bold) + second body paragraph …</div></section>. Attributes-only; leave a field empty to omit it.",
 	"textdomain": "bozzies",

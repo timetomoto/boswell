@@ -4,7 +4,7 @@
 	"name": "bozzies/lesson-cards",
 	"version": "1.0.0",
 	"title": "Lesson cards",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "list-view",
 	"description": "The five audio-lesson rows on the Media hub. A section header (eyebrow + title + lede) followed by a numbered <ol class=\"lessons-cards\"> of bozzies/lesson-card children. Renders Astro's exact <section class=\"section ground-paper lessons-grid\"> DOM.",
 	"textdomain": "bozzies",

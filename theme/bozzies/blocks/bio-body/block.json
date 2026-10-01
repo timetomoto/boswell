@@ -4,7 +4,7 @@
 	"name": "bozzies/bio-body",
 	"version": "1.0.0",
 	"title": "Bio body",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "id",
 	"description": "Astro's sticky-portrait bio body — <section class=\"section ground-paper bio-body\"><div class=\"container bio-body__layout\"><figure class=\"bio-portrait\">…</figure><div class=\"prose\">…</div></div></section>. Portrait image + inline-editable caption + arbitrary prose inner blocks.",
 	"textdomain": "bozzies",

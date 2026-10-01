@@ -4,7 +4,7 @@
 	"name": "bozzies/lesson-nav",
 	"version": "1.0.0",
 	"title": "Lesson nav",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "controls-play",
 	"description": "Astro's lesson-page bottom navigation — <nav class=\"section-tight ground-paper lesson-nav\"> with prev / all / next links inside a 1fr/auto/1fr grid.",
 	"textdomain": "bozzies",

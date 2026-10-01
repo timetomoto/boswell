@@ -4,7 +4,7 @@
 	"name": "bozzies/release-cards",
 	"version": "1.0.0",
 	"title": "Press releases grid",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "media-document",
 	"description": "The gold-ground grid of dark-purple press-release cards on the Press hub. Contains bozzies/release-card children; renders Astro's exact <section class=\"section ground-gold press-releases\"> with a staves music-backdrop, <header class=\"releases-head\"> and <ul class=\"releases-grid\"> DOM.",
 	"textdomain": "bozzies",

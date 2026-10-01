@@ -4,7 +4,7 @@
 	"name": "bozzies/page-hero",
 	"version": "1.0.0",
 	"title": "Page hero",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "cover-image",
 	"description": "Compact hero with a back-link, optional eyebrow, h1 title and optional subtitle. Ground purple (default) or gold. Use at the top of section subpages (career-timeline, discography, reviews, charts, bio-resources).",
 	"textdomain": "bozzies",

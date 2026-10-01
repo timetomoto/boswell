@@ -4,7 +4,7 @@
 	"name": "bozzies/site-nav",
 	"version": "1.0.0",
 	"title": "Site nav",
-	"category": "theme",
+	"category": "boz-custom-component",
 	"icon": "menu-alt",
 	"description": "Sticky site header — wordmark + primary nav (from WP nav menu) + Donate button. Emits Astro's exact <header class=\"site-nav\"> DOM verbatim from ~/boswell-poc/src/components/Nav.astro.",
 	"textdomain": "bozzies",

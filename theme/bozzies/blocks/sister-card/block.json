@@ -4,7 +4,7 @@
 	"name": "bozzies/sister-card",
 	"version": "1.0.0",
 	"title": "Sister card",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "id-alt",
 	"parent": [ "bozzies/sister-cards" ],
 	"description": "One card in the Sisters hub grid. Order, nickname, name, quote, link and CTA label are all editable.",

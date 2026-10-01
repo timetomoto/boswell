@@ -4,7 +4,7 @@
 	"name": "bozzies/bio-hero",
 	"version": "1.0.0",
 	"title": "Bio hero",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "businessperson",
 	"description": "Astro's compact purple sister-bio hero — <section class=\"bio-hero ground-purple\"> with a staves music backdrop, back link, eyebrow, big display name, and optional pull-quote with attribution.",
 	"textdomain": "bozzies",

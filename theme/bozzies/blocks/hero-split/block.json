@@ -4,7 +4,7 @@
 	"name": "bozzies/hero-split",
 	"version": "1.0.0",
 	"title": "Hero (split)",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "align-pull-left",
 	"description": "Home page hero — image on the left, purple text panel on the right, stacked on mobile. Emits Astro's exact hero--split DOM.",
 	"textdomain": "bozzies",

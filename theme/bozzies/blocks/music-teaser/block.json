@@ -4,7 +4,7 @@
 	"name": "bozzies/music-teaser",
 	"version": "1.0.0",
 	"title": "Music teaser",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "id-alt",
 	"parent": [ "bozzies/music-teasers" ],
 	"description": "One dark-purple teaser card on the Media hub. Eyebrow, title, body, link and CTA label are all editable.",

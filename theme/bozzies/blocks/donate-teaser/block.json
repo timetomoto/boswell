@@ -4,7 +4,7 @@
 	"name": "bozzies/donate-teaser",
 	"version": "1.0.0",
 	"title": "Donate teaser",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "money-alt",
 	"description": "The centered donate call-to-action on the home page. Ground-gold with the diamond-grid backdrop, purple eyebrow, single filled purple CTA button.",
 	"textdomain": "bozzies",

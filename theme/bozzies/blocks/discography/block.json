@@ -4,7 +4,7 @@
 	"name": "bozzies/discography",
 	"version": "1.0.0",
 	"title": "Discography search",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "search",
 	"description": "Astro's session-by-session discography with the debounced search bar. Verbatim from ~/boswell-poc/src/pages/media/discography.astro L34-83. One block emits the .discography-tools search section + the paper-ground scope list with all sessions and tracks. Data is stored on a nested `scopes` attribute.",
 	"textdomain": "bozzies",

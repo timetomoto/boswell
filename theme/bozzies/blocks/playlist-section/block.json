@@ -4,7 +4,7 @@
 	"name": "bozzies/playlist-section",
 	"version": "1.0.0",
 	"title": "Playlist section",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "playlist-audio",
 	"description": "Astro's home Music Playlist section — <section class=\"section ground-paper playlist-section\"> with a vinyl music-backdrop, a centered <header class=\"playlist-section__head\"> holding eyebrow + h2 + blurb, and inner blocks that hold the playlist player (or a placeholder paragraph until the interactive block ships). Verbatim from index.astro lines 56-66.",
 	"textdomain": "bozzies",

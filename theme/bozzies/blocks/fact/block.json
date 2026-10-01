@@ -4,7 +4,7 @@
 	"name": "bozzies/fact",
 	"version": "1.0.0",
 	"title": "Fact",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "editor-textcolor",
 	"parent": [ "bozzies/facts" ],
 	"description": "One museum-label fact — a `<dt>`/`<dd>` pair inside the facts strip. Label and value are inline-editable.",

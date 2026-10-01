@@ -4,7 +4,7 @@
 	"name": "bozzies/subpage-card",
 	"version": "1.0.0",
 	"title": "Subpage card",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "id-alt",
 	"parent": [ "bozzies/subpage-cards" ],
 	"description": "One dark-purple teaser card on the Sisters hub. Eyebrow, title, body, link and CTA label are all editable.",

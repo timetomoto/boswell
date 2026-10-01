@@ -4,7 +4,7 @@
 	"name": "bozzies/about-cta",
 	"version": "1.0.0",
 	"title": "About CTA",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "email-alt",
 	"description": "The centered contact + donate call-to-action on the About page. Ground-gold with the notes backdrop, purple eyebrow, two-button row (outline Contact + filled Donate).",
 	"textdomain": "bozzies",

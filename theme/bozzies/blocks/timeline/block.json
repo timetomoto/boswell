@@ -4,7 +4,7 @@
 	"name": "bozzies/timeline",
 	"version": "1.0.0",
 	"title": "Sisters timeline",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "clock",
 	"description": "Astro's vertical Timeline component — <ol class=\"timeline\"> with year / event / optional image entries. Verbatim from ~/boswell-poc/src/components/Timeline.astro. Used on the Career Timeline page and inside Connee's bio (solo years).",
 	"textdomain": "bozzies",

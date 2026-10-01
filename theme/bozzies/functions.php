@@ -171,6 +171,33 @@ function bozzies_register_pattern_categories() {
 	) );
 }
 
+/**
+ * Add a "Boz Custom Component" block category at the top of the inserter.
+ * Every bozzies/* block's block.json sets category = "boz-custom-component"
+ * so they all collect under this heading. Core blocks + patterns keep their
+ * existing categories.
+ */
+add_filter( 'block_categories_all', 'bozzies_register_block_category' );
+function bozzies_register_block_category( $categories ) {
+	$slug = 'boz-custom-component';
+	// Guard against double-register if WP ever starts calling this twice.
+	foreach ( (array) $categories as $cat ) {
+		if ( isset( $cat['slug'] ) && $slug === $cat['slug'] ) {
+			return $categories;
+		}
+	}
+	return array_merge(
+		array(
+			array(
+				'slug'  => $slug,
+				'title' => __( 'Boz Custom Component', 'bozzies' ),
+				'icon'  => null,
+			),
+		),
+		$categories
+	);
+}
+
 add_action( 'init', 'bozzies_register_theme_blocks' );
 function bozzies_register_theme_blocks() {
 	foreach ( glob( __DIR__ . '/blocks/*/block.json' ) as $block_json ) {

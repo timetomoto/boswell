@@ -4,7 +4,7 @@
 	"name": "bozzies/quotes-carousel",
 	"version": "1.0.0",
 	"title": "Quotes carousel",
-	"category": "design",
+	"category": "boz-custom-component",
 	"icon": "format-quote",
 	"description": "Astro's interactive quotes carousel — the .qc module with auto-rotating slides, prev/next arrows, and dot indicators. Verbatim from ~/boswell-poc/src/components/QuotesCarousel.astro. Quotes (text + attribution) are stored on the block; front-end JS wires up rotation, hover/focus pause, and arrow-key nav.",
 	"textdomain": "bozzies",
