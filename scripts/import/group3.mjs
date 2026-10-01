@@ -303,12 +303,13 @@ function buildSubhubSection({ termId, kicker, label, blurb }) {
 </div>
 <!-- /wp:query -->`;
 
+  // Center the eyebrow / title / description on every /press/ subhub head.
   return section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full', spacing: 'compact' },
     [
-      p(kicker, { className: 'is-style-eyebrow' }),
-      h(2, label, { fontSize: 'section-title-medium' }),
-      p(blurb, { className: 'bozzies-para-body' }),
+      p(kicker, { className: 'is-style-eyebrow', align: 'center' }),
+      h(2, label, { fontSize: 'section-title-medium', align: 'center' }),
+      p(blurb, { className: 'bozzies-para-body', align: 'center' }),
       queryLoop,
     ].join('\n'),
   );
