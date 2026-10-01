@@ -575,9 +575,10 @@ add_filter( 'wpcf7_autop_or_not', '__return_false' );
  *
  * Video is a sibling exception: the `video` category lives under /media/ in
  * the owner's content organization even though it uses the same `category`
- * taxonomy as the press subhubs. The two /media/video/* rules + the
- * post_link / term_link filters below let the video category serve from
- * /media/video/ while every other category uses the /press/ base.
+ * taxonomy as the press subhubs. Articles keep /media/video/{slug}/ URLs,
+ * but there is NO archive page at /media/video/ — all video articles are
+ * listed in the "Video Features" section on /media/ itself, anchored at
+ * #video. /media/video/ is 301-redirected to /media/#video.
  */
 add_action( 'init', 'bozzies_press_rewrite_rule', 11 );
 function bozzies_press_rewrite_rule() {
@@ -586,19 +587,29 @@ function bozzies_press_rewrite_rule() {
 		'index.php?category_name=$matches[1]&name=$matches[2]',
 		'top'
 	);
-	// Video category lives under /media/. Order matters: the longer, more
-	// specific `/media/video/{slug}` rule is added first so it wins when both
-	// match.
+	// Only the per-article URL rewrite — no archive rule.
 	add_rewrite_rule(
 		'^media/video/([^/]+)/?$',
 		'index.php?category_name=video&name=$matches[1]',
 		'top'
 	);
-	add_rewrite_rule(
-		'^media/video/?$',
-		'index.php?category_name=video',
-		'top'
-	);
+}
+
+/**
+ * 301 /media/video/ (and /media/video) to the #video section on /media/.
+ * Runs at init priority 2 (ahead of WordPress's own rewrite dispatch so a
+ * stale permalink doesn't hit the retired archive route).
+ */
+add_action( 'init', 'bozzies_media_video_archive_redirect', 2 );
+function bozzies_media_video_archive_redirect() {
+	if ( empty( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+	$path = strtok( (string) $_SERVER['REQUEST_URI'], '?' );
+	if ( '/media/video/' === $path || '/media/video' === $path ) {
+		wp_redirect( home_url( '/media/#video' ), 301, 'bozzies-media-video-anchor' );
+		exit;
+	}
 }
 
 /**
@@ -620,13 +631,13 @@ function bozzies_video_post_link( $url, $post ) {
 }
 
 /**
- * The Video Features category archive lives at /media/video/, not
- * /category/video/ (WP default) or /press/video/ (the sibling press hubs).
+ * The Video Features category "archive" lives inline on /media/ — the term
+ * link points at the #video anchor on that page.
  */
 add_filter( 'term_link', 'bozzies_video_term_link', 10, 3 );
 function bozzies_video_term_link( $url, $term, $taxonomy ) {
 	if ( 'category' === $taxonomy && isset( $term->slug ) && 'video' === $term->slug ) {
-		return home_url( '/media/video/' );
+		return home_url( '/media/#video' );
 	}
 	return $url;
 }

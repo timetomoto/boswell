@@ -415,13 +415,15 @@ function buildArticleContent(data, bodyBlocks) {
   // + width edge, plus an inner wp:group with class "container article-hero__inner"
   // holding the four child blocks. The meta paragraph is a bindings paragraph
   // so post_meta (bozzies/article-meta) fills it at render time.
-  // Video features live under /media/video/ instead of /press/video/ — the
-  // owner reorganized the content hierarchy (video is Media-adjacent).
+  // Video features live under /media/video/{slug}/ instead of /press/video/
+  // — owner reorganized the content hierarchy (video is Media-adjacent).
   // Astro's source still groups video under press, so this is a deliberate
-  // WP-only divergence.
+  // WP-only divergence. There's no /media/video/ archive page; the article
+  // back link points at the inline Video Features section on /media/ via
+  // the #video anchor.
   const isVideo = data.subhub === 'video';
   const hubLabel = (HUB_ORDER.find(h => h.slug === data.subhub) || {}).label || 'Press';
-  const backHref = isVideo ? '/media/video/' : `/press/${data.subhub}/`;
+  const backHref = isVideo ? '/media/#video' : `/press/${data.subhub}/`;
   const backText = isVideo ? '← Media &middot; Video' : `← Press &middot; ${hubLabel}`;
   const backAnchor = `<!-- wp:paragraph {"className":"article-hero__back"} --><p class="article-hero__back"><a href="${backHref}">${backText}</a></p><!-- /wp:paragraph -->`;
   const titleH1 = `<!-- wp:heading {"level":1,"className":"article-hero__title"} --><h1 class="wp-block-heading article-hero__title">${data.title}</h1><!-- /wp:heading -->`;
