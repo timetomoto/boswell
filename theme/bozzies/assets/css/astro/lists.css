@@ -31,18 +31,26 @@
 }
 
 /* --- Card grids -----------------------------------------------------
- * Multi-column tile grids. Separated from the lists rule so grids
- * declare themselves grids: adding a new card-grid class to this
- * selector list keeps every card grid on the site at the press-releases
- * width without accidentally constraining a `.wp-block-list` the owner
- * types inside a card body. Reference width = `.releases-grid` on
- * /press/, which measures 1080px at 1440 (60rem at the 18px base). */
+ * Multi-column tile grids. Width target is the sisters cards on the Astro
+ * site (https://boswell-poc.vercel.app/sisters/), measured at:
+ *   @1440  .sisters-cards  w=1324.81  L=57.59  R=57.59
+ *   @390   .sisters-cards  w=336      L=27     R=27
+ * The grid fills `.container`'s inner area — `.container` has
+ * `max-width: var(--measure-max)` (84rem = 1512px) and
+ * `padding-inline: clamp(var(--space-5), 4vw, var(--space-8))`, which at
+ * 1440 clamps to the 4vw preferred value (= 57.6px), at 390 clamps to the
+ * minimum (= 27px). So card grids need the same max-width — nothing
+ * tighter — and when the grid is its own `.container` (music-teasers,
+ * sisters-subpages, see-also) the padding already comes from the shared
+ * `.container` rule; when the grid is inside a separate `.container`
+ * wrapper (release cards, sister cards) the grid just fills.
+ * margin-inline: auto centers in the (also auto-centered) container. */
 .releases-grid,
 .music-teasers__grid,
 .sisters-cards,
 .sisters-subpages__grid,
 .see-also__grid {
-	max-width: var(--measure-wide);
+	max-width: var(--measure-max);
 	margin-inline: auto;
 }
 
