@@ -26,3 +26,17 @@
 	max-width: var(--measure-wide);
 	margin-inline: auto;
 }
+
+/*
+ * Any paragraph in page content that opts into text-align:center also gets
+ * its box centered. Without this the paragraph box still sits left-aligned
+ * (constrained to --measure or --wp--custom--measure--prose), so the
+ * short centered text visually hangs left — not what owners want when they
+ * tick "Align text center" on a paragraph. Scoped to .wp-site-blocks main
+ * so nav + footer paragraphs (if any grow a center alignment later) are
+ * untouched.
+ */
+.wp-site-blocks main p.has-text-align-center,
+.wp-site-blocks main .wp-block-paragraph.has-text-align-center {
+	margin-inline: auto;
+}

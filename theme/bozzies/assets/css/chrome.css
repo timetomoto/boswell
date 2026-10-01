@@ -215,7 +215,13 @@ body.admin-bar .wp-site-blocks {
 .wp-block-post-template.bozzies-article-list {
 	list-style: none;
 	padding: 0;
-	margin: 0;
+	/* `margin: 0 auto` so lists.css's cap at var(--measure-wide) actually
+	 * centers in the browser window. The list sits inside
+	 * .wp-block-bozzies-section__inner (max-width 1512px, 57.6px side
+	 * padding → inner width 1325px at 1440 viewport) which is wider than
+	 * our 60rem = 1080px cap, so without auto side-margins the list
+	 * hangs left-aligned by ~245px. */
+	margin: 0 auto;
 	border-top: 1px solid var(--wp--custom--color--paper-hairline);
 }
 .wp-block-post-template.bozzies-article-list > li {
