@@ -16,13 +16,32 @@
  * these class names.
  */
 
+/* --- Lists ----------------------------------------------------------
+ * Vertical content listings — article lists on the press subhubs and
+ * media hub, the lesson cards (`<ol class="lessons-cards">` is a flex
+ * column of card-shaped items, so semantically a list), discography
+ * sessions, and any owner-added core/list in page content. */
 .article-list,
 .bozzies-article-list,
-.releases-grid,
 .lessons-cards,
-.music-teasers__grid,
 .disc-sessions,
 .wp-site-blocks main .wp-block-list {
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+}
+
+/* --- Card grids -----------------------------------------------------
+ * Multi-column tile grids. Separated from the lists rule so grids
+ * declare themselves grids: adding a new card-grid class to this
+ * selector list keeps every card grid on the site at the press-releases
+ * width without accidentally constraining a `.wp-block-list` the owner
+ * types inside a card body. Reference width = `.releases-grid` on
+ * /press/, which measures 1080px at 1440 (60rem at the 18px base). */
+.releases-grid,
+.music-teasers__grid,
+.sisters-cards,
+.sisters-subpages__grid,
+.see-also__grid {
 	max-width: var(--measure-wide);
 	margin-inline: auto;
 }
