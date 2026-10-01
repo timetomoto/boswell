@@ -353,10 +353,14 @@
 	.bio-nav__link { text-align: center; justify-self: center; }
 }
 
-/* --- Press releases grid (press/index.astro, gold ground) ---------- */
-.releases-head { max-width: var(--measure-wide); margin-bottom: var(--space-5); }
-.releases-head__title { margin-top: var(--space-2); font-family: var(--font-display); font-size: clamp(var(--step-4), 3vw + 0.3rem, var(--step-5)); font-weight: 300; color: var(--ink); }
-.releases-head__blurb { margin-top: var(--space-2); font-family: var(--font-body); font-size: var(--step-0); color: var(--ink); max-width: var(--measure-body); }
+/* --- Press releases grid (press/index.astro, gold ground) ----------
+ * `text-align: center` on the head container centers the eyebrow + title
+ * text; `margin-inline: auto` on the head + blurb boxes centers them
+ * (parent `.wp-block-bozzies-section__inner` is wider than the 60rem +
+ * 58ch caps so the boxes would otherwise hang left-aligned). */
+.releases-head { max-width: var(--measure-wide); margin: 0 auto var(--space-5); text-align: center; }
+.releases-head__title { margin: var(--space-2) auto 0; font-family: var(--font-display); font-size: clamp(var(--step-4), 3vw + 0.3rem, var(--step-5)); font-weight: 300; color: var(--ink); }
+.releases-head__blurb { margin: var(--space-2) auto 0; font-family: var(--font-body); font-size: var(--step-0); color: var(--ink); max-width: var(--measure-body); }
 
 .releases-grid {
 	display: grid;
