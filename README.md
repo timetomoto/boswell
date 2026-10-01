@@ -5,9 +5,17 @@ theme and the tooling to run and deploy it. This README is written for a
 developer joining the project; some sections assume no prior npm, Docker,
 or Claude Code background and walk through those tools briefly.
 
-- Production: <https://bozzies.org> on DreamHost Shared Unlimited.
-- Owner UI: a single Editor-role account; the Admin role is for maintenance.
-- Repo: <https://github.com/timetomoto/boswell>. `main` is live-equivalent.
+- **Production**: <https://bozzies.org>, live since **2026-10-01** on
+  DreamHost Shared Unlimited.
+- **Admin accounts**: Administrator-only. Both the site owner and the
+  developer use full Administrator accounts; no Editor, Author, or
+  lower-tier accounts exist on the live site.
+- **Repo**: <https://github.com/timetomoto/boswell>. `main` is
+  live-equivalent — the only branch work happens on.
+- **Live DB is the source of truth.** The owner edits live; never push
+  the local database to live. Use `scripts/deploy/pull-live.sh` to
+  bring live data (DB + uploads) down to local when you need current
+  content for a fix.
 
 ---
 
@@ -83,11 +91,12 @@ destroy` wipes the containers and the local database. **Never run
 `clean` or `destroy` on the production server** — those are local-only.
 
 Everything in `.wp-env.json` and `.wp-env.override.json` is dev-only.
-`.wp-env.override.json` holds the local SMTP settings and the dev-host
+`.wp-env.override.json` holds local SMTP settings and the dev-host
 mu-plugin mapping; it is **gitignored** so credentials never land in
-git. The repo ships a template-less setup — regenerate your own
-`.wp-env.override.json` by copying the shape from `CLAUDE.md`'s
-pre-launch checklist.
+git. The repo ships a template-less setup — the shape of
+`.wp-env.override.json` mirrors the live `WPMS_*` constants listed
+in the live-server's `wp-config.php` (not duplicated here to keep
+secrets out of git).
 
 ---
 
@@ -141,7 +150,10 @@ theme/bozzies/
     analytics.php     consent-gated GA4 flow
     bindings.php      block-binding sources (bozzies/term-kicker etc.)
     music-backdrop.php shared SVG helper for the Astro backdrops
-    owner-caps.php    role-cap tweaks so Editors can use Flamingo
+    owner-caps.php    dormant Editor-role capability tweaks (see "Hooks reference"
+                      — kept in theme code so a future Editor-role owner would
+                      see Flamingo, but has no effect while every live user is
+                      an Administrator)
     settings.php      "Bozzies" admin screen (Donate URL)
   parts/
     header.html       template part — wraps the bozzies/site-nav block
@@ -414,9 +426,13 @@ eyebrow binding source can resolve.
 
 - `flamingo_map_meta_cap` filter — remaps `flamingo_edit_inbound_
   messages` and `flamingo_edit_inbound_message` from `edit_users`
-  (admin-only) to `edit_pages`, so an Editor can view CF7
-  submissions in Flamingo. Delete / spam / Address Book caps stay
-  on the plugin's default.
+  (admin-only) to `edit_pages`. Dormant on live right now because
+  every account is an Administrator (Administrators already satisfy
+  `edit_users` and so see Flamingo without this filter). Kept in
+  the theme so that if an Editor-role account is ever added later,
+  the Flamingo Inbound Messages screen is reachable without a code
+  change. Delete / spam / Address Book caps stay on the plugin's
+  default.
 
 ### `inc/settings.php`
 
@@ -622,23 +638,36 @@ CSS and PHP changes are instant — refresh the browser.
 
 ### Pull the live site down to local (DB + uploads)
 
-See `scripts/deploy/pull-live.sh` (if present) or do it manually:
+The live database is the source of truth now that the site is public.
+Use the pull script when you need current content locally:
 
 ```sh
-# Export live DB with URL rewrites back to localhost
-ssh khalboz@bozzies.org "cd /home/khalboz/bozzies.org && \
-  wp search-replace 'https://bozzies.org' 'http://localhost:8888' --export=/tmp/live.sql --all-tables --precise --skip-columns=guid"
-scp khalboz@bozzies.org:/tmp/live.sql ~/boswell-backups/
-npm run wp -- db import ~/boswell-backups/live.sql
-
-# Pull uploads
-rsync -avz khalboz@bozzies.org:/home/khalboz/bozzies.org/wp-content/uploads/ \
-  "$(docker volume inspect --format '{{.Mountpoint}}' <wp-env-wordpress-vol>)/wp-content/uploads/"
+bash scripts/deploy/pull-live.sh                 # DB + uploads
+bash scripts/deploy/pull-live.sh --db-only       # DB only
+bash scripts/deploy/pull-live.sh --uploads-only  # uploads only
+bash scripts/deploy/pull-live.sh --no-import     # fetch SQL, don't import
 ```
 
-The owner may make content edits on the live site after launch. Only
-pull live → local until that happens; once the owner is editing live,
-local overrides would overwrite their work.
+The script:
+
+1. Takes a snapshot of the local DB first to
+   `~/boswell-backups/local-before-pull-<timestamp>.sql`, in case the
+   import misbehaves and you need to roll back.
+2. Runs `wp search-replace --export` on the live server, rewriting
+   every `https://bozzies.org` back to `http://localhost:8888`. This
+   is export-only and does not touch the live DB.
+3. Fetches the SQL, rewrites the backtick-quoted prefix `wpboz_` →
+   `wp_` to match local, appends `UPDATE` statements that flip the
+   prefix-dependent `wp_user_roles` / `wp_capabilities` /
+   `wp_user_level` / `wp_dashboard_quick_press_last_post_id` /
+   `wp_persisted_preferences` keys back.
+4. Imports into local wp-env (`wp db import -` via stdin).
+5. Streams the live uploads folder into the local Docker container
+   over SSH + tar — no intermediate disk copy.
+
+**Never push the local database to live.** The owner edits live; a
+local → live push would silently clobber their work. Theme code
+changes do go local → live, through `deploy-theme.sh`.
 
 ---
 
@@ -653,9 +682,10 @@ own private repo:
   decoy input that bots fill and humans don't. We filter its default
   `tabindex="1000"` down to `-1` in `functions.php` for a11y.
 - **Flamingo** — logs CF7 submissions to a WordPress admin screen so
-  the owner can read messages even if an SMTP delivery hiccups. See
-  `inc/owner-caps.php` for the capability tweak that lets Editors
-  reach it.
+  the owner can read messages even if an SMTP delivery hiccups.
+  Administrators reach it directly; `inc/owner-caps.php` carries a
+  dormant filter that would also open it to Editor-role accounts if
+  any were ever added.
 - **WP Mail SMTP** — relays outbound mail through DreamHost's
   authenticated SMTP so WordPress emails (CF7 notifications,
   password-reset mails, etc.) actually land. Configured through
@@ -713,10 +743,13 @@ Implementation path:
 Removing or modifying any of the following will take the site down or
 cause silent data loss:
 
-- `bozziecomwp09` MySQL database on `mysql.bozzies.org`. The legacy
-  WordPress install also lives in this database under the `wp_rv1tum_`
-  prefix. Our site uses the `wpboz_` prefix. Dropping the DB or
-  renaming either prefix will break both sites.
+- The **`bozziecomwp09` MySQL database** on `mysql.bozzies.org`
+  (user `bozzies_wp_user`). The legacy WordPress install also lives
+  in this database under the `wp_rv1tum_` prefix (10 tables).
+  **Legacy tables must not be dropped or renamed** — they belong to a
+  separate domain's content and have nothing to do with bozzies.org,
+  but share the same DB.  Our site uses the `wpboz_` prefix (18
+  tables).
 - `/home/khalboz/bozzies.org-old-2026-10-01/` on the server. 2.2 GB
   snapshot of the pre-WordPress static site, kept as a safety net.
 - The `khalboz` SSH user and its authorized key. Every deploy script
@@ -724,11 +757,14 @@ cause silent data loss:
 - The `contact@bozzies.org` DreamHost mailbox. Changing its password
   breaks outbound CF7 delivery until `WPMS_SMTP_PASS` in wp-config is
   re-injected via `scripts/deploy/set-live-secrets.sh`.
-- The five plugins listed in section 12. The theme assumes they are
-  present and active.
-- The `bozzies` theme folder on the server. The site has no fallback
-  theme — breaking the active theme breaks the site.
-- `wp-config.php` on the server. The salts and secrets inside are
+- The five plugins listed in section 12 (Contact Form 7, CF7 Apps
+  Honeypot, Flamingo, WP Mail SMTP, WP Duplicate as Draft). The
+  theme assumes they are present and active.
+- The `bozzies` theme folder on the server (`wp-content/themes/
+  bozzies/`). Twenty Twenty-Five is installed as an inactive
+  fallback; keep it there in case the active theme ever needs to be
+  swapped out for recovery.
+- `wp-config.php` on the server. Salts and secrets inside are
   install-specific; a backup copy before any edit is wise.
 
 Local-only operations that would be destructive on the live server:
@@ -738,18 +774,29 @@ Local-only operations that would be destructive on the live server:
 - `wp db drop / reset / clean` — wipes the WordPress database.
 - `rm -rf wp-content/uploads` — deletes all media.
 
-**Never run those against the live server.**
+**Never run those against the live server.** Specifically, never
+push the local DB to live — the owner edits live, and a push would
+silently overwrite their work.
 
 ---
 
 ## 15. Where to look next
 
-- `CLAUDE.md` — long-form project log, every design decision, every
-  commit summary. The source of truth for build-order history and
-  styling conventions.
-- `scripts/deploy/` — deploy and backup toolkit.
+- `CLAUDE.md` — concise post-launch state file. Live-server details,
+  deploy workflow, plugin list, open items.
+- `scripts/deploy/` — deploy and backup toolkit:
+  - `deploy-theme.sh` — push theme changes to live.
+  - `pull-live.sh` — pull live DB + uploads to local, with URLs
+    rewritten back.
+  - `set-live-secrets.sh` — rotate the DB, SMTP, or admin passwords
+    on live; prompts hidden-input and pipes through stdin so nothing
+    lands on the ssh command line.
 - `scripts/dev/` — verification harnesses (a11y, GA4, visual diffs,
   roundtrip tests). Add new ones here when a regression needs
   guarding against.
-- The two owner-facing guides in Google Drive (My Drive/Boswell/
-  Guides/). Written for the Editor-role owner, not developers.
+- **Owner-facing guides**: live in **Google Drive → My Drive →
+  Boswell → Guides**, not in this repo. One Owner guide (hosting,
+  email, backups, do-not-delete, the 11 missing playlist tracks)
+  and one Editor guide (login, pages, posts, blocks, patterns,
+  Flamingo, Site Editor, what-not-to-do). Working copies at
+  `~/boswell-backups/guides/*.md`.
