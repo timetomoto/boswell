@@ -27,6 +27,12 @@
 	<div class="wp-block-group alignfull ground-paper">
 		<!-- wp:group {"className":"container","layout":{"type":"default"}} -->
 		<div class="wp-block-group container">
+			<!-- Hidden h2 keeps heading levels monotonic (h1 → h2 → h3).
+			     Only reaches screen readers; sighted users see the archive
+			     list as the natural follow-up to the hero. -->
+			<!-- wp:heading {"level":2,"className":"visually-hidden"} -->
+			<h2 class="wp-block-heading visually-hidden">Articles</h2>
+			<!-- /wp:heading -->
 			<!-- wp:query {"queryId":10,"query":{"perPage":100,"pages":0,"offset":0,"postType":"post","order":"asc","orderBy":"menu_order","inherit":true}} -->
 			<div class="wp-block-query">
 				<!-- wp:post-template {"className":"article-list"} -->

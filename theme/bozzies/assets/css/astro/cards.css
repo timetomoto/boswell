@@ -271,7 +271,16 @@
 	text-align: center;
 }
 @media (max-width: 820px) {
-	.bio-portrait { position: static; margin-bottom: var(--space-4); }
+	/* Drop the 300 px fixed width at mobile too — grid 1fr with a 300 px
+	 * item is sized to the item's min-content, which locks the column at
+	 * 300 px even when the viewport is 320 (= 7 px horizontal overflow
+	 * from the surrounding container's padding). Letting the figure fill
+	 * the grid column caps the image at the available width. */
+	.bio-portrait {
+		position: static;
+		margin-bottom: var(--space-4);
+		width: 100%;
+	}
 }
 
 /* --- Facts strip (sisters/[slug].astro) ----------------------------- */

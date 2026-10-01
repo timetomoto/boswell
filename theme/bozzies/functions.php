@@ -1030,3 +1030,46 @@ function bozzies_register_article_meta() {
 		'auth_callback'     => function () { return current_user_can( 'manage_categories' ); },
 	) );
 }
+
+// Core `wp:table` renders `<figure class="wp-block-table"><table>…</table></figure>`.
+// The figure is horizontally scrollable at narrow viewports (chart tables
+// have five columns and overflow the 390 viewport reading column). Make
+// each table figure a focusable region with an accessible name so
+// keyboard-only users can arrow-scroll through it (WCAG 2.1.1 + axe
+// `scrollable-region-focusable`). Caption, if present, becomes the
+// aria-label; otherwise a generic "Table" label is used.
+add_filter( 'render_block_core/table', function ( $html, $block ) {
+	if ( false === stripos( $html, '<figure' ) ) {
+		return $html;
+	}
+	if ( false !== stripos( $html, 'role="region"' ) ) {
+		return $html;
+	}
+	// Prefer the figcaption, fall back to a per-request numbered label so
+	// pages with multiple tables don't trip axe's `landmark-unique` rule.
+	$label = '';
+	if ( preg_match( '~<figcaption[^>]*>(.+?)</figcaption>~si', $html, $m ) ) {
+		$label = trim( wp_strip_all_tags( $m[1] ) );
+	}
+	if ( '' === $label ) {
+		static $counter = 0;
+		$counter++;
+		$label = 'Data table ' . $counter;
+	}
+	$attrs = sprintf( ' role="region" aria-label="%s" tabindex="0"', esc_attr( $label ) );
+	$html  = preg_replace( '~<figure(\s[^>]*)?>~i', '<figure$1' . $attrs . '>', $html, 1 );
+	return $html;
+}, 10, 2 );
+
+// The contact-form-7-honeypot add-on hard-codes tabindex="1000" on the
+// decoy input. Positive tabindex values fail WCAG 2.4.3 (axe rule
+// `tabindex`). The plugin exposes `wpcf7_honeypot_html_output` (confirmed
+// at legacy-honeypot/includes/honeypot4cf7.php L443 + L539, plugin v3.8.0)
+// so we rewrite both attributes to `-1` — the field stays focusable
+// programmatically for the plugin's refill script but drops out of the
+// keyboard tab order, which is what a hidden decoy input should do.
+add_filter( 'wpcf7_honeypot_html_output', function ( $html ) {
+	$html = str_replace( 'tabindex="1000"', 'tabindex="-1"', $html );
+	$html = str_replace( 'data-cf7apps-tabindex="1000"', 'data-cf7apps-tabindex="-1"', $html );
+	return $html;
+} );

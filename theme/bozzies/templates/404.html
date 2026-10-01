@@ -5,6 +5,13 @@
 
 <!-- wp:bozzies/page-hero {"eyebrow":"Error 404","title":"The page isn't here","subtitle":"The page you were looking for has moved, been renamed, or never was. Try one of these instead.","backHref":"/","backLabel":"Home"} /-->
 
+<!-- Hidden h2 keeps heading order monotonic (h1 → h2 → h3). Only reaches
+     screen readers; sighted users see the four hub cards below as the
+     natural follow-up to the "The page isn't here" hero. -->
+<!-- wp:heading {"level":2,"className":"visually-hidden"} -->
+<h2 class="wp-block-heading visually-hidden">Explore the site</h2>
+<!-- /wp:heading -->
+
 <!-- wp:bozzies/subpage-cards -->
 <!-- wp:bozzies/subpage-card {"eyebrow":"Section","title":"The Sisters","body":"Martha, Connee and Vet — the family story, career timeline, and biography resources.","href":"/sisters/","ctaLabel":"Explore"} /-->
 
