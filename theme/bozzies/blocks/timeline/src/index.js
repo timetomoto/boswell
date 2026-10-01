@@ -116,17 +116,22 @@ registerBlockType( metadata.name, {
 									__nextHasNoMarginBottom
 								/>
 								<MediaUploadCheck>
+									{ /* Track the selected attachment via imageId so the owner can
+									   swap the image later and the front end (render.php) picks up
+									   the new URL automatically. `image` is kept as a fallback for
+									   pre-import content and for external-URL pastes. */ }
 									<MediaUpload
 										onSelect={ ( media ) =>
 											setAttributes( {
 												entries: updateEntry( entries, i, {
 													image: media?.url || '',
+													imageId: media?.id || 0,
 													imageAlt: media?.alt || e.imageAlt || '',
 												} ),
 											} )
 										}
 										allowedTypes={ [ 'image' ] }
-										value={ 0 }
+										value={ e.imageId || 0 }
 										render={ ( { open } ) => (
 											<div style={ { display: 'flex', gap: '0.5rem', marginTop: '0.5rem', marginBottom: '0.5rem' } }>
 												<Button variant="secondary" onClick={ open }>
@@ -138,7 +143,7 @@ registerBlockType( metadata.name, {
 														isDestructive
 														onClick={ () =>
 															setAttributes( {
-																entries: updateEntry( entries, i, { image: '', imageAlt: '' } ),
+																entries: updateEntry( entries, i, { image: '', imageId: 0, imageAlt: '' } ),
 															} )
 														}
 													>

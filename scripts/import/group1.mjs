@@ -32,12 +32,25 @@ function readTimelineEntries(subject) {
   if (!m) throw new Error(`timelines/${subject}.md: no frontmatter found`);
   const data = load(m[1]);
   const entries = Array.isArray(data.entries) ? data.entries : [];
-  return entries.map((e) => ({
-    year:     e.year != null ? String(e.year) : '',
-    event:    e.event != null ? String(e.event) : '',
-    image:    e.image || '',
-    imageAlt: e.imageAlt || '',
-  }));
+  return entries.map((e) => {
+    const year     = e.year != null ? String(e.year) : '';
+    const event    = e.event != null ? String(e.event) : '';
+    const imageAlt = e.imageAlt || '';
+    const astroPath = e.image || '';
+    // Astro frontmatter stores a public-dir path like /uploads/timeline/
+    // timeline-01.jpg. Pull each referenced file into the WP media library
+    // so the owner can swap it in the editor, and so the <img src> on the
+    // front resolves instead of 404-ing. Both the local URL and the
+    // attachment id get written on the entry — render.php prefers imageId
+    // when present (so a later media swap flows through automatically).
+    let image = '';
+    let imageId = 0;
+    if (astroPath) {
+      const m = importMedia(astroPath, imageAlt);
+      if (m) { image = m.url; imageId = m.id; }
+    }
+    return { year, event, image, imageId, imageAlt };
+  });
 }
 
 // ---------- Helper builders (WP block markup as strings) ----------

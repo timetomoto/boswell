@@ -52,7 +52,19 @@ if ( empty( $entries ) ) {
 	$year      = isset( $e['year'] )     ? (string) $e['year']     : '';
 	$event     = isset( $e['event'] )    ? (string) $e['event']    : '';
 	$image     = isset( $e['image'] )    ? (string) $e['image']    : '';
+	$image_id  = isset( $e['imageId'] ) ? (int)    $e['imageId']  : 0;
 	$image_alt = isset( $e['imageAlt'] ) ? (string) $e['imageAlt'] : '';
+	// Prefer the media library URL when the entry has an imageId — that way
+	// swapping an image in the editor's MediaUpload picker is reflected on
+	// the front end even if the owner never retypes the `image` field. The
+	// bare `image` attribute is kept as a fallback for pre-import content
+	// and for owner-pasted external URLs.
+	if ( $image_id > 0 ) {
+		$resolved = wp_get_attachment_url( $image_id );
+		if ( $resolved ) {
+			$image = $resolved;
+		}
+	}
 	$alt_class = ( $i % 2 === 1 ) ? ' timeline__entry--alt' : '';
 
 	// Decode HTML entities from Astro's markdown (curly quotes, apostrophes,
