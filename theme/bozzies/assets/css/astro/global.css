@@ -143,6 +143,27 @@ img, picture, svg, video { display: block; max-width: 100%; }
 input, button, textarea, select { font: inherit; color: inherit; }
 html:focus-within { scroll-behavior: smooth; }
 
+/* Keep in-page anchor jumps and keyboard focus from landing underneath
+ * the sticky header. Values are the measured header height at each
+ * breakpoint plus ~5 px so the ring from `:focus-visible` doesn't hug
+ * the header's bottom edge. Measurements taken from `header.site-nav`
+ * on `/` (sticky, top:0):
+ *   >  900 px   82.5 px tall   → 88 px scroll-padding-top
+ *   <= 900 px  123.6 px tall   → 128 px
+ *   <= 360 px  168.4 px tall   → 172 px (nav items wrap to 3 lines)
+ * `nav.css` lays out the stacked header at the same 900 px breakpoint
+ * and tightens at 360 px — mirror those cuts here so the padding tracks
+ * the actual nav height. (WCAG 2.4.11 Focus Not Obscured.) */
+html {
+	scroll-padding-top: 88px;
+}
+@media (max-width: 900px) {
+	html { scroll-padding-top: 128px; }
+}
+@media (max-width: 360px) {
+	html { scroll-padding-top: 172px; }
+}
+
 /* --- Base typography --- */
 body {
 	font-family: var(--font-body);
