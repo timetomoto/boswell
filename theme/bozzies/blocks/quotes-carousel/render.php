@@ -2,12 +2,17 @@
 /**
  * Server-side render for bozzies/quotes-carousel.
  *
- * Emits Astro's exact DOM verbatim from
- * ~/boswell-poc/src/components/QuotesCarousel.astro lines 16-42.
- *
- * The quotes array is stored on the block attribute. Front-end JS lives at
- * assets/js/quotes-carousel.js (verbatim port of QuotesCarousel.astro L44-91)
- * and reads slides + dots directly from the DOM rather than a JSON blob.
+ * Based on Astro's QuotesCarousel.astro (L16-42) but with a11y edits:
+ *   - Dots are plain <button>s with aria-current, no role=tab, no li wrapper,
+ *     no role=tablist on parent (axe aria-required-parent / -children fail
+ *     when the Astro pattern put <li> between <ol role=tablist> and the tab).
+ *   - A visible Pause/Play button covers WCAG 2.2.2; pause-on-hover /
+ *     pause-on-focus still work for mouse / keyboard users.
+ *   - aria-live moved off .qc__viewport onto a sibling .qc__status so SRs
+ *     don't hear every auto-rotation tick. JS populates .qc__status only on
+ *     user action (prev / next / dot / arrow key) or Pause/Play toggle.
+ *   - 24×24 CSS hit target on dots (visual circle stays small, drawn by a
+ *     ::before pseudo); passes WCAG 2.5.8.
  *
  * @package bozzies
  */
@@ -39,7 +44,7 @@ $extra_cls = ( isset( $attributes['className'] ) && $attributes['className'] ) ?
 $total = count( $quotes );
 ?>
 <div<?php echo $anchor; ?> class="qc<?php echo $extra_cls; ?>" data-carousel data-interval="<?php echo esc_attr( (string) $interval ); ?>" role="region" aria-roledescription="carousel" aria-label="Quotes about the Boswell Sisters" tabindex="0">
-	<div class="qc__viewport" aria-live="polite" aria-atomic="true">
+	<div class="qc__viewport">
 <?php foreach ( $quotes as $i => $q ) :
 	$text        = isset( $q['text'] )        ? (string) $q['text']        : '';
 	$attribution = isset( $q['attribution'] ) ? (string) $q['attribution'] : '';
@@ -55,20 +60,23 @@ $total = count( $quotes );
 		</figure>
 <?php endforeach; ?>
 	</div>
+	<div class="qc__status visually-hidden" data-status aria-live="polite" aria-atomic="true"></div>
 	<div class="qc__controls">
 		<button type="button" class="qc__btn" data-prev aria-label="Previous quote">
 			<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M13 4 L7 10 L13 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
 		</button>
-		<ol class="qc__dots" data-dots role="tablist" aria-label="Choose a quote">
+		<button type="button" class="qc__btn qc__btn--play" data-playtoggle aria-label="Pause quotes" aria-pressed="false">
+			<svg class="qc__icon qc__icon--pause" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><rect x="5" y="4" width="3.6" height="12" fill="currentColor"/><rect x="11.4" y="4" width="3.6" height="12" fill="currentColor"/></svg>
+			<svg class="qc__icon qc__icon--play" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" hidden><path d="M6 4 L15 10 L6 16 Z" fill="currentColor"/></svg>
+		</button>
+		<div class="qc__dots" data-dots>
 <?php foreach ( $quotes as $i => $q ) :
-	$selected = ( 0 === $i ) ? 'true' : 'false';
-	$label    = sprintf( 'Quote %d of %d', $i + 1, $total );
+	$aria_current = ( 0 === $i ) ? ' aria-current="true"' : '';
+	$label        = sprintf( 'Show quote %d of %d', $i + 1, $total );
 ?>
-			<li>
-				<button type="button" class="qc__dot" data-dot="<?php echo (int) $i; ?>" role="tab" aria-selected="<?php echo esc_attr( $selected ); ?>" aria-label="<?php echo esc_attr( $label ); ?>"></button>
-			</li>
+			<button type="button" class="qc__dot" data-dot="<?php echo (int) $i; ?>"<?php echo $aria_current; ?> aria-label="<?php echo esc_attr( $label ); ?>"></button>
 <?php endforeach; ?>
-		</ol>
+		</div>
 		<button type="button" class="qc__btn" data-next aria-label="Next quote">
 			<svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M7 4 L13 10 L7 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
 		</button>

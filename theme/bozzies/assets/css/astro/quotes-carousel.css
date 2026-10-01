@@ -1,12 +1,21 @@
 /*
- * Quotes carousel — verbatim port of
- * ~/boswell-poc/src/components/QuotesCarousel.astro lines 93-191.
+ * Quotes carousel — based on
+ * ~/boswell-poc/src/components/QuotesCarousel.astro L93-191.
  *
  * Owned by the bozzies/quotes-carousel block; the .qc module sits inside
- * bozzies/voices-section on /home/ (Astro `<section class="section ground-purple voices-section">`).
+ * bozzies/voices-section on /home/ (Astro section.ground-purple
+ * .voices-section).
  *
- * Edits from the Astro source:
- *   (none)
+ * Edits from the Astro source (a11y-remediation Wave 2):
+ *   - `.qc__dot` is a 24×24 button (hit target), with the visual circle
+ *     drawn by a ::before pseudo. Astro's 10×10 dot failed WCAG 2.5.8.
+ *   - `.qc__dot[aria-current='true']` replaces `[aria-selected='true']`
+ *     because the dot list is no longer a tablist.
+ *   - `.qc__btn:focus-visible` uses a solid yellow-soft outline (6.6:1
+ *     on purple) instead of Astro's translucent box-shadow ring that
+ *     disappeared against the notes backdrop. Same for `.qc__dot`.
+ *   - New `.qc__btn--play` styles for the Pause/Play toggle and
+ *     `.visually-hidden` for the live-region status element.
  */
 
 .qc {
@@ -61,6 +70,21 @@
 	font-style: normal;
 }
 
+/* Status live region — rendered but off-screen so SR announcements
+ * reach the user without affecting layout. Only populated on user
+ * action or Pause/Play toggle. */
+.qc__status {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* Controls */
 .qc__controls {
 	display: flex;
@@ -84,30 +108,45 @@
 	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
 }
 .qc__btn:hover { background: var(--yellow-soft); color: var(--purple); }
-/* Solid yellow-soft outline on purple ground is ~6.6:1 contrast, well past
- * WCAG 1.4.11's 3:1 for a non-text UI indicator. The translucent box-shadow
- * ring here used to disappear against the backdrop pattern; drop it in
- * favour of a hard outline that reads at a glance. (WCAG 2.4.7 Focus
- * Visible.) */
 .qc__btn:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 3px; }
+
+/* Pause/Play toggle shares .qc__btn geometry; aria-pressed=true (paused)
+ * fills the button so the paused state reads as "selected" at a glance. */
+.qc__btn--play[aria-pressed='true'] { background: var(--yellow-soft); color: var(--purple); }
+.qc__icon[hidden] { display: none; }
+
 .qc__dots {
 	display: flex;
 	align-items: center;
 	gap: var(--space-2);
 	padding: 0;
 	margin: 0;
-	list-style: none;
 }
+/* The dot is a 24×24 button (CSS hit target) with a 10×10 visual circle
+ * drawn by ::before so the visible dot keeps Astro's small accent while
+ * the pointer / touch target meets WCAG 2.5.8 (24×24 minimum). */
 .qc__dot {
-	width: 10px;
-	height: 10px;
-	border-radius: 999px;
-	background: rgba(225, 194, 99, 0.35);
+	position: relative;
+	width: 24px;
+	height: 24px;
+	background: transparent;
 	border: 0;
 	cursor: pointer;
 	padding: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 999px;
+}
+.qc__dot::before {
+	content: '';
+	display: block;
+	width: 10px;
+	height: 10px;
+	border-radius: 999px;
+	background: rgba(225, 194, 99, 0.5);
 	transition: background var(--dur) var(--ease-out-quart), transform var(--dur) var(--ease-out-quart);
 }
-.qc__dot[aria-selected='true'] { background: var(--yellow-soft); transform: scale(1.25); }
-.qc__dot:hover { background: var(--yellow-soft); }
-.qc__dot:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 3px; }
+.qc__dot[aria-current='true']::before { background: var(--yellow-soft); transform: scale(1.4); }
+.qc__dot:hover::before { background: var(--yellow-soft); }
+.qc__dot:focus-visible { outline: 2px solid var(--yellow-soft); outline-offset: 2px; }
