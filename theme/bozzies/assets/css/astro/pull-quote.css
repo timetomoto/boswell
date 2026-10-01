@@ -1,0 +1,54 @@
+/*
+ * pull-quote.css — verbatim port of PullQuote.astro's <style> block
+ * (~/boswell-poc/src/components/PullQuote.astro lines 11-41).
+ *
+ * Owned by the bozzies/pull-quote block. The `.ground-purple
+ * .pull-quote__quote` and `.pull-quote__attr` per-ground overrides live
+ * in global.css (verbatim from Astro's own global.css L91-97).
+ *
+ * Documented edits from the Astro source:
+ *   1. `.pull-quote .pull-quote__quote { font-weight: 400 }` — a specificity
+ *      bump from (0,1,0) to (0,2,0) so the base font-weight ties with
+ *      `.ground-purple .pull-quote__quote { font-weight: 500 }` in
+ *      global.css (0,2,0) and wins by source order (pull-quote.css loads
+ *      after global.css). Astro achieves the same via `data-astro-cid-*`
+ *      scoping on the component's <style> (`.pull-quote__quote[data-astro-cid-*]`
+ *      is (0,2,0)), which ties with `.ground-purple .pull-quote__quote` and
+ *      wins by source order (component <style> after global.css). Without
+ *      this bump the WP output showed font-weight:500 on purple pages
+ *      instead of 400, which also widened `.pull-quote__quote`'s 32ch
+ *      max-width (heavier Inter has wider "0") and shrank the auto
+ *      margin-inline.
+ */
+
+.pull-quote {
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+	padding-block: var(--space-7);
+	text-align: center;
+}
+.pull-quote__quote {
+	font-family: var(--font-ui);
+	font-weight: 400;
+	font-style: italic;
+	font-size: clamp(var(--step-2), 2.4vw + 0.4rem, var(--step-4));
+	line-height: var(--leading-snug);
+	color: var(--oxblood);
+	quotes: "\201C" "\201D";
+	max-width: 32ch;
+	margin-inline: auto;
+}
+/* Documented edit 1 — see file header. */
+.pull-quote .pull-quote__quote { font-weight: 400; }
+.ground-ink .pull-quote__quote { color: var(--champagne); }
+.pull-quote__quote::before { content: open-quote; margin-right: 0.1em; }
+.pull-quote__quote::after  { content: close-quote; margin-left: 0.1em; }
+.pull-quote__attr {
+	margin-top: var(--space-4);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--brass);
+}

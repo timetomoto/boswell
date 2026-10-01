@@ -1,0 +1,250 @@
+/*
+ * pages.css — page-scoped CSS from Astro pages that live outside a component.
+ *
+ * Astro defines these rules per-page in a scoped `<style>` block on the
+ * `.astro` file. WordPress has no equivalent per-page scoping mechanism, so
+ * we collect them here in one file, ordered by owning Astro page.
+ *
+ * Ports so far:
+ *   - Donate teaser section from ~/boswell-poc/src/pages/index.astro
+ *     styles lines 114 and 169-200 (`.donate-teaser`, `.donate-teaser__inner`,
+ *     `.donate-teaser__title`, `.donate-teaser__body`, `.btn`, `.btn--purple`)
+ *     plus the eyebrow color modifiers on lines 137-140.
+ *   - About CTA section from ~/boswell-poc/src/pages/about.astro styles
+ *     lines 58 and 74-97 (`.about-cta`, `.about-cta__inner`,
+ *     `.about-cta__head`, `.about-cta__title`, `.about-cta__body`,
+ *     `.about-cta__actions`, `.btn`, `.btn--outline`, `.btn--gold`).
+ *   - Intro section from ~/boswell-poc/src/pages/index.astro styles lines
+ *     114 and 117-135 (`.intro-section`, `.intro`, `.intro__lede`,
+ *     `.intro__body`, `.intro__body--lead`).
+ *   - Sample section from ~/boswell-poc/src/pages/index.astro styles
+ *     lines 114 and 152-167 (`.sample-section`, `.sample__inner`,
+ *     `.sample__title`, `.sample__body`, `.sample__cta`).
+ *   - Playlist section head from ~/boswell-poc/src/pages/index.astro
+ *     styles lines 114 and 143-145 (`.playlist-section`,
+ *     `.playlist-section__head`, `.playlist-section__title`,
+ *     `.playlist-section__blurb`).
+ *   - Voices section head from ~/boswell-poc/src/pages/index.astro
+ *     styles lines 114 and 148-150 (`.voices-section`,
+ *     `.voices-section__head`, `.voices-section__eyebrow`,
+ *     `.voices-section__title`).
+ *
+ * Documented edits from the Astro source:
+ *   1. Section overflow rule shortened to `.intro-section,
+ *      .playlist-section, .voices-section, .sample-section,
+ *      .donate-teaser` and `.about-cta` here. The about `.section-intro`
+ *      sibling joins this rule when its section ports.
+ *   2. `.btn` and `.btn--purple` rules are scoped to `.donate-teaser` so
+ *      they beat `global.css`'s `.ground-gold a { color: var(--link);
+ *      border-color: var(--link) }` (0-1-1) and `.ground-gold a:hover`
+ *      (0-2-1). Bumping to `.donate-teaser .btn` (0-2-0) and
+ *      `.donate-teaser .btn--purple:hover` (0-3-0) wins the cascade.
+ *      Astro achieves the same via its `data-astro-cid-*` attribute
+ *      scoping.
+ *   3. Same scoping for the about-cta buttons: `.about-cta .btn` (0-2-0),
+ *      `.about-cta .btn--outline` (0-2-0), `.about-cta .btn--outline:hover`
+ *      (0-3-0), `.about-cta .btn--gold` (0-2-0), `.about-cta
+ *      .btn--gold:hover` (0-3-0). Beats `.ground-gold a` (0-1-1) and
+ *      `.ground-gold a:hover` (0-2-1). The `.btn` rule on `.about-cta`
+ *      duplicates the base declarations on `.donate-teaser .btn` (both
+ *      port the same Astro `.btn` block) — they don't share a selector
+ *      because Astro scopes each per-page via `data-astro-cid-*`.
+ *   4. `.sample__cta` sits on `.ground-paper` where `global.css` has no
+ *      dark-anchor rule (`.ground-paper a` is not overridden), so no
+ *      specificity bump is needed — the ported `.sample__cta` selector
+ *      (0-1-0) is enough. `.sample__cta:hover, :focus-visible` (0-1-1)
+ *      likewise wins cleanly.
+ */
+
+/* Eyebrow color modifiers (Astro pages/index.astro lines 137-140). */
+.eyebrow--brass  { color: var(--brass); }
+.eyebrow--purple { color: var(--purple); }
+.eyebrow--yellow { color: var(--yellow); }
+.eyebrow--copper { color: var(--copper); }
+
+/* Intro — home welcome/mission on paper ground (index.astro L114, L117-135). */
+.intro-section { position: relative; overflow: hidden; }
+.intro { text-align: left; position: relative; z-index: 1; }
+.intro__lede {
+	font-family: var(--font-display);
+	font-weight: 400;
+	font-size: clamp(var(--step-3), 2.5vw + 0.4rem, var(--step-4));
+	line-height: var(--leading-snug);
+	color: var(--ink);
+	margin-top: var(--space-4);
+	max-width: var(--measure-body);
+}
+.intro__body {
+	margin-top: var(--space-5);
+	font-family: var(--font-body);
+	font-size: var(--step-1);
+	line-height: var(--leading-loose);
+	color: var(--text-on-paper);
+	max-width: var(--measure-body);
+}
+.intro__body--lead { font-weight: 700; }
+
+/* Playlist section — head only on paper ground (index.astro L114, L143-145).
+ * Body waits for the interactive bozzies/playlist-player block (Step 13). */
+.playlist-section { position: relative; overflow: hidden; }
+.playlist-section__head {
+	text-align: center;
+	margin: 0 auto var(--space-6);
+	position: relative;
+	z-index: 1;
+}
+.playlist-section__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6));
+	font-weight: 300;
+	letter-spacing: var(--track-tight);
+	text-align: center;
+	color: var(--ink);
+}
+.playlist-section__blurb {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-body);
+	font-size: var(--step-0);
+	color: var(--ink);
+	max-width: 82ch;
+	text-align: center;
+}
+
+/* Voices — head only on purple ground with quotes-carousel body pending
+ * (index.astro L114, L148-150). Body waits for the interactive
+ * bozzies/quotes-carousel block (Step 14). */
+.voices-section { position: relative; overflow: hidden; }
+.voices-section__head {
+	text-align: center;
+	margin: 0 auto var(--space-4);
+	position: relative;
+	z-index: 1;
+}
+.voices-section__eyebrow { color: var(--yellow-soft); }
+.voices-section__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6));
+	font-weight: 300;
+	color: var(--paper-warm);
+	text-align: center;
+	max-width: var(--measure-title);
+}
+
+/* Sample the Sound — educational lessons CTA on paper ground
+ * (index.astro L114, L152-167). */
+.sample-section {
+	position: relative;
+	overflow: hidden;
+	padding-bottom: clamp(var(--space-8), 6vw, var(--space-9));
+}
+.sample__inner { text-align: center; position: relative; z-index: 1; }
+.sample__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-5));
+	font-weight: 300;
+	max-width: var(--measure-title);
+	color: var(--ink);
+}
+.sample__body {
+	margin: var(--space-4) auto 0;
+	max-width: var(--measure-body);
+	font-family: var(--font-body);
+	color: var(--ink);
+}
+.sample__cta {
+	display: inline-flex; align-items: center; gap: var(--space-3);
+	margin-top: var(--space-6);
+	padding: var(--space-4) var(--space-6);
+	font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--paper); background: var(--purple); border: 1px solid var(--purple);
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
+}
+.sample__cta:hover, .sample__cta:focus-visible { background: var(--oxblood); border-color: var(--oxblood); }
+
+/* Donate teaser — on bourbon-gold ground. */
+.donate-teaser { position: relative; overflow: hidden; }
+.donate-teaser__inner { text-align: center; position: relative; z-index: 1; }
+.donate-teaser__title {
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-3), 2.5vw + 0.4rem, var(--step-5));
+	margin-top: var(--space-4);
+	margin-inline: auto;
+	max-width: var(--measure-title);
+	color: var(--ink);
+}
+.donate-teaser__body {
+	margin-inline: auto;
+	max-width: var(--measure-body);
+	margin-top: var(--space-4);
+	font-family: var(--font-body);
+	color: var(--ink);
+}
+.donate-teaser .btn {
+	display: inline-block;
+	margin-top: var(--space-6);
+	padding: var(--space-3) var(--space-6);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	background: transparent;
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
+}
+.donate-teaser .btn--purple { color: var(--paper); background: var(--purple); border: 1px solid var(--purple); }
+.donate-teaser .btn--purple:hover,
+.donate-teaser .btn--purple:focus-visible { background: var(--oxblood); border-color: var(--oxblood); color: var(--paper); }
+
+/* About CTA — on bourbon-gold ground (about.astro lines 74-97). */
+.about-cta { position: relative; overflow: hidden; }
+.about-cta__inner { text-align: center; position: relative; z-index: 1; }
+.about-cta__head { max-width: var(--measure); margin: 0 auto; }
+.about-cta__title {
+	margin: var(--space-3) auto 0;
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-4), 3.5vw + 0.3rem, var(--step-6));
+	font-weight: 300;
+	color: var(--ink);
+	max-width: var(--measure-title);
+}
+.about-cta__body {
+	margin: var(--space-4) auto 0;
+	font-family: var(--font-body);
+	font-size: var(--step-1);
+	line-height: var(--leading-normal);
+	color: var(--ink);
+	max-width: var(--measure-body);
+}
+.about-cta__actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--space-4);
+	margin-top: var(--space-7);
+}
+.about-cta .btn {
+	display: inline-block;
+	padding: var(--space-3) var(--space-6);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	text-decoration: none;
+	border: 1px solid transparent;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart);
+}
+/* Secondary — outline purple on gold. */
+.about-cta .btn--outline { color: var(--purple); border-color: var(--purple); background: transparent; }
+.about-cta .btn--outline:hover,
+.about-cta .btn--outline:focus-visible { background: var(--purple); color: var(--paper); }
+/* Primary — filled purple on gold. */
+.about-cta .btn--gold { color: var(--paper); background: var(--purple); border-color: var(--purple); }
+.about-cta .btn--gold:hover,
+.about-cta .btn--gold:focus-visible { background: var(--oxblood); border-color: var(--oxblood); color: var(--paper); }

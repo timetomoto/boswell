@@ -1,0 +1,98 @@
+/* -----------------------------------------------------------------------
+ * Astro prose-body.css — verbatim port of the .charts-body and
+ * .reviews-body page-specific prose rules from Astro:
+ *   ~/boswell-poc/src/pages/media/charts.astro   L51-96 (charts prose + tables)
+ *   ~/boswell-poc/src/pages/media/reviews.astro  L38-65 (reviews prose)
+ *
+ * Base .prose rules (font-family, size, line-height, color, p/h2/h3/h4
+ * margins, blockquote, generic table) already live in
+ * assets/css/astro/article.css L200-213. This file only carries the
+ * charts- and reviews-specific overrides, scoped by `.charts-body`
+ * and `.reviews-body` alongside `.prose` on the container.
+ *
+ * Astro scopes these rules via `.prose[data-astro-cid-…] :global(h2)`
+ * etc.; the WP port drops `:global()` and picks up the same specificity
+ * (0,2,1) via `.prose.charts-body h2` and `.prose.reviews-body h2`.
+ *
+ * No documented edits — every selector matches Astro's scoped rule at
+ * (0,2,1) which beats article.css's `.prose h2` at (0,1,1) by
+ * specificity, or matches Astro's (0,3,1) via `.prose.reviews-body h3
+ * + p` where article.css has no equivalent.
+ * -------------------------------------------------------------------- */
+
+/* --- Charts prose — verbatim from charts.astro L51-96 --------------- */
+.prose.charts-body { font-family: var(--font-body); font-size: var(--step-1); line-height: var(--leading-loose); color: var(--text-on-paper); }
+.prose.charts-body p { max-width: 62ch; }
+.prose.charts-body p + p, .prose.charts-body p + h2, .prose.charts-body p + h3 { margin-top: var(--space-4); }
+.prose.charts-body h2, .prose.charts-body h3 { margin-top: var(--space-8); margin-bottom: var(--space-3); font-family: var(--font-display); font-weight: 400; letter-spacing: var(--track-tight); }
+.prose.charts-body h2 { font-size: var(--step-4); }
+.prose.charts-body h3 { font-size: var(--step-3); }
+.prose.charts-body em { font-family: var(--font-ui); font-style: italic; color: var(--text-on-paper-muted); font-size: var(--step-0); }
+.prose.charts-body strong { color: var(--purple); }
+
+/* Chart tables — editorial ledger. Verbatim from charts.astro L62-96. */
+.prose.charts-body table {
+	width: 100%;
+	max-width: none;
+	border-collapse: collapse;
+	margin: var(--space-4) 0 var(--space-6);
+	font-family: var(--font-body);
+	font-size: var(--step-0);
+	font-variant-numeric: tabular-nums;
+}
+.prose.charts-body thead { display: table-header-group; }
+.prose.charts-body th {
+	text-align: left;
+	padding: var(--space-3) var(--space-4);
+	background: color-mix(in oklab, var(--paper) 92%, var(--purple) 8%);
+	border-bottom: 2px solid var(--purple);
+	font-family: var(--font-ui);
+	font-weight: 600;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--purple);
+}
+.prose.charts-body td {
+	padding: var(--space-3) var(--space-4);
+	border-bottom: 1px solid var(--paper-hairline);
+	vertical-align: top;
+}
+.prose.charts-body tbody tr:nth-child(odd) { background: color-mix(in oklab, var(--paper) 97%, var(--purple) 3%); }
+.prose.charts-body tbody tr:hover { background: color-mix(in oklab, var(--paper) 93%, var(--yellow) 7%); }
+/* First column (date) — purple caps for scanning */
+.prose.charts-body td:first-child { font-family: var(--font-ui); font-weight: 500; color: var(--purple); white-space: nowrap; }
+/* Peak position column — brass for accent */
+.prose.charts-body td:nth-child(2) { font-family: var(--font-display); font-size: var(--step-2); font-weight: 400; color: var(--brass); text-align: center; }
+/* Weeks charted */
+.prose.charts-body td:nth-child(3) { text-align: center; color: var(--text-on-paper-muted); }
+
+/* --- Reviews prose — verbatim from reviews.astro L38-65 ------------- */
+.prose.reviews-body { font-family: var(--font-body); font-size: var(--step-1); line-height: var(--leading-loose); color: var(--text-on-paper); }
+.prose.reviews-body h2 {
+	font-family: var(--font-display);
+	font-size: var(--step-4);
+	font-weight: 300;
+	letter-spacing: var(--track-tight);
+	margin-bottom: var(--space-6);
+}
+.prose.reviews-body h3 {
+	font-family: var(--font-display);
+	font-size: clamp(var(--step-3), 2vw + 0.3rem, var(--step-4));
+	font-weight: 400;
+	letter-spacing: var(--track-tight);
+	color: var(--ink);
+	text-decoration: none;
+	margin-top: var(--space-7);
+	padding-top: var(--space-6);
+	border-top: 1px solid var(--paper-hairline);
+}
+.prose.reviews-body h3:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.prose.reviews-body h3 + p {
+	margin-top: var(--space-3);
+	max-width: 60ch;
+	font-family: var(--font-ui);
+	font-style: italic;
+	font-size: var(--step-1);
+	color: var(--text-on-paper-muted);
+}

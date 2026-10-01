@@ -1,9 +1,20 @@
 <!-- wp:template-part {"slug":"header","tagName":"header"} /-->
 
-<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
+<!-- wp:group {"tagName":"main","layout":{"type":"default"}} -->
 <main class="wp-block-group">
-	<!-- wp:post-title {"level":1} /-->
-	<!-- wp:post-content {"align":"full","layout":{"type":"constrained"}} /-->
+
+	<!-- wp:group {"tagName":"section","align":"full","className":"page-hero ground-purple","layout":{"type":"default"}} -->
+	<section class="wp-block-group alignfull page-hero ground-purple">
+		<!-- wp:group {"className":"container-narrow page-hero__inner","layout":{"type":"default"}} -->
+		<div class="wp-block-group container-narrow page-hero__inner">
+			<!-- wp:post-title {"level":1,"className":"page-hero__title"} /-->
+		</div>
+		<!-- /wp:group -->
+	</section>
+	<!-- /wp:group -->
+
+	<!-- wp:post-content {"align":"full","layout":{"type":"default"}} /-->
+
 </main>
 <!-- /wp:group -->
 

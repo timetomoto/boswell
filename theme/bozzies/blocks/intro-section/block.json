@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/intro-section",
+	"version": "1.0.0",
+	"title": "Intro section",
+	"category": "design",
+	"icon": "editor-alignleft",
+	"description": "Astro's home welcome/mission section — <section class=\"section ground-paper intro-section\"><div class=\"container-narrow intro\">… eyebrow + lede + first body paragraph (bold) + second body paragraph …</div></section>. Attributes-only; leave a field empty to omit it.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":    { "type": "string", "default": "full" },
+		"eyebrow":  { "type": "string", "default": "" },
+		"lede":     { "type": "string", "default": "" },
+		"bodyLead": { "type": "string", "default": "" },
+		"body":     { "type": "string", "default": "" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

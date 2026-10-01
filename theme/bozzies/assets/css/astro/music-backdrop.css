@@ -1,0 +1,24 @@
+/*
+ * Astro music-backdrop.css — verbatim port of MusicBackdrop.astro's
+ * <style> block (lines 354-368). Wraps an absolutely-positioned SVG
+ * pattern behind a ground-* section. The block that owns the DOM sets
+ * --mb-opacity, --mb-color and --mb-top inline.
+ *
+ * Source: ~/boswell-poc/src/components/MusicBackdrop.astro
+ *
+ * Edits from Astro source (must stay documented per CLAUDE.md):
+ *   (none)
+ */
+.music-backdrop {
+	position: absolute;
+	top: var(--mb-top, 0);
+	right: 0;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+	z-index: 0;
+	opacity: var(--mb-opacity);
+	overflow: hidden;
+	color: var(--mb-color);
+}
+.music-backdrop svg { width: 100%; height: 100%; display: block; }

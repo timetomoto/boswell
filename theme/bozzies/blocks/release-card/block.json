@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/release-card",
+	"version": "1.0.0",
+	"title": "Press release card",
+	"category": "design",
+	"icon": "media-document",
+	"parent": [ "bozzies/release-cards" ],
+	"description": "One dark-purple press-release card on the Press hub. Document type, title, release date and PDF URL are all editable.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": true,
+		"className": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"documentType": { "type": "string", "default": "PDF" },
+		"title":        { "type": "string", "default": "" },
+		"releaseDate":  { "type": "string", "default": "" },
+		"href":         { "type": "string", "default": "" },
+		"hrefId":       { "type": "number" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

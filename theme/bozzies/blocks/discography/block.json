@@ -1,0 +1,36 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/discography",
+	"version": "1.0.0",
+	"title": "Discography search",
+	"category": "design",
+	"icon": "search",
+	"description": "Astro's session-by-session discography with the debounced search bar. Verbatim from ~/boswell-poc/src/pages/media/discography.astro L34-83. One block emits the .discography-tools search section + the paper-ground scope list with all sessions and tracks. Data is stored on a nested `scopes` attribute.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": false,
+		"html": false,
+		"className": true,
+		"customClassName": false,
+		"reusable": false,
+		"multiple": false,
+		"inserter": true
+	},
+	"attributes": {
+		"scopes": {
+			"type": "array",
+			"default": []
+		},
+		"searchLabel": {
+			"type": "string",
+			"default": "Search titles, matrix numbers, personnel…"
+		},
+		"searchPlaceholder": {
+			"type": "string",
+			"default": "e.g. Heebie Jeebies, Brunswick, Dorsey"
+		}
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

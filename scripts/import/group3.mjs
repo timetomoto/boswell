@@ -314,21 +314,47 @@ function buildSubhubSection({ termId, kicker, label, blurb }) {
   );
 }
 
-// One press-release card. Each card links straight to the PDF (target=_blank
-// so the PDF opens in a new tab, matching Astro's markup).
-function releaseCard({ documentUrl, documentType, title, releaseDate }) {
-  const type = (documentType || 'DOC').toUpperCase();
-  const inner = [
-    p(type, { className: 'is-style-eyebrow release-card__type' }),
-    h(3, title, { className: 'release-card__title' }),
-    releaseDate ? p(releaseDate, { className: 'release-card__date' }) : '',
-  ].filter(Boolean).join('\n');
-  return `<!-- wp:group {"className":"release-card","layout":{"type":"default"}} -->
-<div class="wp-block-group release-card"><a class="release-card__link" href="${documentUrl}" target="_blank" rel="noopener noreferrer">
-${inner}
-</a></div>
-<!-- /wp:group -->`;
-}
+// Decode HTML entities used in press-release titles/dates so the JSON stored
+// in post_content contains real Unicode glyphs (Gutenberg re-serializes named
+// entities on save otherwise, causing a round-trip diff).
+const RELEASE_ENTITY_MAP = {
+  '&ndash;': '–', '&mdash;': '—',
+  '&lsquo;': '‘', '&rsquo;': '’',
+  '&ldquo;': '“', '&rdquo;': '”',
+  '&amp;':   '&',
+};
+const decodeReleaseValue = (s) =>
+  String(s || '').replace(/&(?:ndash|mdash|lsquo|rsquo|ldquo|rdquo|amp);/g, (m) => RELEASE_ENTITY_MAP[m] ?? m);
+
+// Serialize a block-attrs JSON payload the way Gutenberg does (`wp_json_encode`
+// with JSON_UNESCAPED_SLASHES + JSON_UNESCAPED_UNICODE + the default JSON_HEX_*
+// flags for `<>&'`) so re-saving the block in the editor produces the exact same
+// string and the round-trip stays clean.
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/'/g, '\\u0027');
+
+// One press-release card as the new bozzies/release-card block. Emits Astro's
+// exact <li class="release-card"><a class="release-card__link"> DOM verbatim
+// from ~/boswell-poc/src/pages/press/index.astro lines 104-111 via the block's
+// server-render. Attributes-only; empty releaseDate omitted so Gutenberg's
+// default-attr elision doesn't change the serialization on save.
+const releaseCard = ({ documentUrl, documentId, documentType, title, releaseDate }) => {
+  const attrs = {
+    documentType: decodeReleaseValue(documentType || 'PDF'),
+    title:        decodeReleaseValue(title),
+    href:         documentUrl,
+  };
+  if (releaseDate) attrs.releaseDate = decodeReleaseValue(releaseDate);
+  // hrefId lets the block's MediaUpload picker show "Replace PDF" (rather
+  // than "Choose PDF") when the block is opened in the editor. Attribute
+  // order matches block.json so Gutenberg's serializer round-trip is stable.
+  if (documentId) attrs.hrefId = documentId;
+  return `<!-- wp:bozzies/release-card ${gbJson(attrs)} /-->`;
+};
 
 function buildPressHub({ hubs, releases, media }) {
   // Astro's /press/ hero is a full-bleed photo (bozbuz.jpg) with title
@@ -336,7 +362,7 @@ function buildPressHub({ hubs, releases, media }) {
   const hero = heroPhoto({
     media: media.bozbuz,
     title: 'Press',
-    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, interviews, and video features.',
+    subtitle: 'A century of writing on the Boswells — vintage newspaper pieces, modern press releases, and interviews.',
   });
 
   const intro = proseSection([
@@ -346,47 +372,67 @@ function buildPressHub({ hubs, releases, media }) {
     p('In our many cruises across the ether waves Bozzies.com has discovered many stories and links of interest to those on the journey to the Land of Boz. What follows is a curated archive: contemporary press about the Boswells from the 1930s onward, along with modern press releases, interviews, and the odd essay about the site itself.', { className: 'bozzies-para-body', fontSize: 'lead' }),
   ]);
 
-  const subhubs = hubs.filter(h => h.hasEntries).map(buildSubhubSection);
+  // Video is no longer rendered on /press/ — the video category lives under
+  // /media/video/ and appears in the Media hub instead.
+  const subhubs = hubs.filter(h => h.hasEntries && PRESS_HUB_SLUGS.has(h.slug)).map(buildSubhubSection);
 
-  const releasesGrid = releases.length ? section(
-    { backgroundStyle: 'gold', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Press Room', { className: 'is-style-eyebrow' }),
-      h(2, 'Press releases &amp; media', { fontSize: 'section-title-medium' }),
-      p('Original press releases, event announcements, and archival documents. Each opens as a PDF.', { className: 'bozzies-para-body' }),
-      `<!-- wp:group {"className":"releases-grid","layout":{"type":"grid","minimumColumnWidth":"16rem"}} -->
-<div class="wp-block-group releases-grid">
-${releases.map(releaseCard).join('\n')}
-</div>
-<!-- /wp:group -->`,
-    ].join('\n'),
-  ) : '';
+  // Astro's press-releases section is emitted verbatim by the
+  // bozzies/release-cards + bozzies/release-card blocks. Container renders
+  // <section class="section ground-gold press-releases"> with the staves
+  // music-backdrop inlined, followed by <header class="releases-head"> and
+  // <ul class="releases-grid">…</ul>; each child renders one <li class=
+  // "release-card"> with Astro's exact <a class="release-card__link">
+  // (span.release-card__type + h3.release-card__title + optional
+  // p.release-card__date). Verbatim from ~/boswell-poc/src/pages/press/
+  // index.astro lines 94-116.
+  // align:"full" omitted from serialized attrs — it matches the block.json
+  // default so Gutenberg strips it on save. Keep the ordering
+  // eyebrow/title/blurb matching PHP's wp_json_encode.
+  const releasesGridAttrs = {
+    eyebrow: 'The Press Room',
+    title:   'Press releases & media',
+    blurb:   'Original press releases, event announcements, and archival documents. Each opens as a PDF.',
+  };
+  const releasesGrid = releases.length
+    ? `<!-- wp:bozzies/release-cards ${gbJson(releasesGridAttrs)} -->\n${releases.map(releaseCard).join('\n\n')}\n<!-- /wp:bozzies/release-cards -->`
+    : '';
 
   return [hero, intro, ...subhubs, releasesGrid].filter(Boolean).join('\n\n');
 }
 
 function buildArticleContent(data, bodyBlocks) {
   // Article page structure — mirrors Astro's [purple hero → paper body → gold
-  // external-link] layout. The purple hero contains the back link (to the
-  // category), the h1, the meta line (author · publication · publicationDate,
-  // rendered from post meta via the bozzies/article-meta binding), and the
-  // pull quote when present. Astro packages all four together in a single
-  // hero band — matching that here removes the "double band" artefact caused
-  // by the earlier split single.html hero + separate pull-quote section.
+  // external-link] layout. Astro's DOM is:
+  //   <section class="ground-purple article-hero">
+  //     <div class="container article-hero__inner">
+  //       <a class="article-hero__back">← Press · Vintage Articles</a>
+  //       <h1 class="article-hero__title">Title</h1>
+  //       <p class="article-hero__meta">Meta</p>
+  //       <blockquote class="article-hero__quote">…</blockquote>?
+  //     </div>
+  //   </section>
+  // Emit that shape with a bozzies/section carrying className "article-hero"
+  // + width edge, plus an inner wp:group with class "container article-hero__inner"
+  // holding the four child blocks. The meta paragraph is a bindings paragraph
+  // so post_meta (bozzies/article-meta) fills it at render time.
+  // Video features live under /media/video/ instead of /press/video/ — the
+  // owner reorganized the content hierarchy (video is Media-adjacent).
+  // Astro's source still groups video under press, so this is a deliberate
+  // WP-only divergence.
+  const isVideo = data.subhub === 'video';
   const hubLabel = (HUB_ORDER.find(h => h.slug === data.subhub) || {}).label || 'Press';
-  const backLink = `<a href="/press/${data.subhub}/">← Press &middot; ${hubLabel}</a>`;
-  const metaParagraph = `<!-- wp:paragraph {"className":"is-style-eyebrow bozzies-article-meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} -->
-<p class="is-style-eyebrow bozzies-article-meta"></p>
-<!-- /wp:paragraph -->`;
-  const heroInner = [
-    p(backLink),
-    `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">${data.title}</h1><!-- /wp:heading -->`,
-    metaParagraph,
-    data.pullQuote ? quote(data.pullQuote, data.pullQuoteAttribution ? `— ${data.pullQuoteAttribution}` : '') : '',
-  ].filter(Boolean).join('\n');
+  const backHref = isVideo ? '/media/video/' : `/press/${data.subhub}/`;
+  const backText = isVideo ? '← Media &middot; Video' : `← Press &middot; ${hubLabel}`;
+  const backAnchor = `<!-- wp:paragraph {"className":"article-hero__back"} --><p class="article-hero__back"><a href="${backHref}">${backText}</a></p><!-- /wp:paragraph -->`;
+  const titleH1 = `<!-- wp:heading {"level":1,"className":"article-hero__title"} --><h1 class="wp-block-heading article-hero__title">${data.title}</h1><!-- /wp:heading -->`;
+  const hasMeta = !!(data.author || data.publication || data.publicationDate);
+  const metaParagraph = hasMeta ? `<!-- wp:paragraph {"className":"article-hero__meta","metadata":{"bindings":{"content":{"source":"bozzies/article-meta"}}}} --><p class="article-hero__meta"></p><!-- /wp:paragraph -->` : '';
+  const pullQuoteBlock = data.pullQuote ? `<!-- wp:quote {"className":"article-hero__quote"} --><blockquote class="wp-block-quote article-hero__quote"><p>${data.pullQuote}</p>${data.pullQuoteAttribution ? `<cite>— ${data.pullQuoteAttribution}</cite>` : ''}</blockquote><!-- /wp:quote -->` : '';
+  const heroInner = [backAnchor, titleH1, metaParagraph, pullQuoteBlock].filter(Boolean).join('\n');
+  const heroGroup = `<!-- wp:group {"className":"container-narrow article-hero__inner","layout":{"type":"default"}} -->\n<div class="wp-block-group container-narrow article-hero__inner">\n${heroInner}\n</div>\n<!-- /wp:group -->`;
   const hero = section(
-    { backgroundStyle: 'purple', backdrop: 'notes', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    heroInner,
+    { backgroundStyle: 'purple', backdrop: 'notes', width: 'edge', headingWidth: 'container', spacing: 'none', align: 'full', className: 'article-hero' },
+    heroGroup,
   );
 
   const heroImage = data.heroImageMedia ? section(
@@ -430,6 +476,10 @@ function updateCategoryDescriptions() {
 }
 
 // The 5 press sub-hubs in Astro's stated `order` (from src/content/press-hubs/*.md).
+// Press sub-hubs listed on /press/ in this order. Video is intentionally
+// absent: videos are a Media feature now, listed on /media/video/ and
+// surfaced on the Media hub. HUB_ORDER still keeps the video entry below so
+// article back-link labels + the perSubhubIndex ordering keep working.
 const HUB_ORDER = [
   { slug: 'vintage',            kicker: 'From the 1930s',  label: 'Vintage Articles' },
   { slug: 'in-their-own-words', kicker: 'Interviews',      label: 'In Their Own Words' },
@@ -437,6 +487,7 @@ const HUB_ORDER = [
   { slug: 'feature',            kicker: 'Modern Writing',  label: 'Features' },
   { slug: 'essay',              kicker: 'Bozzies.org',     label: 'About the Site' },
 ];
+const PRESS_HUB_SLUGS = new Set( HUB_ORDER.filter(h => h.slug !== 'video').map(h => h.slug) );
 const HUB_BLURBS = {
   vintage: 'Newspaper and magazine pieces published while the trio was in full swing.',
   'in-their-own-words': 'Firsthand accounts and interview transcripts.',
@@ -517,6 +568,7 @@ function run() {
     const pdf = importMedia(data.document, data.title);
     releases.push({
       documentUrl: pdf.url,
+      documentId: pdf.id,
       documentType: data.documentType || 'PDF',
       title: data.title,
       releaseDate: data.releaseDate || null,

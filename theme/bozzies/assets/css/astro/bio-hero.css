@@ -1,0 +1,74 @@
+/*
+ * Astro bio-hero.css — verbatim port of the .bio-hero* rules from
+ * ~/boswell-poc/src/pages/sisters/[slug].astro <style> block (lines 132-179).
+ * Compact purple hero used on each sister bio page: back link + eyebrow +
+ * big display name + optional pull-quote with cite. No image.
+ *
+ * Owned by the bozzies/bio-hero block, which emits Astro's exact DOM:
+ *   <section class="bio-hero ground-purple">
+ *     <div class="music-backdrop" …><svg …/></div>
+ *     <div class="container-narrow bio-hero__inner">
+ *       <a class="bio-hero__back">…</a>
+ *       <span class="eyebrow bio-hero__eyebrow">…</span>
+ *       <h1 class="bio-hero__name">…</h1>
+ *       <blockquote class="bio-hero__quote">…<cite>—…</cite></blockquote>
+ *     </div>
+ *   </section>
+ *
+ * Edits from Astro source (must stay documented per CLAUDE.md):
+ *   1. `.bio-hero__back` link color/border rules are scoped under
+ *      `.bio-hero` (`.bio-hero .bio-hero__back`) so they beat global.css's
+ *      `.ground-purple a { color: var(--link-on-dark) }` rule (specificity
+ *      0,1,1). Astro sidesteps this via its per-file `data-astro-cid-*`
+ *      attribute scoping (which bumps every selector to 0,2,0); the port
+ *      recreates the same specificity by nesting under the block class.
+ *      Astro tokens (--space-*, --step-*, --font-*, --yellow-*,
+ *      --paper-warm, --track-*, --leading-*) are re-exported from WP presets
+ *      by assets/css/astro/global.css, so they resolve at runtime here.
+ */
+.bio-hero { padding-block: clamp(var(--space-6), 4vw, var(--space-8)); position: relative; overflow: hidden; }
+.bio-hero__inner { position: relative; z-index: 1; }
+.bio-hero .bio-hero__back {
+	display: block;
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--yellow-soft);
+	border: 0;
+	margin-bottom: var(--space-5);
+	width: fit-content;
+}
+.bio-hero .bio-hero__back:hover { color: var(--yellow-hover); }
+.bio-hero__eyebrow { color: var(--yellow-soft); }
+.bio-hero__name {
+	font-family: var(--font-display);
+	font-weight: 300;
+	font-size: clamp(var(--step-6), 7vw, var(--step-8));
+	line-height: 0.95;
+	letter-spacing: var(--track-tight);
+	color: var(--paper-warm);
+	margin-top: var(--space-2);
+}
+.bio-hero__quote {
+	margin-top: var(--space-5);
+	font-family: var(--font-ui);
+	font-style: italic;
+	font-weight: 400;
+	font-size: clamp(var(--step-1), 1.2vw + 0.3rem, var(--step-2));
+	line-height: var(--leading-normal);
+	color: #FBF3D6;
+	max-width: 52ch;
+}
+.bio-hero__quote cite {
+	display: block;
+	margin-top: var(--space-3);
+	font-family: var(--font-ui);
+	font-style: normal;
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--yellow-soft);
+}

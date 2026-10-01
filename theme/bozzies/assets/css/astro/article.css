@@ -1,0 +1,239 @@
+/* -----------------------------------------------------------------------
+ * Astro article.css — verbatim port of the article-list, article-hero,
+ * page-hero, article-nav, prose, and video-embed rules from Astro's page
+ * files:
+ *   ~/boswell-poc/src/pages/press/index.astro (lines 122-183)
+ *   ~/boswell-poc/src/pages/press/[subhub]/index.astro (lines 62-118)
+ *   ~/boswell-poc/src/pages/press/[subhub]/[slug].astro (lines 102-183)
+ *
+ * Astro's tokens (--purple, --ink, --space-N, --step-N, etc.) resolve
+ * through the aliases declared in astro/global.css, so no token block
+ * is needed here.
+ *
+ * Edits made against the Astro source:
+ *  1. Astro's scoped `<style>` block emits `:global(p) + :global(p)` etc.
+ *     inside `.prose`. In the port those `:global()` wrappers become
+ *     plain descendant selectors — no scoping needed on the WP side.
+ *  2. `.article-row__link` selector kept unchanged; WordPress core
+ *     wraps the `<li>` around it via a render_block filter that also
+ *     injects `<span class="article-row__num">01</span>` from
+ *     functions.php (bozzies_number_article_rows).
+ *  3. `.article-nav__link` targets `<a>` in Astro; WP's
+ *     core/post-navigation-link block emits a wrapping <div> with the
+ *     anchor inside. Both `.article-nav__link` and
+ *     `.article-nav__link a` are targeted so the layout still works.
+ *
+ * No other selector was renamed.
+ * -------------------------------------------------------------------- */
+
+/* --- Page hero (ground-purple, no image) — press/[subhub]/index.astro
+ *     Also used by bio/lesson/charts/reviews/discography subpages. ---- */
+.page-hero { padding-block: clamp(var(--space-6), 4vw, var(--space-8)); position: relative; overflow: hidden; }
+.page-hero__inner { position: relative; z-index: 1; }
+.page-hero__back {
+	display: block; width: fit-content;
+	font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--yellow-soft); border: 0;
+	margin-bottom: var(--space-5);
+}
+.page-hero__back:hover { color: var(--yellow-hover); }
+/* WP scoping: `global.css` has `.ground-purple a { color: var(--link-on-dark) }`
+ * (0-1-1), which overrides the plain `.page-hero__back { color: var(--yellow-soft) }`
+ * (0-1-0). Bump specificity to (0-2-0)/(0-3-0) so `.page-hero .page-hero__back`
+ * wins on both idle and hover. Astro achieves the same via its
+ * `data-astro-cid-*` per-page scoping. */
+.page-hero .page-hero__back        { color: var(--yellow-soft); border-color: currentColor; }
+.page-hero .page-hero__back:hover  { color: var(--yellow-hover); border-color: currentColor; }
+.page-hero__eyebrow {
+	color: var(--yellow-soft);
+	margin-top: 0; /* WP's `.wp-block-paragraph { margin-top: --space-4 }` adds a top margin between sibling <p>s; Astro's eyebrow is a bare inline-block <span> at markup level and starts with no top margin. */
+	max-width: none; /* body-level `p { max-width: var(--measure) }` reset would cap the eyebrow paragraph; Astro's `<span class="eyebrow page-hero__eyebrow">` has none. */
+}
+.page-hero__title {
+	font-family: var(--font-display); font-weight: 300;
+	font-size: clamp(var(--step-5), 6vw, var(--step-7)); line-height: 1;
+	letter-spacing: var(--track-tight);
+	color: var(--paper-warm); margin-top: var(--space-2);
+}
+.page-hero__subtitle {
+	margin-top: var(--space-4); font-family: var(--font-body);
+	font-size: clamp(var(--step-1), 1.4vw + 0.3rem, var(--step-2));
+	color: rgba(245, 234, 209, 0.9); max-width: 60ch;
+}
+/* `bozzies/page-hero` block per-page overrides. Astro sets `.page-hero__title`
+ * and `.page-hero__subtitle` max-widths inside each page's own scoped <style>
+ * block; here we mirror that by scoping on `body.page-slug-<slug>` (added by
+ * the `body_class` filter in functions.php).
+ *   - career-timeline.astro L57:  title 34ch, subtitle 58ch (--measure-body)
+ *   - discography.astro L167,172: title 34ch, subtitle 58ch (--measure-body)
+ *   - reviews.astro L35:          title none, subtitle 52ch
+ *   - charts.astro L46-49:        title none, subtitle 52ch
+ *   - bio-resources.astro L74-80: title none, subtitle 46ch (ground-gold)
+ * (bio-resources also has ground-gold, added when that variant lands.) */
+.page-slug-career-timeline .wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
+.page-slug-career-timeline .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
+.page-slug-discography     .wp-block-bozzies-page-hero .page-hero__title    { max-width: var(--measure-title); }
+.page-slug-discography     .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: var(--measure-body); }
+.page-slug-reviews         .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 52ch; }
+.page-slug-charts          .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 52ch; }
+.page-slug-bio-resources   .wp-block-bozzies-page-hero .page-hero__subtitle { max-width: 46ch; }
+
+/* Ground-gold variant — verbatim from ~/boswell-poc/src/pages/sisters/bio-resources.astro
+ * L52-80. The back link, title, and subtitle re-color to `--purple` / `--ink`;
+ * Astro also uses a slightly larger subtitle clamp (`1.4vw + 0.4rem` vs the
+ * purple ground's `1.4vw + 0.3rem`) and drops the border with `border: 0`.
+ * WP scoping bumps: `.page-hero.ground-gold .page-hero__back` (0-3-0) beats
+ * `.ground-gold a` (0-1-1); `:hover` (0-3-1) beats `.ground-gold a:hover`
+ * (0-2-1). Astro achieves the same via its `data-astro-cid-*` per-page
+ * scoping. The eyebrow uses `.eyebrow.eyebrow--purple` in Astro's markup
+ * (bio-resources.astro L15) rather than `.page-hero__eyebrow`, so no
+ * eyebrow rule is needed here — `.ground-gold .eyebrow` in global.css and
+ * `.eyebrow--purple` in pages.css both resolve to `var(--purple)`. */
+.page-hero.ground-gold .page-hero__back { color: var(--purple); border: 0; }
+.page-hero.ground-gold .page-hero__back:hover { color: var(--oxblood); }
+.page-hero.ground-gold .page-hero__title { color: var(--ink); }
+.page-hero.ground-gold .page-hero__subtitle {
+	color: var(--ink);
+	font-size: clamp(var(--step-1), 1.4vw + 0.4rem, var(--step-2));
+}
+
+/* --- Article hero (single article, ground-purple) ------------------- */
+/*  Selector adjustment: `.wp-block-bozzies-section.article-hero` gives
+ *  the padding rule specificity 0-2-0 so it beats the Section block's
+ *  own `.wp-block-bozzies-section.has-spacing-none { padding-block: 0 }`
+ *  (also 0-2-0, later cascade wins because article.css loads after
+ *  the Section block's own CSS). Astro's plain `.article-hero` selector
+ *  has no such fight. */
+.wp-block-bozzies-section.article-hero,
+.article-hero { padding-block: clamp(var(--space-6), 4vw, var(--space-8)); position: relative; overflow: hidden; }
+.article-hero__inner { position: relative; z-index: 1; }
+.article-hero__back {
+	display: block; width: fit-content;
+	font-family: var(--font-ui); font-weight: 500;
+	font-size: var(--step--1); letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--yellow-soft); border: 0;
+	margin-bottom: var(--space-5);
+	max-width: none; /* WP wraps the back link in a <p>; the global `p { max-width: var(--measure) }` reset would cap it — reset to none. Astro's markup is a bare <a> at block level, so it never inherits the reset. */
+}
+.article-hero__back a { color: inherit; border-bottom: 0; text-decoration: none; }
+.article-hero__back:hover { color: var(--yellow-hover); }
+.article-hero__title {
+	font-family: var(--font-display); font-weight: 300;
+	font-size: clamp(var(--step-5), 5vw + 0.3rem, var(--step-7));
+	line-height: 1.05; letter-spacing: var(--track-tight);
+	color: var(--paper-warm); margin: 0;
+	max-width: 28ch;
+}
+.article-hero__meta {
+	margin-top: var(--space-4);
+	font-family: var(--font-ui); font-weight: 500;
+	font-size: var(--step--1); letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--yellow-soft);
+}
+.article-hero__quote {
+	margin-top: var(--space-5);
+	margin-bottom: 0; /* WP theme.json blocks.core/quote adds `margin.bottom: 1.5rem`; Astro's <blockquote> has no bottom margin. Reset here so `.article-hero__inner` height matches Astro. */
+	font-family: var(--font-ui);
+	font-style: italic;
+	font-weight: 400;
+	font-size: clamp(var(--step-1), 1.2vw + 0.3rem, var(--step-2));
+	line-height: var(--leading-normal);
+	color: #FBF3D6;
+	max-width: 52ch;
+	padding-left: var(--space-4);
+	border-left: 3px solid var(--yellow-soft);
+}
+/* Astro's `<blockquote class="article-hero__quote">` inlines the text (no
+ * wrapping <p>). WP's core/quote always wraps the text in a <p>. The
+ * body-level `p { line-height: var(--leading-loose) }` reset would push the
+ * quote taller than Astro. Reset the inner <p> to inherit the blockquote's
+ * own line-height + drop its top/bottom margin. */
+.article-hero__quote p { line-height: inherit; margin: 0; max-width: none; }
+.article-hero__quote cite {
+	display: block;
+	margin-top: var(--space-2);
+	font-family: var(--font-ui); font-style: normal; font-weight: 500;
+	font-size: var(--step--2); letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--yellow-soft);
+}
+
+/* --- Article list (press/index.astro + press/[subhub]/index.astro) --- */
+.article-list { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--paper-hairline); }
+.article-row { border-bottom: 1px solid var(--paper-hairline); }
+.article-row__link {
+	display: grid;
+	grid-template-columns: auto 1fr auto;
+	gap: clamp(var(--space-4), 2.5vw, var(--space-6));
+	align-items: center;
+	padding: var(--space-4) var(--space-3);
+	border: 0;
+	color: var(--ink);
+	transition: background var(--dur) var(--ease-out-quart);
+}
+.article-row__link:hover, .article-row__link:focus-visible { background: color-mix(in oklab, var(--purple) 5%, transparent); }
+.article-row__num {
+	font-family: var(--font-display); font-size: var(--step-3); font-weight: 300;
+	color: var(--purple); font-feature-settings: 'tnum';
+	min-width: 3ch;
+}
+.article-row__body { min-width: 0; }
+.article-row__title {
+	font-family: var(--font-display); font-weight: 400;
+	font-size: clamp(var(--step-2), 2vw, var(--step-3));
+	letter-spacing: var(--track-tight); color: var(--ink); margin: 0;
+}
+.article-row__meta {
+	margin-top: var(--space-1); font-family: var(--font-ui);
+	font-size: var(--step--2); color: var(--text-on-paper-muted);
+	letter-spacing: 0.02em;
+}
+.article-row__arrow { color: var(--purple); opacity: 0.7; transition: transform var(--dur) var(--ease-out-quart); }
+.article-row__link:hover .article-row__arrow { transform: translateX(3px); opacity: 1; }
+
+/* --- Sub-hub section container (press hub) -------------------------- */
+.subhub-section { padding-block: clamp(var(--space-6), 3vw, var(--space-8)); position: relative; }
+.subhub-head { max-width: var(--measure); margin-bottom: var(--space-5); }
+.subhub-title { margin-top: var(--space-2); font-family: var(--font-display); font-size: clamp(var(--step-4), 3vw + 0.3rem, var(--step-5)); font-weight: 300; letter-spacing: var(--track-tight); }
+.subhub-blurb { margin-top: var(--space-2); font-family: var(--font-body); font-size: var(--step-0); color: var(--text-on-paper); max-width: var(--measure-body); line-height: var(--leading-normal); }
+
+/* --- Prose (article body, per-page in Astro, unified here) ---------- */
+.prose { font-family: var(--font-body); font-size: var(--step-1); line-height: var(--leading-loose); color: var(--text-on-paper); }
+.prose p { max-width: 62ch; }
+.prose p + p, .prose p + h2, .prose p + h3, .prose p + h4 { margin-top: var(--space-4); }
+.prose h2, .prose h3, .prose h4 { margin-top: var(--space-6); margin-bottom: var(--space-3); font-family: var(--font-display); font-weight: 400; letter-spacing: var(--track-tight); }
+.prose h2 { font-size: var(--step-3); }
+.prose h3 { font-size: var(--step-2); }
+.prose h4 { font-size: var(--step--1); font-family: var(--font-ui); font-weight: 500; letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--purple); margin-top: var(--space-8); margin-bottom: var(--space-4); }
+.prose img { max-width: 100%; height: auto; margin: var(--space-4) 0; }
+.prose strong { color: var(--ink); }
+.prose em, .prose i { font-family: var(--font-ui); font-style: italic; color: var(--purple); }
+.prose blockquote { border-left: 3px solid var(--brass); padding-left: var(--space-4); margin: var(--space-5) 0; font-family: var(--font-ui); font-style: italic; font-size: var(--step-0); line-height: var(--leading-normal); color: var(--oxblood); }
+.prose table { border-collapse: collapse; margin: var(--space-4) 0; width: 100%; max-width: 62ch; font-size: var(--step-0); }
+.prose td, .prose th { padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--paper-hairline); vertical-align: top; }
+
+/* --- Video embed (article body) ------------------------------------- */
+.video-embed {
+	position: relative;
+	padding-bottom: 56.25%;
+	height: 0;
+	margin: var(--space-4) 0 var(--space-6);
+	background: var(--ink);
+}
+.video-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+.article-external { margin-top: var(--space-6); font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1); letter-spacing: var(--track-caps); text-transform: uppercase; }
+
+/* --- Article prev/all/next nav -------------------------------------- */
+.article-nav { border-top: 1px solid var(--paper-hairline); }
+.article-nav__inner { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--space-5); align-items: center; }
+.article-nav__link { display: inline-flex; flex-direction: column; gap: var(--space-1); border: 0; padding-block: var(--space-3); max-width: 22rem; }
+.article-nav__link--prev { text-align: left; }
+.article-nav__link--all { text-align: center; }
+.article-nav__link--next { text-align: right; justify-self: end; }
+.article-nav__label { font-family: var(--font-ui); font-weight: 500; font-size: var(--step--2); letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--text-on-paper-muted); }
+.article-nav__title { font-family: var(--font-display); font-size: var(--step-1); color: var(--ink); line-height: 1.15; }
+@media (max-width: 640px) {
+	.article-nav__inner { grid-template-columns: 1fr; text-align: center; }
+	.article-nav__link { text-align: center; justify-self: center; max-width: none; }
+}

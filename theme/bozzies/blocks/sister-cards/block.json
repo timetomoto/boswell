@@ -1,0 +1,22 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/sister-cards",
+	"version": "1.0.0",
+	"title": "Sister cards",
+	"category": "design",
+	"icon": "grid-view",
+	"description": "The three-card grid on the Sisters hub. Contains bozzies/sister-card children; renders Astro's exact <ul class=\"sisters-cards\"> DOM.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true
+	},
+	"attributes": {},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

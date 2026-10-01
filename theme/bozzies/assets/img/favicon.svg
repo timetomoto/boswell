@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Bozzies.org — The Boswell Sisters">
+  <!--
+    Bozzies monogram. Purple ground (Mardi Gras Purple #4A2E5A — the primary
+    brand color), cream letter (Cream #F5EAD1 — matches the wordmark on the
+    header nav). Italic serif B in Cormorant Garamond weight — reads at 16px
+    because the letterform is deliberately heavy (weight 600) and set on a
+    high-contrast ground.
+
+    Colors are taken from theme.json:
+      --purple  = #4A2E5A
+      --cream   = #F5EAD1 (color = --yellow-soft as referenced from Nav.astro)
+
+    Corner radius 8/64 = 12.5% follows Apple / Android icon rounding
+    conventions so it stacks well as apple-touch-icon and Android home-screen.
+    A 1.5px cream hairline keeps the mark visible against dark browser tabs.
+  -->
+  <rect width="64" height="64" rx="8" ry="8" fill="#4A2E5A"/>
+  <rect x="1.5" y="1.5" width="61" height="61" rx="6.5" ry="6.5" fill="none" stroke="#F5EAD1" stroke-width="1.5" opacity="0.35"/>
+  <text
+    x="32"
+    y="48"
+    text-anchor="middle"
+    font-family="'Cormorant Garamond', 'Cormorant', Georgia, 'Times New Roman', serif"
+    font-weight="600"
+    font-style="italic"
+    font-size="52"
+    fill="#F5EAD1"
+    dominant-baseline="alphabetic">B</text>
+</svg>

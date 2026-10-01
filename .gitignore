@@ -38,3 +38,27 @@ _screens/
 
 # Import script staging area (host-writable, container-readable via theme mount)
 theme/bozzies/.import-tmp/
+
+# Dev-only mu-plugins loaded by wp-env via .wp-env.override.json mapping —
+# rewrites siteurl/home to whatever host WordPress is reached at, so the
+# local site works from a phone at http://<Mac IP>:8888. Kept out of git per
+# CLAUDE.md rules (never shipped). The .example.php next to it IS tracked.
+dev-tools/mu-plugins/
+
+# Owner's personal notes — launch plans, scratch, drafts. Anchored to the
+# repo root so a theme file never gets caught (e.g. a legitimate
+# scripts/dev/plan.mjs is safe; /PLAN.md at root is ignored).
+/MASTER*
+/LAUNCH*
+/NOTES*
+/SCRATCH*
+/DRAFT*
+
+# Database dumps / backups. Never commit — they contain post content,
+# user emails, serialized options with URLs. If a backup lands in the
+# repo tree by accident, this catches it at any depth.
+/backups/
+*.sql
+*.sql.gz
+*.dump
+*.dump.gz

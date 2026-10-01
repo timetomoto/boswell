@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/music-teasers",
+	"version": "1.0.0",
+	"title": "Music teasers",
+	"category": "design",
+	"icon": "grid-view",
+	"description": "The three dark-purple teaser cards on gold ground for the Media hub (Charts, Reviews, Discography). Contains bozzies/music-teaser children; renders Astro's exact <section class=\"section ground-gold music-teasers\"> with a vinyl music-backdrop and <div class=\"container music-teasers__grid\"> DOM.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align": { "type": "string", "default": "full" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

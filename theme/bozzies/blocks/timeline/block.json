@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/timeline",
+	"version": "1.0.0",
+	"title": "Sisters timeline",
+	"category": "design",
+	"icon": "clock",
+	"description": "Astro's vertical Timeline component — <ol class=\"timeline\"> with year / event / optional image entries. Verbatim from ~/boswell-poc/src/components/Timeline.astro. Used on the Career Timeline page and inside Connee's bio (solo years).",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true
+	},
+	"attributes": {
+		"entries": {
+			"type": "array",
+			"default": []
+		},
+		"color": {
+			"type": "string",
+			"default": "purple"
+		}
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

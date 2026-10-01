@@ -1,0 +1,63 @@
+/*
+ * Astro lesson-hero.css — verbatim port of the .lesson-hero* rules from
+ * ~/boswell-poc/src/pages/media/lessons/[order].astro <style> block
+ * (lines 89-122). Compact purple hero used on each lesson page: back link
+ * + eyebrow + big display title + optional summary. No image.
+ *
+ * Owned by the bozzies/lesson-hero block, which emits Astro's exact DOM:
+ *   <section class="lesson-hero ground-purple">
+ *     <div class="music-backdrop" …><svg …/></div>
+ *     <div class="container-narrow lesson-hero__inner">
+ *       <a class="lesson-hero__back">← Media</a>
+ *       <span class="eyebrow lesson-hero__eyebrow">Lesson 01</span>
+ *       <h1 class="lesson-hero__title">…</h1>
+ *       <p class="lesson-hero__summary">…</p>
+ *     </div>
+ *   </section>
+ *
+ * Edits from Astro source (must stay documented per CLAUDE.md):
+ *   1. `.lesson-hero__back` link color/border rules are scoped under
+ *      `.lesson-hero` (`.lesson-hero .lesson-hero__back`) so they beat
+ *      global.css's `.ground-purple a { color: var(--link-on-dark) }` rule
+ *      (specificity 0,1,1). Astro sidesteps this via its per-file
+ *      `data-astro-cid-*` attribute scoping (which bumps every selector to
+ *      0,2,0); the port recreates the same specificity by nesting under the
+ *      block class.
+ *   Astro tokens (--space-*, --step-*, --font-*, --yellow-*, --paper-warm,
+ *   --track-*, --leading-*) are re-exported from WP presets by
+ *   assets/css/astro/global.css, so they resolve at runtime here.
+ */
+.lesson-hero { padding-block: clamp(var(--space-6), 4vw, var(--space-8)); position: relative; overflow: hidden; }
+.lesson-hero__inner { position: relative; z-index: 1; }
+.lesson-hero .lesson-hero__back {
+	display: block;
+	width: fit-content;
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--yellow-soft);
+	border: 0;
+	margin-bottom: var(--space-5);
+}
+.lesson-hero .lesson-hero__back:hover { color: var(--yellow-hover); }
+.lesson-hero__eyebrow { color: var(--yellow-soft); }
+.lesson-hero__title {
+	font-family: var(--font-display);
+	font-weight: 300;
+	font-size: clamp(var(--step-5), 5.5vw, var(--step-7));
+	line-height: 1;
+	letter-spacing: var(--track-tight);
+	color: var(--paper-warm);
+	margin-top: var(--space-2);
+	max-width: 24ch;
+}
+.lesson-hero__summary {
+	margin-top: var(--space-4);
+	font-family: var(--font-body);
+	font-size: clamp(var(--step-1), 1.4vw + 0.3rem, var(--step-2));
+	line-height: var(--leading-normal);
+	color: rgba(245, 234, 209, 0.9);
+	max-width: 56ch;
+}

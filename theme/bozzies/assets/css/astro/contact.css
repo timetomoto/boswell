@@ -1,0 +1,212 @@
+/*!
+ * Contact page + Contact Form 7 styling — theme-owned (no Astro equivalent).
+ *
+ * The Astro source has no contact page; this file styles the WP-only contact
+ * form using the same tokens (`--purple`, `--paper`, `--ink`, `--paper-hairline`,
+ * `--font-body`, `--font-ui`, `--step-*`, `--space-*`, `--measure-body`) so the
+ * page slots into the sitewide design without visual drift.
+ *
+ * WCAG 2.2 AA notes:
+ *   - Visible labels above every field (never placeholder-only).
+ *   - Focus outline: 2px solid var(--purple) with 2px offset (SC 2.4.7).
+ *   - Input border 1px on var(--paper-hairline) → 3:1 against paper (SC 1.4.11).
+ *   - Placeholder text uses --text-on-paper-muted (>=4.5:1 vs paper).
+ *   - Error text uses var(--oxblood) on paper (>7:1) and CF7's aria-invalid /
+ *     aria-describedby wire up screen-reader announcement automatically
+ *     (SC 3.3.1 error identification, SC 3.3.3 error suggestion).
+ *   - The submit button reuses the site's purple CTA styling from pages.css so
+ *     the visual affordance matches the header Donate button.
+ */
+
+.contact-section { position: relative; overflow: hidden; }
+
+.contact-section__inner {
+	text-align: left;
+	position: relative;
+	z-index: 1;
+}
+
+.contact-section__inner > .is-style-lede {
+	max-width: var(--measure-body);
+	margin: 0 0 var(--space-6);
+}
+
+.contact-form {
+	max-width: 42rem;
+	margin: 0 auto;
+	font-family: var(--font-body);
+	color: var(--ink);
+}
+
+.contact-form__field {
+	margin: 0 0 var(--space-5);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+.contact-form__field label {
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: 0.02em;
+	color: var(--ink);
+}
+
+.contact-form__req {
+	color: var(--purple);
+	margin-left: 0.2em;
+}
+
+/* CF7 wraps inputs in .wpcf7-form-control-wrap; make it a full-width row. */
+.contact-form .wpcf7-form-control-wrap { display: block; width: 100%; }
+
+.contact-form input[type="text"],
+.contact-form input[type="email"],
+.contact-form textarea {
+	display: block;
+	width: 100%;
+	max-width: 100%;
+	box-sizing: border-box;
+	padding: var(--space-3) var(--space-4);
+	font: inherit;
+	font-size: var(--step-0);
+	color: var(--ink);
+	background: var(--paper);
+	border: 1px solid var(--paper-hairline);
+	border-radius: 2px;
+	transition: border-color var(--dur) var(--ease-out-quart), box-shadow var(--dur) var(--ease-out-quart);
+}
+
+.contact-form textarea {
+	min-height: 10rem;
+	line-height: var(--leading-loose, 1.6);
+	font-family: var(--font-body);
+	resize: vertical;
+}
+
+.contact-form input[type="text"]:hover,
+.contact-form input[type="email"]:hover,
+.contact-form textarea:hover { border-color: var(--ink); }
+
+.contact-form input[type="text"]:focus-visible,
+.contact-form input[type="email"]:focus-visible,
+.contact-form textarea:focus-visible {
+	outline: 2px solid var(--purple);
+	outline-offset: 2px;
+	border-color: var(--purple);
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder { color: var(--text-on-paper-muted, #6b625a); opacity: 1; }
+
+/* Quiz field: CF7 wraps the label inside a <label> around the input. Make the
+ * question look like the other field labels, drop CF7's default width, and give
+ * the input a slightly narrower width since a last name is short. */
+.contact-form__quiz label {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: 0.02em;
+	color: var(--ink);
+}
+.contact-form__quiz .wpcf7-quiz-label::after {
+	content: " *";
+	color: var(--purple);
+}
+.contact-form__quiz .wpcf7-quiz {
+	width: min(20rem, 100%);
+}
+
+/* Submit — mirror the site's .btn.btn--purple used on the header Donate and
+ * the home donate teaser. Scoped to .contact-form__submit so it doesn't leak
+ * to other buttons in the page. */
+.contact-form__submit { margin-top: var(--space-6); }
+.contact-form input[type="submit"] {
+	appearance: none;
+	display: inline-block;
+	padding: var(--space-3) var(--space-6);
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--paper);
+	background: var(--purple);
+	border: 1px solid var(--purple);
+	border-radius: 2px;
+	cursor: pointer;
+	text-decoration: none;
+	transition: background var(--dur) var(--ease-out-quart), color var(--dur) var(--ease-out-quart);
+}
+.contact-form input[type="submit"]:hover,
+.contact-form input[type="submit"]:focus-visible {
+	background: var(--oxblood);
+	border-color: var(--oxblood);
+	color: var(--paper);
+	outline: none;
+}
+.contact-form input[type="submit"]:focus-visible {
+	outline: 2px solid var(--purple);
+	outline-offset: 2px;
+}
+
+/* CF7 validation error styles — announced via aria-invalid + aria-describedby.
+ * The message text sits inside `.wpcf7-not-valid-tip` under the field. */
+.contact-form .wpcf7-not-valid {
+	border-color: var(--oxblood) !important;
+	box-shadow: 0 0 0 2px rgba(122, 44, 44, 0.15);
+}
+.contact-form .wpcf7-not-valid-tip {
+	display: block;
+	margin-top: var(--space-2);
+	font-family: var(--font-ui);
+	font-size: var(--step--1);
+	color: var(--oxblood);
+}
+
+/* Global CF7 form response (below submit): success, error, spam, etc. */
+.contact-form + .wpcf7-response-output,
+.wpcf7 .wpcf7-response-output {
+	margin: var(--space-6) 0 0;
+	padding: var(--space-3) var(--space-4);
+	font-family: var(--font-ui);
+	font-size: var(--step--1);
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 2px;
+}
+.wpcf7 form.sent .wpcf7-response-output {
+	background: #eef7ed;
+	border-color: #4a8f4a;
+	color: #1f4b1f;
+}
+.wpcf7 form.invalid .wpcf7-response-output,
+.wpcf7 form.unaccepted .wpcf7-response-output,
+.wpcf7 form.payment-required .wpcf7-response-output {
+	background: #fbecec;
+	border-color: var(--oxblood);
+	color: var(--oxblood);
+}
+.wpcf7 form.failed .wpcf7-response-output,
+.wpcf7 form.aborted .wpcf7-response-output {
+	background: #fbecec;
+	border-color: var(--oxblood);
+	color: var(--oxblood);
+}
+.wpcf7 form.spam .wpcf7-response-output {
+	background: #fdf3e6;
+	border-color: #b06d1d;
+	color: #6a4110;
+}
+
+/* Reduce motion: CF7's spinner animation and input transitions honor it. */
+@media (prefers-reduced-motion: reduce) {
+	.contact-form input[type="text"],
+	.contact-form input[type="email"],
+	.contact-form textarea,
+	.contact-form input[type="submit"] { transition: none; }
+}

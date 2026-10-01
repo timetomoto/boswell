@@ -1,0 +1,108 @@
+/*
+ * discography.css — verbatim port of ~/boswell-poc/src/pages/media/discography.astro
+ * scoped <style>, lines 175-265 only. The `.page-hero*` rules at the top of
+ * that <style> block (L150-173) live in article.css alongside the other
+ * page-hero variants; the `.see-also*` rules at the bottom (L267-292) live
+ * in cards.css alongside the other see-also usage. This file owns the
+ * discography-only surface: search bar, scope headers, session list, track
+ * grid, and the 640px stack.
+ *
+ * Owned by the bozzies/discography block (blocks/discography/render.php).
+ *
+ * Documented edits: none — every rule below is character-for-character from
+ * discography.astro L175-265. `.disc-search__label` and `.disc-search__input`
+ * sit on ground-paper where global.css has no anchor overrides, so no
+ * specificity bumps are needed.
+ */
+
+/* Search bar */
+.discography-tools { padding-block: clamp(var(--space-5), 3vw, var(--space-6)); border-bottom: 1px solid var(--paper-hairline); }
+.disc-search { max-width: var(--measure-wide); margin: 0 auto; }
+.disc-search__label {
+	display: block;
+	font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	color: var(--text-on-paper-muted);
+	margin-bottom: var(--space-2);
+}
+.disc-search__input {
+	width: 100%;
+	padding: var(--space-3) var(--space-4);
+	font-family: var(--font-body); font-size: var(--step-1);
+	color: var(--ink);
+	background: var(--paper);
+	border: 1px solid var(--paper-hairline);
+	border-radius: 0;
+}
+.disc-search__input:focus-visible { outline: 2px solid var(--purple); outline-offset: 2px; border-color: var(--purple); }
+.disc-search__count {
+	margin-top: var(--space-2);
+	font-family: var(--font-ui); font-size: var(--step--1);
+	color: var(--text-on-paper-muted);
+}
+
+/* Scope blocks */
+.disc-scope + .disc-scope { margin-top: var(--space-8); border-top: 1px solid var(--paper-hairline); padding-top: var(--space-7); }
+.disc-scope__head { max-width: var(--measure-wide); margin-bottom: var(--space-5); }
+.disc-scope__title {
+	font-family: var(--font-display); font-weight: 300;
+	font-size: clamp(var(--step-3), 2.4vw, var(--step-5));
+	letter-spacing: var(--track-tight);
+	color: var(--ink); margin: 0;
+}
+.disc-scope__subtitle {
+	margin-top: var(--space-2);
+	font-family: var(--font-body); font-size: var(--step-0);
+	color: var(--text-on-paper); max-width: var(--measure-body);
+}
+.disc-scope__attribution {
+	margin-top: var(--space-6);
+	font-family: var(--font-ui); font-style: italic; font-size: var(--step--1);
+	color: var(--text-on-paper-muted);
+	max-width: var(--measure-body);
+}
+
+/* Session list */
+.disc-sessions { list-style: none; padding: 0; margin: 0; }
+.disc-session { padding-block: var(--space-5); border-bottom: 1px solid var(--paper-hairline); }
+.disc-session:last-child { border-bottom: 0; }
+.disc-session__header {
+	font-family: var(--font-ui); font-weight: 600; font-size: var(--step-0);
+	letter-spacing: 0.01em;
+	color: var(--purple);
+	margin: 0 0 var(--space-3);
+	max-width: 90ch;
+}
+
+/* Track list */
+.disc-tracks { list-style: none; padding: 0; margin: 0; }
+.disc-track {
+	display: grid;
+	grid-template-columns: 8rem 1fr;
+	gap: var(--space-3);
+	padding: var(--space-2) 0;
+	align-items: baseline;
+	font-family: var(--font-body); font-size: var(--step-0); color: var(--ink);
+	line-height: var(--leading-normal);
+}
+.disc-track__matrix {
+	font-family: var(--font-ui); font-size: var(--step--1); color: var(--text-on-paper-muted);
+	letter-spacing: 0.02em;
+	grid-column: 1;
+}
+.disc-track__title {
+	font-weight: 500; grid-column: 2;
+}
+.disc-track__notes, .disc-track__refs {
+	grid-column: 2;
+	font-family: var(--font-ui); font-size: var(--step--1);
+	color: var(--text-on-paper-muted);
+	display: block;
+}
+.disc-track__refs { color: var(--brass); }
+
+@media (max-width: 640px) {
+	.disc-track { grid-template-columns: 1fr; }
+	.disc-track__matrix { grid-column: 1; }
+	.disc-track__title, .disc-track__notes, .disc-track__refs { grid-column: 1; }
+}

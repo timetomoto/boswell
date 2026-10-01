@@ -1,0 +1,26 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/prose-body",
+	"version": "1.0.0",
+	"title": "Prose body",
+	"category": "design",
+	"icon": "editor-paragraph",
+	"description": "Astro's paper-ground prose body region — <section class=\"section ground-paper\"><div class=\"container-narrow prose {variant}-body\"><InnerBlocks /></div></section>. Verbatim from ~/boswell-poc/src/pages/media/charts.astro L21-25 and reviews.astro L21-25. The variant attr picks charts- or reviews-specific typography (bigger headings + editorial tables for charts; hairline-separated reviews with italic paragraphs for reviews).",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": false,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":   { "type": "string", "default": "full" },
+		"variant": { "type": "string", "default": "generic", "enum": [ "generic", "charts", "reviews" ] }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

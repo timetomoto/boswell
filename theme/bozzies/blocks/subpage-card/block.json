@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/subpage-card",
+	"version": "1.0.0",
+	"title": "Subpage card",
+	"category": "design",
+	"icon": "id-alt",
+	"parent": [ "bozzies/subpage-cards" ],
+	"description": "One dark-purple teaser card on the Sisters hub. Eyebrow, title, body, link and CTA label are all editable.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": true,
+		"className": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"eyebrow":  { "type": "string", "default": "" },
+		"title":    { "type": "string", "default": "" },
+		"body":     { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "" },
+		"ctaLabel": { "type": "string", "default": "Explore" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

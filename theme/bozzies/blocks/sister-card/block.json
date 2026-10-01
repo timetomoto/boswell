@@ -1,0 +1,29 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/sister-card",
+	"version": "1.0.0",
+	"title": "Sister card",
+	"category": "design",
+	"icon": "id-alt",
+	"parent": [ "bozzies/sister-cards" ],
+	"description": "One card in the Sisters hub grid. Order, nickname, name, quote, link and CTA label are all editable.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": true,
+		"className": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"order":    { "type": "string", "default": "01" },
+		"nickname": { "type": "string", "default": "" },
+		"name":     { "type": "string", "default": "" },
+		"quote":    { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "" },
+		"ctaLabel": { "type": "string", "default": "Read the bio" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

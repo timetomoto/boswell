@@ -28,7 +28,7 @@ const STATIC_PAGES = [
   ['/media/lessons/lesson-3/', '/media/lessons/3/'],
   ['/media/lessons/lesson-4/', '/media/lessons/4/'],
   ['/media/lessons/lesson-5/', '/media/lessons/5/'],
-  '/press/', '/press/vintage/', '/press/feature/', '/press/video/', '/press/essay/', '/press/in-their-own-words/',
+  '/press/', '/press/vintage/', '/press/feature/', '/media/video/', '/press/essay/', '/press/in-their-own-words/',
 ];
 const PAGES = [...STATIC_PAGES, ...discoverArticles()];
 

@@ -1,0 +1,59 @@
+/*
+ * Astro lesson-player.css — verbatim port of the .lesson-player*
+ * (audio player module) and .lesson-notes rules from
+ * ~/boswell-poc/src/pages/media/lessons/[order].astro <style> block
+ * (lines 124-156). Sits inside a `.section.ground-paper.lesson-player-section`
+ * wrapper served by the bozzies/lesson-player block; the outer section itself
+ * carries no bespoke rules in Astro's <style> (only `.section` +
+ * `.ground-paper` from global.css apply).
+ *
+ * The `.prose` and `.lesson-notes` rules the same file also declares are
+ * already covered:
+ *   - `.prose` (font-family, font-size, line-height, color) — ported into
+ *     assets/css/astro/article.css L201-213 with equivalent values.
+ *   - `.prose :global(p) { max-width: 62ch }` and `.prose :global(em|i)` —
+ *     ported into article.css L202 and L210.
+ * So this file only contains `.lesson-notes { margin-top: var(--space-6); }`
+ * on top of the audio-player rules.
+ *
+ * No documented edits — `.lesson-player__download` (0,1,0) beats `global.css`'s
+ * base `a { color: var(--link) }` (0,0,1), and `.lesson-player__download:hover`
+ * (0,2,0) beats `a:hover { color: var(--link-hover) }` (0,1,1). `.ground-paper`
+ * has no dark-anchor overrides.
+ *
+ * Astro tokens (--space-*, --step-*, --font-*, --paper-hairline, --paper,
+ * --purple, --oxblood, --text-on-paper-muted, --ink, --track-*, --leading-*)
+ * are re-exported from WP presets by assets/css/astro/global.css, so they
+ * resolve at runtime here.
+ */
+
+/* Audio player module */
+.lesson-player {
+	border: 1px solid var(--paper-hairline);
+	padding: clamp(var(--space-5), 2.4vw, var(--space-6));
+	background: color-mix(in oklab, var(--paper) 96%, var(--purple) 4%);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+.lesson-player__label { display: flex; align-items: center; gap: var(--space-4); color: var(--purple); }
+.lesson-player__label-kicker { display: block; font-family: var(--font-ui); font-weight: 500; font-size: var(--step--2); letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--text-on-paper-muted); }
+.lesson-player__label-title { display: block; font-family: var(--font-display); font-size: var(--step-3); color: var(--ink); line-height: 1.15; margin-top: var(--space-1); }
+.lesson-player__audio {
+	width: 100%;
+	accent-color: var(--purple);
+}
+.lesson-player__download {
+	align-self: flex-start;
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--purple);
+	border-bottom: 1px solid rgba(74, 46, 90, 0.35);
+	padding-bottom: 2px;
+}
+.lesson-player__download:hover { color: var(--oxblood); border-color: var(--oxblood); }
+
+.lesson-notes { margin-top: var(--space-6); }

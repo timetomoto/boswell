@@ -5,20 +5,121 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 require_once __DIR__ . '/inc/analytics.php';
 require_once __DIR__ . '/inc/bindings.php';
+require_once __DIR__ . '/inc/music-backdrop.php';
+require_once __DIR__ . '/inc/settings.php';
 
-add_action( 'init', 'bozzies_register_section_styles' );
-function bozzies_register_section_styles() {
-	$blocks = array( 'core/group', 'core/columns', 'core/cover' );
-	$styles = array(
-		array( 'name' => 'paper',  'label' => __( 'Paper',  'bozzies' ) ),
-		array( 'name' => 'ink',    'label' => __( 'Ink',    'bozzies' ) ),
-		array( 'name' => 'purple', 'label' => __( 'Purple', 'bozzies' ) ),
-		array( 'name' => 'gold',   'label' => __( 'Gold',   'bozzies' ) ),
-	);
-	foreach ( $styles as $style ) {
-		register_block_style( $blocks, $style );
-	}
+/**
+ * Head parity with Astro's Base.astro (~/boswell-poc/src/layouts/Base.astro
+ * L14-23). Astro emits, in order:
+ *   <meta charset="utf-8" />
+ *   <meta name="viewport" content="width=device-width, initial-scale=1" />
+ *   <title>{title} — The Boswell Sisters</title>
+ *   {description && <meta name="description" content="…" />}
+ *   <meta name="theme-color" content="#181615" />
+ *   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+ * — nothing else. No OG, no Twitter cards, no favicon, no RSS, no oEmbed,
+ * no generator, no shortlink, no canonical, no robots, no emoji.
+ */
+add_action( 'after_setup_theme', 'bozzies_astro_head_supports' );
+function bozzies_astro_head_supports() {
+	add_theme_support( 'title-tag' );
+	// Owner-editable page description — surfaces the "Excerpt" panel in the
+	// editor. post_excerpt drives <meta name="description">. Populated from
+	// Astro frontmatter by scripts/import/head-descriptions.mjs.
+	add_post_type_support( 'page', 'excerpt' );
 }
+
+// Astro renders `${title} — The Boswell Sisters`, always. No tagline
+// concatenation, no other title parts.
+add_filter( 'document_title_separator', function () { return '—'; } );
+add_filter( 'document_title_parts', 'bozzies_astro_title_parts' );
+function bozzies_astro_title_parts( $parts ) {
+	$parts['site'] = 'The Boswell Sisters';
+	unset( $parts['tagline'] );
+	// Home: Astro passes `data.title` from ~/boswell-poc/src/content/pages/home.md
+	// L2 which is "Meet the Boswells". WP's post_title on the front page is
+	// "Home".
+	if ( is_front_page() ) {
+		$parts['title'] = 'Meet the Boswells';
+	}
+	// Press subhubs: Astro's press/[subhub]/index.astro L16 renders
+	// `${hub.data.label} — Press`.
+	if ( is_category() ) {
+		$parts['title'] = single_cat_title( '', false ) . ' — Press';
+	}
+	return $parts;
+}
+
+// Fixed head meta emitted early so it lands near <title>. Description reads
+// post_excerpt on singulars and the term description on categories; empty
+// values suppress the tag (matches Astro's `{description && <meta …/>}`).
+add_action( 'wp_head', 'bozzies_astro_head_meta', 1 );
+function bozzies_astro_head_meta() {
+	$desc = '';
+	if ( is_singular() ) {
+		$obj = get_queried_object();
+		if ( $obj && ! empty( $obj->post_excerpt ) ) {
+			$desc = trim( wp_strip_all_tags( $obj->post_excerpt ) );
+		}
+	} elseif ( is_category() ) {
+		$desc = trim( wp_strip_all_tags( term_description() ) );
+	}
+	if ( '' !== $desc ) {
+		echo '<meta name="description" content="' . esc_attr( $desc ) . '" />' . "\n";
+	}
+	echo '<meta name="theme-color" content="#181615" />' . "\n";
+	echo '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />' . "\n";
+}
+
+// Strip everything Astro doesn't emit.
+add_action( 'init', 'bozzies_astro_head_strip' );
+function bozzies_astro_head_strip() {
+	remove_action( 'wp_head', 'wp_generator' );
+	remove_action( 'wp_head', 'feed_links', 2 );
+	remove_action( 'wp_head', 'feed_links_extra', 3 );
+	remove_action( 'wp_head', 'rsd_link' );
+	remove_action( 'wp_head', 'wlwmanifest_link' );
+	remove_action( 'wp_head', 'wp_shortlink_wp_head', 10 );
+	remove_action( 'wp_head', 'rest_output_link_wp_head', 10 );
+	remove_action( 'wp_head', 'wp_oembed_add_discovery_links', 10 );
+	remove_action( 'wp_head', 'wp_oembed_add_host_js' );
+	remove_action( 'wp_head', 'rel_canonical' );
+	remove_action( 'wp_head', 'wp_robots', 1 );
+	// wp_site_icon stays: emits <link rel="icon"> + apple-touch-icon from the
+	// Site Icon set at Settings → General (owner-changeable).
+	remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
+	remove_action( 'wp_print_styles', 'print_emoji_styles' );
+	remove_filter( 'the_content_feed', 'wp_staticize_emoji' );
+	remove_filter( 'comment_text_rss', 'wp_staticize_emoji' );
+	remove_filter( 'wp_mail', 'wp_staticize_emoji_for_email' );
+}
+
+// /favicon.ico → 302 redirect to the Site Icon URL set at
+// Settings → General. WordPress core's do_favicon path only fires when the
+// request parses as `is_favicon()`, which our custom /press/ rewrite rules
+// interfere with — so we handle the direct file request ourselves at
+// init (before rewrites can rewrite it into a page). The theme ships a
+// default Bozzies monogram (theme/bozzies/assets/img/favicon.svg + PNG sizes
+// rendered by scripts/dev/render-favicon.mjs) uploaded as attachment 873 and
+// set as the site icon on first install. Owners can replace it any time at
+// Settings → General → Site Icon.
+add_action( 'init', function () {
+	if ( ! isset( $_SERVER['REQUEST_URI'] ) ) {
+		return;
+	}
+	$path = strtok( (string) $_SERVER['REQUEST_URI'], '?' );
+	if ( '/favicon.ico' !== $path ) {
+		return;
+	}
+	$icon = get_site_icon_url( 32 );
+	if ( $icon ) {
+		wp_redirect( $icon, 302, 'bozzies-favicon' );
+		exit;
+	}
+	status_header( 404 );
+	nocache_headers();
+	exit;
+}, 1 );
 
 add_action( 'init', 'bozzies_register_editor_style_variations' );
 function bozzies_register_editor_style_variations() {
@@ -26,16 +127,7 @@ function bozzies_register_editor_style_variations() {
 	register_block_style( 'core/paragraph', array( 'name' => 'lede',          'label' => __( 'Lede', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline',      'label' => __( 'Hairline', 'bozzies' ) ) );
 	register_block_style( 'core/separator', array( 'name' => 'hairline-thin', 'label' => __( 'Hairline thin', 'bozzies' ) ) );
-	register_block_style( 'core/separator', array( 'name' => 'jazz',          'label' => __( 'Jazz divider', 'bozzies' ) ) );
-	register_block_style( 'core/quote',     array( 'name' => 'pull-quote',    'label' => __( 'Pull quote', 'bozzies' ) ) );
-	register_block_style( 'core/group',     array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
-	register_block_style( 'core/columns',   array( 'name' => 'card',          'label' => __( 'Card', 'bozzies' ) ) );
-	/* "Card plain" — paper-ground variant used on Sisters hub etc. */
-	register_block_style( 'core/group',     array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
-	register_block_style( 'core/columns',   array( 'name' => 'card-plain',    'label' => __( 'Card (paper)', 'bozzies' ) ) );
-	/* "Play" button style prepends an inline play-icon SVG before the label. */
-	register_block_style( 'core/button', array( 'name' => 'play', 'label' => __( 'Play', 'bozzies' ) ) );
-	/* "Large" button style adds extra padding — Astro's .btn--purple CTA. */
+	/* "Large" button style adds extra padding — used on /sisters/bio-resources/. */
 	register_block_style( 'core/button', array( 'name' => 'large', 'label' => __( 'Large', 'bozzies' ) ) );
 }
 
@@ -44,6 +136,13 @@ function bozzies_register_pattern_categories() {
 	register_block_pattern_category( 'boswell', array(
 		'label'       => __( 'Boswell', 'bozzies' ),
 		'description' => __( 'Patterns tuned to the Boswell Sisters editorial design.', 'bozzies' ),
+	) );
+	// Owner-facing section patterns are grouped here so the block inserter
+	// shows one obvious "Bozzies sections" heading instead of the generic
+	// "Boswell" label.
+	register_block_pattern_category( 'bozzies-sections', array(
+		'label'       => __( 'Bozzies sections', 'bozzies' ),
+		'description' => __( 'Full-bleed section layouts built for this site — heroes, card grids, quote blocks.', 'bozzies' ),
 	) );
 }
 
@@ -58,19 +157,254 @@ add_action( 'wp_enqueue_scripts', 'bozzies_enqueue_chrome' );
 function bozzies_enqueue_chrome() {
 	$ver     = wp_get_theme()->get( 'Version' );
 	$dir_uri = get_stylesheet_directory_uri();
+	// Astro's global styles — the sitewide reset + typography + grounds
+	// + layout helpers + eyebrow + hairline + skip-link + visually-hidden.
+	// Verbatim port of ~/boswell-poc/src/styles/global.css.
 	wp_enqueue_style(
-		'bozzies-chrome',
-		$dir_uri . '/assets/css/chrome.css',
+		'bozzies-astro-global',
+		$dir_uri . '/assets/css/astro/global.css',
 		array(),
 		$ver
 	);
+	// Astro hero CSS — verbatim port of Hero.astro's <style>. Owned by
+	// the section block's is-hero-photo variant.
+	wp_enqueue_style(
+		'bozzies-astro-hero',
+		$dir_uri . '/assets/css/astro/hero.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro article CSS — verbatim port of the article-list, article-row,
+	// article-hero, page-hero, article-nav, prose and video-embed rules
+	// from Astro's press/**/*.astro pages.
+	wp_enqueue_style(
+		'bozzies-astro-article',
+		$dir_uri . '/assets/css/astro/article.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro cards CSS — sister-card, subpage-card, bio-body, bio-portrait,
+	// facts, bio-timeline, bio-nav (from sisters/**), release-card (from
+	// press/index.astro), music-teaser + lessons-grid + lesson-card (from
+	// media/index.astro). Future card families (see-also) get appended.
+	wp_enqueue_style(
+		'bozzies-astro-cards',
+		$dir_uri . '/assets/css/astro/cards.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro music-backdrop CSS — verbatim port of MusicBackdrop.astro's
+	// <style>. Currently used by the bozzies/bio-hero block (staves variant);
+	// step 12 extends the section block's backdrop enum to share it.
+	wp_enqueue_style(
+		'bozzies-astro-music-backdrop',
+		$dir_uri . '/assets/css/astro/music-backdrop.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro bio-hero CSS — verbatim port of sisters/[slug].astro's .bio-hero*
+	// rules. Owned by the bozzies/bio-hero block.
+	wp_enqueue_style(
+		'bozzies-astro-bio-hero',
+		$dir_uri . '/assets/css/astro/bio-hero.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
+	// Astro lesson-hero CSS — verbatim port of media/lessons/[order].astro's
+	// .lesson-hero* rules. Owned by the bozzies/lesson-hero block.
+	wp_enqueue_style(
+		'bozzies-astro-lesson-hero',
+		$dir_uri . '/assets/css/astro/lesson-hero.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
+	// Astro lesson-player CSS — verbatim port of media/lessons/[order].astro's
+	// .lesson-player* + .lesson-notes rules. Owned by the bozzies/lesson-player
+	// block; `.prose` rules the same Astro file also declares are already in
+	// article.css.
+	wp_enqueue_style(
+		'bozzies-astro-lesson-player',
+		$dir_uri . '/assets/css/astro/lesson-player.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
+		$ver
+	);
+	// Astro lesson-nav CSS — verbatim port of media/lessons/[order].astro's
+	// .lesson-nav* rules. Owned by the bozzies/lesson-nav block.
+	wp_enqueue_style(
+		'bozzies-astro-lesson-nav',
+		$dir_uri . '/assets/css/astro/lesson-nav.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro pages CSS — per-page scoped rules from Astro pages that live
+	// outside a component. Holds the home intro (index.astro L117-135),
+	// donate teaser (index.astro L169-200) and eyebrow color modifiers
+	// (L137-140), plus the about CTA (about.astro L74-97); later commits
+	// (home hub playlist/voices/sample, about hub intro) will append.
+	wp_enqueue_style(
+		'bozzies-astro-pages',
+		$dir_uri . '/assets/css/astro/pages.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-music-backdrop' ),
+		$ver
+	);
+	// Astro pull-quote CSS — verbatim port of PullQuote.astro's <style>.
+	// Owned by the bozzies/pull-quote block.
+	wp_enqueue_style(
+		'bozzies-astro-pull-quote',
+		$dir_uri . '/assets/css/astro/pull-quote.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro section-divider CSS — verbatim port of SectionDivider.astro's
+	// <style>. Owned by the bozzies/divider block.
+	wp_enqueue_style(
+		'bozzies-astro-section-divider',
+		$dir_uri . '/assets/css/astro/section-divider.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro nav CSS — verbatim port of Nav.astro's <style>. Owned by the
+	// bozzies/site-nav block; used by parts/header.html.
+	wp_enqueue_style(
+		'bozzies-astro-nav',
+		$dir_uri . '/assets/css/astro/nav.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro footer CSS — verbatim port of Footer.astro's <style>. Owned by
+	// the bozzies/site-footer block; used by parts/footer.html.
+	wp_enqueue_style(
+		'bozzies-astro-footer',
+		$dir_uri . '/assets/css/astro/footer.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro prose-body CSS — verbatim port of the .charts-body and
+	// .reviews-body page-scoped prose rules from charts.astro and
+	// reviews.astro. Owned by the bozzies/prose-body block. Base .prose
+	// rules already live in article.css.
+	wp_enqueue_style(
+		'bozzies-astro-prose-body',
+		$dir_uri . '/assets/css/astro/prose-body.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-article' ),
+		$ver
+	);
+	// Astro playlist-player CSS — verbatim port of PlaylistPlayer.astro's
+	// <style>. Owned by the bozzies/playlist-player block.
+	wp_enqueue_style(
+		'bozzies-astro-playlist-player',
+		$dir_uri . '/assets/css/astro/playlist-player.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro quotes-carousel CSS — verbatim port of QuotesCarousel.astro's
+	// <style>. Owned by the bozzies/quotes-carousel block.
+	wp_enqueue_style(
+		'bozzies-astro-quotes-carousel',
+		$dir_uri . '/assets/css/astro/quotes-carousel.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro timeline CSS — verbatim port of Timeline.astro's <style>
+	// plus career-timeline.astro's `.timeline-section` wrapper rules.
+	// Owned by the bozzies/timeline block.
+	wp_enqueue_style(
+		'bozzies-astro-timeline',
+		$dir_uri . '/assets/css/astro/timeline.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Astro discography CSS — verbatim port of the .disc-search / .disc-scope
+	// / .disc-session / .disc-track rules from media/discography.astro L175-265.
+	// Owned by the bozzies/discography block.
+	wp_enqueue_style(
+		'bozzies-astro-discography',
+		$dir_uri . '/assets/css/astro/discography.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// Contact page + Contact Form 7 styling — theme-owned (no Astro
+	// equivalent). Enqueued globally so the shortcode can live on any page.
+	wp_enqueue_style(
+		'bozzies-astro-contact',
+		$dir_uri . '/assets/css/astro/contact.css',
+		array( 'bozzies-astro-global' ),
+		$ver
+	);
+	// chrome.css is what remains of the pre-rebuild theme CSS. During the
+	// rebuild it is being pared down commit-by-commit as ports land; it
+	// will end up holding only WordPress-specific plumbing (or be deleted
+	// entirely). Kept last so ported Astro CSS wins any tie.
+	wp_enqueue_style(
+		'bozzies-chrome',
+		$dir_uri . '/assets/css/chrome.css',
+		array( 'bozzies-astro-global', 'bozzies-astro-hero', 'bozzies-astro-article', 'bozzies-astro-cards', 'bozzies-astro-music-backdrop', 'bozzies-astro-bio-hero', 'bozzies-astro-lesson-hero', 'bozzies-astro-lesson-player', 'bozzies-astro-lesson-nav', 'bozzies-astro-pages', 'bozzies-astro-pull-quote', 'bozzies-astro-section-divider', 'bozzies-astro-nav', 'bozzies-astro-footer', 'bozzies-astro-prose-body', 'bozzies-astro-playlist-player', 'bozzies-astro-quotes-carousel', 'bozzies-astro-timeline', 'bozzies-astro-discography', 'bozzies-astro-contact' ),
+		$ver
+	);
+
+	// Playlist player front-end JS — verbatim port of PlaylistPlayer.astro's
+	// <script>. Enqueued only when the current page contains the
+	// bozzies/playlist-player block, so pages without a player pay nothing.
+	if ( is_singular() && has_block( 'bozzies/playlist-player' ) ) {
+		wp_enqueue_script(
+			'bozzies-playlist-player',
+			$dir_uri . '/assets/js/playlist-player.js',
+			array(),
+			$ver,
+			true
+		);
+	}
+
+	// Quotes carousel front-end JS — verbatim port of QuotesCarousel.astro's
+	// <script>. Enqueued only when the current page contains the
+	// bozzies/quotes-carousel block.
+	if ( is_singular() && has_block( 'bozzies/quotes-carousel' ) ) {
+		wp_enqueue_script(
+			'bozzies-quotes-carousel',
+			$dir_uri . '/assets/js/quotes-carousel.js',
+			array(),
+			$ver,
+			true
+		);
+	}
+
+	// Discography search front-end JS — verbatim port of the client-side
+	// <script> at media/discography.astro L101-147. Enqueued only when the
+	// current page contains the bozzies/discography block.
+	if ( is_singular() && has_block( 'bozzies/discography' ) ) {
+		wp_enqueue_script(
+			'bozzies-discography-search',
+			$dir_uri . '/assets/js/discography-search.js',
+			array(),
+			$ver,
+			true
+		);
+	}
 }
 
 add_action( 'after_setup_theme', 'bozzies_add_editor_styles' );
 function bozzies_add_editor_styles() {
-	// Load the front chrome inside the block editor iframe so existing
-	// Group-based ground styles, backdrops, and pull-quote overrides render
-	// consistently in edit mode.
+	// Same Astro CSS the front uses, so the owner sees the real look
+	// while editing.
+	add_editor_style( 'assets/css/astro/global.css' );
+	add_editor_style( 'assets/css/astro/hero.css' );
+	add_editor_style( 'assets/css/astro/article.css' );
+	add_editor_style( 'assets/css/astro/cards.css' );
+	add_editor_style( 'assets/css/astro/music-backdrop.css' );
+	add_editor_style( 'assets/css/astro/bio-hero.css' );
+	add_editor_style( 'assets/css/astro/lesson-hero.css' );
+	add_editor_style( 'assets/css/astro/lesson-player.css' );
+	add_editor_style( 'assets/css/astro/lesson-nav.css' );
+	add_editor_style( 'assets/css/astro/pages.css' );
+	add_editor_style( 'assets/css/astro/pull-quote.css' );
+	add_editor_style( 'assets/css/astro/section-divider.css' );
+	add_editor_style( 'assets/css/astro/nav.css' );
+	add_editor_style( 'assets/css/astro/footer.css' );
+	add_editor_style( 'assets/css/astro/prose-body.css' );
+	add_editor_style( 'assets/css/astro/playlist-player.css' );
+	add_editor_style( 'assets/css/astro/quotes-carousel.css' );
+	add_editor_style( 'assets/css/astro/timeline.css' );
+	add_editor_style( 'assets/css/astro/discography.css' );
 	add_editor_style( 'assets/css/chrome.css' );
 }
 
@@ -102,6 +436,65 @@ function bozzies_enqueue_article_meta_panel() {
 add_filter( 'run_wptexturize', '__return_false' );
 
 /**
+ * Inject template-part className into the header/footer template-parts so
+ * Astro's per-element rules apply to the outermost wrapper element:
+ *
+ *   header slug → adds `site-nav` (sticky + backdrop-filter live on <header>)
+ *   footer slug → adds `site-footer ground-purple` (padding-block + purple
+ *                 ground live on <footer>, matching Astro's exact class list)
+ *
+ * The bozzies/site-nav and bozzies/site-footer blocks' render.php emit only
+ * inner DOM; this filter turns the surrounding template-part wrapper
+ * `<header class="wp-block-template-part">` /
+ * `<footer class="wp-block-template-part">` into
+ * `<header class="wp-block-template-part site-nav">` /
+ * `<footer class="wp-block-template-part site-footer ground-purple">`.
+ */
+add_filter( 'render_block_data', function ( $block ) {
+	if ( 'core/template-part' !== ( $block['blockName'] ?? '' ) ) {
+		return $block;
+	}
+	$slug = $block['attrs']['slug'] ?? '';
+	$add  = '';
+	if ( 'header' === $slug ) {
+		$add = 'site-nav';
+	} elseif ( 'footer' === $slug ) {
+		$add = 'site-footer ground-purple';
+	}
+	if ( '' === $add ) {
+		return $block;
+	}
+	$existing = isset( $block['attrs']['className'] ) ? trim( (string) $block['attrs']['className'] ) : '';
+	// Add each token only if not already present (idempotent).
+	foreach ( preg_split( '/\s+/', $add ) as $token ) {
+		if ( '' === $token ) {
+			continue;
+		}
+		if ( false === strpos( ' ' . $existing . ' ', ' ' . $token . ' ' ) ) {
+			$existing = trim( $existing . ' ' . $token );
+		}
+	}
+	$block['attrs']['className'] = $existing;
+	return $block;
+} );
+
+// Add a `page-slug-<slug>` class to <body> on singular pages/posts so per-page
+// CSS can hook off the slug (Astro's scoped <style> blocks are equivalent to
+// per-page selectors). Astro's `.page-hero__title` and `.page-hero__subtitle`
+// max-widths differ across career-timeline (34ch/58ch), discography
+// (34ch/58ch), reviews (none/52ch), charts (none/52ch), and bio-resources
+// (none/46ch). Slug scoping lets the shared bozzies/page-hero block match each.
+add_filter( 'body_class', function ( $classes ) {
+	if ( is_singular() ) {
+		$post = get_queried_object();
+		if ( $post && ! empty( $post->post_name ) ) {
+			$classes[] = 'page-slug-' . sanitize_html_class( $post->post_name );
+		}
+	}
+	return $classes;
+} );
+
+/**
  * Rewrite YouTube embed URLs to the privacy-enhanced youtube-nocookie.com
  * domain everywhere: core Embed blocks, oEmbed HTML cached in the DB,
  * bare iframe HTML in Custom HTML blocks, and post content. Applies to both
@@ -125,11 +518,66 @@ add_filter( 'render_block', function ( $block_content, $block ) {
 }, 20, 2 );
 
 /**
+ * Render core/embed YouTube blocks as Astro's .video-embed iframe so
+ * article bodies match press/[subhub]/[slug].astro L61-67 verbatim.
+ * The Astro markdown source stores videoEmbed as youtube.com/embed/{id}
+ * URLs (not the /watch?v= form). WordPress oEmbed doesn't resolve those,
+ * so out of the box the block renders the URL as plain text. This filter
+ * detects any YouTube URL (embed, watch, youtu.be, or nocookie) on a
+ * core/embed block and swaps the whole output for the iframe wrapper.
+ */
+add_filter( 'render_block_core/embed', function ( $block_content, $block ) {
+	$url = isset( $block['attrs']['url'] ) ? (string) $block['attrs']['url'] : '';
+	if ( '' === $url ) {
+		return $block_content;
+	}
+	$video_id = '';
+	if ( preg_match( '#youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	} elseif ( preg_match( '#youtube\.com/watch\?(?:.*&)?v=([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	} elseif ( preg_match( '#youtu\.be/([A-Za-z0-9_-]{6,})#i', $url, $m ) ) {
+		$video_id = $m[1];
+	}
+	if ( '' === $video_id ) {
+		return $block_content;
+	}
+	$src   = 'https://www.youtube-nocookie.com/embed/' . $video_id;
+	$title = esc_attr( get_the_title() );
+	return sprintf(
+		'<div class="video-embed"><iframe src="%s" title="%s" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>',
+		esc_url( $src ),
+		$title
+	);
+}, 5, 2 );
+
+/**
+ * Contact Form 7 tweaks.
+ *
+ * Turn off CF7's autop pass. Our form template controls its own <p>/<label>
+ * layout in the DB; wpautop was inserting stray <br /> after every <label>
+ * which breaks the label→input pairing visually.
+ *
+ * Case-insensitive quiz: no filter needed. CF7's wpcf7_canonicalize() runs
+ * strtolower() on the submitted answer BEFORE hashing it to compare against
+ * the stored hash of "boswell" (see contact-form-7/modules/quiz.php L100-105
+ * and includes/formatting.php L240-250). So the stored lowercase "boswell"
+ * matches "Boswell", "BOSWELL", "bOsWeLL", etc. automatically.
+ */
+add_filter( 'wpcf7_autop_or_not', '__return_false' );
+
+/**
  * Give /press/{category}/{postname}/ post URLs priority over WP's verbose
  * page-hierarchy resolution. Without this, WP treats /press/ as a page and
  * refuses to dispatch descendant URLs to posts (the "press" page hub blocks
  * all article URLs). See settled decisions: articles are posts, sub-hubs are
  * categories, article URLs are /press/{category}/{slug}/.
+ *
+ * Video is a sibling exception: the `video` category lives under /media/ in
+ * the owner's content organization even though it uses the same `category`
+ * taxonomy as the press subhubs. The two /media/video/* rules + the
+ * post_link / term_link filters below let the video category serve from
+ * /media/video/ while every other category uses the /press/ base.
  */
 add_action( 'init', 'bozzies_press_rewrite_rule', 11 );
 function bozzies_press_rewrite_rule() {
@@ -138,6 +586,49 @@ function bozzies_press_rewrite_rule() {
 		'index.php?category_name=$matches[1]&name=$matches[2]',
 		'top'
 	);
+	// Video category lives under /media/. Order matters: the longer, more
+	// specific `/media/video/{slug}` rule is added first so it wins when both
+	// match.
+	add_rewrite_rule(
+		'^media/video/([^/]+)/?$',
+		'index.php?category_name=video&name=$matches[1]',
+		'top'
+	);
+	add_rewrite_rule(
+		'^media/video/?$',
+		'index.php?category_name=video',
+		'top'
+	);
+}
+
+/**
+ * Make posts in the `video` category have canonical URL /media/video/{slug}/
+ * instead of /press/video/{slug}/. Called by `get_permalink()`, so permalinks
+ * emitted by every WP helper (post-title isLink, article nav, REST responses)
+ * all go through this.
+ */
+add_filter( 'post_link', 'bozzies_video_post_link', 10, 2 );
+function bozzies_video_post_link( $url, $post ) {
+	if ( ! $post instanceof WP_Post || 'post' !== $post->post_type ) {
+		return $url;
+	}
+	$slugs = wp_get_post_categories( $post->ID, array( 'fields' => 'slugs' ) );
+	if ( in_array( 'video', $slugs, true ) ) {
+		return home_url( '/media/video/' . $post->post_name . '/' );
+	}
+	return $url;
+}
+
+/**
+ * The Video Features category archive lives at /media/video/, not
+ * /category/video/ (WP default) or /press/video/ (the sibling press hubs).
+ */
+add_filter( 'term_link', 'bozzies_video_term_link', 10, 3 );
+function bozzies_video_term_link( $url, $term, $taxonomy ) {
+	if ( 'category' === $taxonomy && isset( $term->slug ) && 'video' === $term->slug ) {
+		return home_url( '/media/video/' );
+	}
+	return $url;
 }
 
 /**
@@ -147,19 +638,91 @@ function bozzies_press_rewrite_rule() {
  * and text-diff tooling wouldn't see them. Inject a real <span> at render
  * time on any post-template with the `bozzies-article-list` class.
  */
-add_filter( 'render_block_core/post-template', 'bozzies_number_article_rows', 10, 2 );
-function bozzies_number_article_rows( $block_content, $block ) {
+/**
+ * Rebuild each row of an article list (`core/post-template` with the
+ * `article-list` className) to Astro's exact DOM:
+ *
+ *   <li class="article-row">
+ *     <a class="article-row__link" href="POST_URL">
+ *       <span class="article-row__num">01</span>
+ *       <div class="article-row__body">
+ *         <h3 class="article-row__title">Title</h3>
+ *         <p class="article-row__meta">Meta</p>
+ *       </div>
+ *       <svg class="article-row__arrow" …>…</svg>
+ *     </a>
+ *   </li>
+ *
+ * We parse the URL out of the title link WordPress already emitted, then
+ * discard the default row markup and rebuild it into Astro's shape. This
+ * fires on the press hub, all 5 category archives, and anywhere else a
+ * Query Loop is authored with the `article-list` className.
+ */
+add_filter( 'render_block_core/post-template', 'bozzies_astro_article_rows', 10, 2 );
+function bozzies_astro_article_rows( $block_content, $block ) {
 	$cls = isset( $block['attrs']['className'] ) ? (string) $block['attrs']['className'] : '';
-	if ( strpos( $cls, 'bozzies-article-list' ) === false ) {
+	if ( strpos( $cls, 'article-list' ) === false ) {
 		return $block_content;
 	}
+
+	// Astro's arrow is a <span class="article-row__arrow"> wrapping a
+	// 24×10 SVG with a horizontal path + arrowhead. Match verbatim from
+	// ~/boswell-poc/src/pages/press/index.astro lines 81-85.
+	$arrow_svg = '<span class="article-row__arrow" aria-hidden="true"><svg width="24" height="10" viewBox="0 0 24 10" fill="none"><path d="M0 5 H21 M17 1 L21 5 L17 9" stroke="currentColor" stroke-width="1" fill="none"/></svg></span>';
+
 	$i = 0;
 	return preg_replace_callback(
-		'#<li([^>]*)>#',
-		function ( $m ) use ( &$i ) {
+		'#<li([^>]*)>(.*?)</li>#s',
+		function ( $m ) use ( &$i, $arrow_svg ) {
 			$i++;
-			$num = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
-			return '<li' . $m[1] . '><span class="bozzies-article-row__num">' . $num . '</span>';
+			$num  = str_pad( (string) $i, 2, '0', STR_PAD_LEFT );
+			$row  = $m[2];
+
+			// Extract the title link (WP renders it as <h3 class="article-row__title"><a>Title</a></h3>).
+			$url   = '';
+			$title = '';
+			if ( preg_match( '#<h[1-6][^>]*article-row__title[^>]*>(.*?)</h[1-6]>#is', $row, $h ) ) {
+				$inner = $h[1];
+				if ( preg_match( '#<a[^>]*href=(?:"([^"]+)"|\'([^\']+)\')[^>]*>(.*?)</a>#is', $inner, $a ) ) {
+					$url   = html_entity_decode( $a[1] ?: $a[2], ENT_QUOTES );
+					$title = trim( strip_tags( $a[3] ) );
+				} else {
+					$title = trim( strip_tags( $inner ) );
+				}
+			}
+
+			// Extract the meta paragraph (bozzies/article-meta binding).
+			$meta = '';
+			if ( preg_match( '#<p[^>]*article-row__meta[^>]*>(.*?)</p>#is', $row, $p ) ) {
+				$meta = trim( strip_tags( $p[1] ) );
+			}
+
+			// Preserve any `class` on the <li> WP already emitted but ensure
+			// `article-row` is present exactly once.
+			$li_attrs = $m[1];
+			if ( preg_match( '#class="([^"]*)"#', $li_attrs, $c ) ) {
+				$existing = trim( $c[1] );
+				if ( strpos( $existing, 'article-row' ) === false ) {
+					$existing = trim( $existing . ' article-row' );
+				}
+				$li_attrs = preg_replace( '#class="[^"]*"#', 'class="' . esc_attr( $existing ) . '"', $li_attrs, 1 );
+			} else {
+				$li_attrs .= ' class="article-row"';
+			}
+
+			$html  = '<li' . $li_attrs . '>';
+			$html .= '<a class="article-row__link" href="' . esc_url( $url ) . '">';
+			$html .= '<span class="article-row__num">' . esc_html( $num ) . '</span>';
+			$html .= '<div class="article-row__body">';
+			$html .= '<h3 class="article-row__title">' . esc_html( $title ) . '</h3>';
+			if ( '' !== $meta ) {
+				$html .= '<p class="article-row__meta">' . esc_html( $meta ) . '</p>';
+			}
+			$html .= '</div>';
+			$html .= $arrow_svg;
+			$html .= '</a>';
+			$html .= '</li>';
+			return $html;
 		},
 		$block_content,
 		-1
@@ -211,19 +774,39 @@ function bozzies_next_post_where( $where, $in_same_term, $excluded_terms, $taxon
 }
 
 /**
- * Astro's article-nav wraps around: at the last article in a sub-hub, "Next"
- * links to the first; at the first, "Previous" links to the last. WP's
- * post-navigation-link renders nothing when there's no adjacent post. Fill
- * in the wraparound render so the UI (and the visible-text diff) matches.
+ * Astro's article-nav (~/boswell-poc/src/pages/press/[subhub]/[slug].astro)
+ * emits a prev/all/next row where each side is:
+ *   <a class="article-nav__link article-nav__link--prev">
+ *     <span class="article-nav__label">Previous</span>
+ *     <span class="article-nav__title">Article title</span>
+ *   </a>
+ * WP's core/post-navigation-link block emits its own class and shape. This
+ * filter rewrites every post-navigation-link render inside a single post
+ * (adjacent found OR wraparound needed) into Astro's exact DOM so the ported
+ * article.css applies without a mapping layer.
  */
 add_filter( 'render_block_core/post-navigation-link', 'bozzies_wrap_post_navigation', 10, 2 );
 function bozzies_wrap_post_navigation( $block_content, $block ) {
-	// WP still wraps an empty adjacent-post navigation in a `<div class="…"></div>`.
-	// Treat "no <a> inside" as the empty case rather than an entirely empty string.
-	if ( strpos( $block_content, '<a ' ) !== false ) {
-		return $block_content;
-	}
 	$type = ( isset( $block['attrs']['type'] ) && 'next' === $block['attrs']['type'] ) ? 'next' : 'previous';
+	$label_text = 'next' === $type ? 'Next' : 'Previous';
+	$class_side = 'next' === $type ? 'article-nav__link--next' : 'article-nav__link--prev';
+	$rel        = 'next' === $type ? 'next' : 'prev';
+
+	// If WP found an adjacent post, its output already includes an <a>. Rewrite
+	// the shape to Astro's without hitting the DB again — extract href + title.
+	if ( strpos( $block_content, '<a ' ) !== false && preg_match( '#<a[^>]*href="([^"]+)"[^>]*>([^<]+)</a>#', $block_content, $m ) ) {
+		return sprintf(
+			'<a class="article-nav__link %s" href="%s" rel="%s"><span class="article-nav__label">%s</span><span class="article-nav__title">%s</span></a>',
+			esc_attr( $class_side ),
+			esc_url( html_entity_decode( $m[1], ENT_QUOTES ) ),
+			esc_attr( $rel ),
+			esc_html( $label_text ),
+			esc_html( html_entity_decode( $m[2], ENT_QUOTES ) )
+		);
+	}
+
+	// Otherwise Astro wraps around: at the last article, "Next" links to the
+	// first; at the first, "Previous" links to the last.
 	$post = get_post();
 	if ( ! $post ) {
 		return $block_content;
@@ -247,17 +830,12 @@ function bozzies_wrap_post_navigation( $block_content, $block ) {
 		return $block_content;
 	}
 	$target = $wrap[0];
-	$label  = 'next' === $type ? 'Next' : 'Previous';
-	$rel    = 'next' === $type ? 'next' : 'prev';
-	$cls    = 'next' === $type
-		? 'post-navigation-link-next wp-block-post-navigation-link'
-		: 'post-navigation-link-previous wp-block-post-navigation-link';
 	return sprintf(
-		'<div class="%s"><span class="post-navigation-link__label">%s</span> <a href="%s" rel="%s">%s</a></div>',
-		esc_attr( $cls ),
-		esc_html( $label ),
+		'<a class="article-nav__link %s" href="%s" rel="%s"><span class="article-nav__label">%s</span><span class="article-nav__title">%s</span></a>',
+		esc_attr( $class_side ),
 		esc_url( get_permalink( $target ) ),
 		esc_attr( $rel ),
+		esc_html( $label_text ),
 		esc_html( get_the_title( $target ) )
 	);
 }

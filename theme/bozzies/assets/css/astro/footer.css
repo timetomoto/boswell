@@ -1,0 +1,75 @@
+/* -----------------------------------------------------------------------
+ * Astro footer.css — verbatim port of the <style> block in
+ *   ~/boswell-poc/src/components/Footer.astro (L33-71).
+ * Owned by the bozzies/site-footer block.
+ *
+ * Documented edits:
+ *   1. `.site-footer { min-height: 0 }` — added so the computed min-height
+ *      matches Astro's `0px`. On Astro the `<footer class="site-footer">` is
+ *      a direct child of `<body>` (`display: block`); `min-height: auto`
+ *      resolves to `0px` per CSS 2.1. On WP the same `<footer>` is a flex
+ *      item inside `<div class="wp-site-blocks">` (chrome.css gives that
+ *      wrapper `display: flex; flex-direction: column` so the footer sticks
+ *      to the bottom on short pages). On a flex item, `min-height: auto`
+ *      computes to `auto` rather than `0px` per the Flexbox spec. Setting
+ *      `min-height: 0` explicitly lines both up. Same edit as nav.css.
+ *
+ *   2. `.site-footer__nav` selectors scoped under `.site-footer` (see the
+ *      block starting `.site-footer .site-footer__nav …`). Reason: the
+ *      footer sits on `.ground-purple`, whose rules in global.css are
+ *        .ground-purple a          { color: var(--link-on-dark); … }        (0-1-1)
+ *        .ground-purple a:hover    { color: var(--link-on-dark-hover); … }  (0-2-1)
+ *      The un-scoped Astro selectors are
+ *        .site-footer__nav a       { color: var(--paper-warm); border: 0 }  (0-1-1)
+ *        .site-footer__nav a:hover { color: var(--yellow-soft) }            (0-1-1)
+ *      Base ties on specificity and source order picks footer.css; :hover
+ *      loses (0-1-1 vs 0-2-1) and stays purple on hover. The bump to
+ *      `.site-footer .site-footer__nav a` = (0-2-1) / `:hover` = (0-3-1)
+ *      wins outright. Astro's per-component `<style>` scoping bumps every
+ *      selector inside the block via `data-astro-cid-*`, so this is the WP
+ *      equivalent of that scoping.
+ *
+ * No other selector was renamed or altered.
+ * -------------------------------------------------------------------- */
+
+.site-footer {
+	padding-block: clamp(var(--space-8), 6vw, var(--space-10));
+	min-height: 0; /* edit 1 — see file header */
+}
+.site-footer__inner {
+	display: grid;
+	gap: var(--space-6);
+	grid-template-columns: 1.4fr 1fr 1.4fr;
+	align-items: start;
+}
+@media (max-width: 900px) {
+	.site-footer__inner { grid-template-columns: 1fr; }
+}
+.site-footer__wordmark {
+	font-family: var(--font-display);
+	font-size: var(--step-3);
+	color: var(--paper-warm);
+	max-width: none;
+}
+.site-footer__tagline {
+	font-family: var(--font-body);
+	color: rgba(245, 234, 209, 0.8);
+	font-size: var(--step-0);
+	line-height: var(--leading-normal);
+	max-width: 34ch;
+	margin-top: var(--space-3);
+}
+.site-footer__nav ul { display: flex; flex-direction: column; gap: var(--space-2); }
+/* edit 2 — see file header */
+.site-footer .site-footer__nav a {
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--paper-warm);
+	border: 0;
+}
+.site-footer .site-footer__nav a:hover { color: var(--yellow-soft); }
+.site-footer__meta { color: rgba(245, 234, 209, 0.75); font-size: var(--step--1); }
+.site-footer__meta p + p { margin-top: var(--space-3); }

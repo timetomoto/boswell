@@ -1,0 +1,297 @@
+/* -----------------------------------------------------------------------
+ * Astro global.css — verbatim port of
+ *   ~/boswell-poc/src/styles/global.css
+ * plus the token aliases (Astro names → WP tokens) that let the ported
+ * CSS reference `--purple`, `--space-N`, `--step-N`, etc. while the
+ * theme's palette pickers still drive brand colors through the
+ * `--wp--preset--color--*` / `--wp--custom--*` custom properties.
+ *
+ * Edits made against the Astro source:
+ *  1. Token aliases at the top of the file — one-time re-export of the
+ *     WP theme tokens under Astro's names.
+ *  2. `@import '@fontsource/…/N.css'` lines dropped — WordPress ships
+ *     the same @fontsource font files via theme.json fontFamilies.
+ *  3. `@import './tokens.css'` dropped — WP theme.json provides the
+ *     tokens as CSS custom properties on `:root`.
+ *  4. Global element reset (`box-sizing`, `margin: 0` on headings, `p`,
+ *     `img/picture/svg/video`, focus scroll, input/button font/color)
+ *     is scoped inside `.wp-site-blocks` so it does not overwrite the
+ *     WordPress admin UI (block-editor thumbnails, admin bar buttons,
+ *     etc.). Everything else applies globally because the Astro classes
+ *     (`.container`, `.ground-*`, `.eyebrow`, `.hairline`, `.skip-link`,
+ *     `.visually-hidden`) only appear on the front.
+ *  5. `html { font-size: 112.5% }` moved off this file — it already
+ *     lives in `theme.json` `styles.css` so it doesn't fight the WP
+ *     admin at all.
+ *  6. `p { max-width: var(--measure) }` scoped to the front so the
+ *     block-editor's paragraph blocks aren't force-constrained (owner
+ *     can still see the whole paragraph while editing).
+ *
+ * No other selector was renamed or altered.
+ * -------------------------------------------------------------------- */
+
+/* --- Token aliases: re-export WP theme tokens under Astro names -------- */
+:root {
+	/* Grounds (owner-changeable via the WP palette). */
+	--ink:            var(--wp--preset--color--ink);
+	--paper:          var(--wp--preset--color--paper);
+	--paper-warm:     var(--wp--preset--color--paper-warm);
+	--paper-shadow:   var(--wp--custom--color--paper-shadow);
+	--purple:         var(--wp--preset--color--purple);
+	--purple-soft:    var(--wp--custom--color--purple-soft);
+	--yellow-bright:  var(--wp--preset--color--yellow-bright);
+	--yellow:         var(--wp--preset--color--yellow);
+	--yellow-soft:    var(--wp--custom--color--yellow-soft);
+	--yellow-hover:   var(--wp--custom--color--yellow-hover);
+	--brass:          var(--wp--preset--color--brass);
+	--brass-bright:   var(--wp--custom--color--brass-bright);
+	--champagne:      var(--wp--custom--color--champagne);
+	--copper:         var(--wp--preset--color--copper);
+	--copper-bright:  var(--wp--custom--color--copper-bright);
+	--emerald:        var(--wp--custom--color--emerald);
+	--navy:           var(--wp--custom--color--navy);
+	--oxblood:        var(--wp--preset--color--oxblood);
+	--ink-soft:       var(--wp--custom--color--ink-soft);
+	--ink-hairline:   var(--wp--custom--color--ink-hairline);
+	--paper-hairline: var(--wp--custom--color--paper-hairline);
+
+	/* Text on grounds. */
+	--text-on-ink:         var(--wp--custom--color--text-on-ink);
+	--text-on-ink-muted:   var(--wp--custom--color--text-on-ink-muted);
+	--text-on-paper:       var(--wp--custom--color--text-on-paper);
+	--text-on-paper-muted: var(--wp--custom--color--text-on-paper-muted);
+
+	/* Links. */
+	--link:               var(--wp--preset--color--link);
+	--link-hover:         var(--wp--custom--color--link-hover);
+	--link-on-dark:       var(--wp--custom--color--link-on-dark);
+	--link-on-dark-hover: var(--wp--custom--color--link-on-dark-hover);
+
+	/* Type stacks. */
+	--font-display: var(--wp--preset--font-family--display);
+	--font-body:    var(--wp--preset--font-family--body);
+	--font-accent:  var(--wp--preset--font-family--accent);
+	--font-ui:      var(--wp--preset--font-family--ui);
+
+	/* Type scale (from Astro's tokens.css; some are also font-size presets). */
+	--step--2: 0.694rem;
+	--step--1: 0.833rem;
+	--step-0:  1rem;
+	--step-1:  1.25rem;
+	--step-2:  1.563rem;
+	--step-3:  1.953rem;
+	--step-4:  2.441rem;
+	--step-5:  3.052rem;
+	--step-6:  3.815rem;
+	--step-7:  4.768rem;
+	--step-8:  5.96rem;
+
+	/* Leading + tracking. */
+	--leading-tight:  1.08;
+	--leading-snug:   1.24;
+	--leading-normal: 1.55;
+	--leading-loose:  1.7;
+	--track-tight:    -0.02em;
+	--track-normal:   0;
+	--track-caps:     0.14em;
+
+	/* Spacing scale. */
+	--space-1:  0.25rem;
+	--space-2:  0.5rem;
+	--space-3:  0.75rem;
+	--space-4:  1rem;
+	--space-5:  1.5rem;
+	--space-6:  2rem;
+	--space-7:  3rem;
+	--space-8:  4rem;
+	--space-9:  6rem;
+	--space-10: 8rem;
+	--space-11: 12rem;
+
+	/* Layout measures. */
+	--measure-narrow: 34rem;
+	--measure:        42rem;
+	--measure-wide:   60rem;
+	--measure-max:    84rem;
+	/* Text-block widths — Astro tokens.css lines 98-99. Applied to
+	 * page-section titles and reading prose. Missing before now; added
+	 * so `.music-teaser__body { max-width: var(--measure-body) }` and
+	 * other card body rules resolve to 58ch. */
+	--measure-title: 34ch;
+	--measure-body:  58ch;
+
+	/* Motion. */
+	--ease-out-quart:    cubic-bezier(0.25, 1, 0.5, 1);
+	--ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+	--dur-fast:      180ms;
+	--dur:           320ms;
+	--dur-slow:      640ms;
+	--dur-cinematic: 1200ms;
+}
+
+/* --- Reset (opinionated, targeted) — matches Astro's specificity so
+ *     class selectors like `.article-row__title` can override normally.
+ *     astro/global.css is only loaded on the front (wp_enqueue_style
+ *     on `wp_enqueue_scripts`) and inside the block-editor iframe (via
+ *     add_editor_style, which auto-prefixes with .editor-styles-wrapper);
+ *     it never reaches the wp-admin dashboard, so these plain-element
+ *     selectors are safe. --- */
+*, *::before, *::after { box-sizing: border-box; }
+h1, h2, h3, h4, h5, h6, p, figure, blockquote, ul, ol, dl, dd { margin: 0; }
+ul[role='list'], ol[role='list'] { list-style: none; padding: 0; }
+img, picture, svg, video { display: block; max-width: 100%; }
+input, button, textarea, select { font: inherit; color: inherit; }
+html:focus-within { scroll-behavior: smooth; }
+
+/* --- Base typography --- */
+body {
+	font-family: var(--font-body);
+	font-size: var(--step-0);
+	font-weight: 400;
+	line-height: var(--leading-loose);
+	color: var(--text-on-paper);
+	background: var(--paper);
+	font-feature-settings: 'kern', 'liga', 'onum';
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: var(--font-display);
+	font-weight: 400;
+	line-height: var(--leading-tight);
+	letter-spacing: var(--track-tight);
+}
+
+h1 { font-size: clamp(var(--step-5), 5vw + 1rem, var(--step-8)); font-weight: 400; }
+h2 { font-size: clamp(var(--step-4), 3.5vw + 0.5rem, var(--step-6)); }
+h3 { font-size: var(--step-3); }
+h4 { font-family: var(--font-ui); font-weight: 500; letter-spacing: var(--track-caps); text-transform: uppercase; font-size: var(--step--1); }
+h5, h6 { font-family: var(--font-ui); font-weight: 500; }
+
+p { max-width: var(--measure); line-height: var(--leading-loose); }
+p + p { margin-top: var(--space-4); }
+
+/* Links */
+a { color: var(--link); text-decoration: none; border-bottom: 1px solid var(--link); transition: color var(--dur) var(--ease-out-quart), border-color var(--dur) var(--ease-out-quart); }
+a:hover { color: var(--link-hover); border-color: var(--link-hover); }
+a:focus-visible { outline: 2px solid var(--link); outline-offset: 4px; border-radius: 2px; }
+
+/* Selection */
+::selection { background: var(--brass); color: var(--ink); }
+
+/* --- Ground layers ---
+   Sections alternate ink/paper. Utility classes make it easy. */
+.ground-ink {
+	background: var(--ink);
+	color: var(--text-on-ink);
+}
+.ground-ink a { color: var(--link-on-dark); border-color: var(--link-on-dark); }
+.ground-ink a:hover { color: var(--link-on-dark-hover); border-color: var(--link-on-dark-hover); }
+
+/* Solid Mardi Gras purple ground, footer and quote sections */
+.ground-purple {
+	background: var(--purple);
+	color: #F1E4C4;
+	position: relative;
+	isolation: isolate;
+}
+.ground-purple a { color: var(--link-on-dark); border-color: var(--link-on-dark); }
+.ground-purple a:hover { color: var(--link-on-dark-hover); border-color: var(--link-on-dark-hover); }
+.ground-purple .eyebrow { color: var(--yellow-soft); }
+
+/* Pull quote on purple: pure white, defined here to bypass Astro scoped-style scoping */
+.ground-purple .pull-quote__quote {
+	color: #FFFFFF !important;
+	font-weight: 500;
+	text-shadow: 0 1px 24px rgba(24, 22, 21, 0.35);
+}
+.ground-purple .pull-quote__attr { color: var(--yellow-soft) !important; }
+
+/* Bourbon gold ground */
+.ground-gold {
+	background: var(--yellow-bright);
+	color: var(--ink);
+	position: relative;
+	isolation: isolate;
+}
+.ground-gold a { color: var(--link); border-color: var(--link); }
+.ground-gold a:hover { color: var(--link-hover); border-color: var(--link-hover); }
+.ground-gold .eyebrow { color: var(--purple); }
+
+.ground-paper {
+	background: var(--paper);
+	color: var(--text-on-paper);
+	position: relative;
+}
+.ground-paper::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.35;
+	mix-blend-mode: multiply;
+	background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.1  0 0 0 0 0.09  0 0 0 0 0.08  0 0 0 0.045 0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+	background-size: 200px 200px;
+	z-index: 0;
+}
+.ground-paper > * { position: relative; z-index: 1; }
+
+/* --- Editorial layout helpers --- */
+.container {
+	width: 100%;
+	max-width: var(--measure-max);
+	margin-inline: auto;
+	padding-inline: clamp(var(--space-5), 4vw, var(--space-8));
+}
+.container-narrow { max-width: var(--measure); margin-inline: auto; padding-inline: clamp(var(--space-5), 4vw, var(--space-8)); }
+.container-wide { max-width: var(--measure-wide); margin-inline: auto; padding-inline: clamp(var(--space-5), 4vw, var(--space-8)); }
+
+/* Section rhythm */
+.section { padding-block: clamp(var(--space-4), 2vw, var(--space-6)); }
+.section-tight { padding-block: clamp(var(--space-3), 1.4vw, var(--space-5)); }
+
+/* --- Brass hairline --- */
+.hairline {
+	border: 0;
+	border-top: 1px solid var(--brass);
+	opacity: 0.55;
+	margin-block: var(--space-6);
+}
+.hairline-thin { border-top: 1px solid var(--ink-hairline); opacity: 1; }
+.ground-ink .hairline-thin { border-top-color: rgba(200, 169, 106, 0.22); }
+
+/* --- Eyebrow --- */
+.eyebrow {
+	display: inline-block;
+	font-family: var(--font-ui);
+	font-weight: 500;
+	font-size: var(--step--1);
+	letter-spacing: var(--track-caps);
+	text-transform: uppercase;
+	color: var(--brass);
+}
+
+/* --- Focus / a11y --- */
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 2px; }
+
+/* --- Utilities --- */
+.visually-hidden {
+	position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+	overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* Skip link — hidden until keyboard-focused, then floats top-left over the nav.
+   WCAG 2.4.1 (Bypass Blocks). */
+.skip-link {
+	position: absolute; left: -9999px; top: 0;
+	z-index: 100;
+	padding: var(--space-3) var(--space-4);
+	background: var(--ink); color: var(--paper);
+	font-family: var(--font-ui); font-weight: 500; font-size: var(--step--1);
+	letter-spacing: var(--track-caps); text-transform: uppercase;
+	text-decoration: none; border: 2px solid var(--yellow-soft);
+}
+.skip-link:focus, .skip-link:focus-visible {
+	left: var(--space-3); top: var(--space-3);
+	outline: 2px solid var(--yellow-soft); outline-offset: 2px;
+	color: var(--paper);
+}

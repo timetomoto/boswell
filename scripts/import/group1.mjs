@@ -7,7 +7,38 @@
 // content/pages/{about,sisters,bio-resources}.md, and the mirroring
 // Astro page structure in src/pages/about.astro and src/pages/sisters/*.astro.
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { load } from 'js-yaml';
 import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Gutenberg's client-side JSON serializer (same as sisters-timeline.mjs).
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+function readTimelineEntries(subject) {
+  const src = readFileSync(
+    resolve(__dirname, `../../../boswell-poc/src/content/timelines/${subject}.md`),
+    'utf8'
+  );
+  const m = src.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) throw new Error(`timelines/${subject}.md: no frontmatter found`);
+  const data = load(m[1]);
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  return entries.map((e) => ({
+    year:     e.year != null ? String(e.year) : '',
+    event:    e.event != null ? String(e.event) : '',
+    image:    e.image || '',
+    imageAlt: e.imageAlt || '',
+  }));
+}
 
 // ---------- Helper builders (WP block markup as strings) ----------
 
@@ -109,10 +140,33 @@ ${innerHTML}
 <!-- /wp:cover -->`;
 };
 
-// Facts rendered as a group of paragraphs (mirrors Astro's <dl> facts strip).
-// Each fact is "Label: Value" — the space matters for visible-text diffs.
+// Facts rendered as Astro's `.facts-strip` <dl> — a native block whose
+// render.php emits <section class="section-tight ground-paper facts-strip">
+// <div class="container"><dl class="facts">…</dl></div></section> to match
+// ~/boswell-poc/src/pages/sisters/[slug].astro lines 65-78 verbatim. Each
+// child is a bozzies/fact with label+value attributes; render.php emits
+// <div class="facts__pair"><dt class="facts__label">…</dt>
+// <dd class="facts__value">…</dd></div>.
+// Named entities we accept in facts values (HTML entities from Astro markdown
+// / hand-authored strings). Decoded to Unicode here so the serialized block
+// attribute survives an editor save unchanged (Gutenberg re-serializes
+// literal `&` as `&`, which round-trips visually but not byte-wise).
+const FACT_ENTITY_MAP = {
+  '&prime;': '′',    // ′
+  '&Prime;': '″',    // ″
+  '&acute;': '´',    // ´
+  '&ndash;': '–',    // –
+  '&mdash;': '—',    // —
+  '&ldquo;': '“',    // "
+  '&rdquo;': '”',    // "
+  '&lsquo;': '‘',    // '
+  '&rsquo;': '’',    // '
+  '&amp;':   '&',
+};
+const decodeFactValue = (s) =>
+  String(s || '').replace(/&(?:prime|Prime|acute|ndash|mdash|ldquo|rdquo|lsquo|rsquo|amp);/g, (m) => FACT_ENTITY_MAP[m] ?? m);
+
 const factsTable = (facts) => {
-  const rows = [];
   const map = [
     ['born', 'Born'],
     ['died', 'Died'],
@@ -123,14 +177,13 @@ const factsTable = (facts) => {
     ['marriage', 'Marriage'],
     ['children', 'Children'],
   ];
+  const rows = [];
   for (const [k, label] of map) {
-    if (facts[k]) rows.push(`<!-- wp:paragraph {"className":"bozzies-fact"} --><p class="bozzies-fact"><strong>${label}</strong> ${facts[k]}</p><!-- /wp:paragraph -->`);
+    if (facts[k]) rows.push(`<!-- wp:bozzies/fact ${JSON.stringify({ label, value: decodeFactValue(facts[k]) })} /-->`);
   }
-  return `<!-- wp:group {"className":"bozzies-facts","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-facts">
+  return `<!-- wp:bozzies/facts -->
 ${rows.join('\n')}
-</div>
-<!-- /wp:group -->`;
+<!-- /wp:bozzies/facts -->`;
 };
 
 // Item hero (purple compact hero used by sub-pages).
@@ -161,51 +214,31 @@ function buildSisters(media) {
   const introProse = section(
     { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', align: 'full' },
     [
-      p(`There are many fascinating facets to the Boswell Sisters, but none shines as brightly as their music. There are myriad sources on the web where you can stream their music, and in some ways that listening is the best way to come to understand the Sisters. We recommend <a href="http://www.archive.org">archive.org</a> and <a href="http://www.youtube.com">youtube.com</a> for your first entre&rsquo; to the land of Boz.`, { className: 'bozzies-para-body', fontSize: 'lead' }),
-      p(`While there are records, movies, sheet music and many other manifestations of the Boswell Sisters&rsquo; short but meteoric career, it was radio that brought them into the homes of a Depression weary nation. Ephemeral, of the moment, and fleeting, radio would go on to shape what we today might take for granted as the way broadcast entertainment has always been. As pioneers of network radio, the Boswell Sisters created an archetype that lives on to this day in top-billed &ldquo;girl groups&rdquo; that range from the Dixie Chicks to the Pointer Sisters.`, { className: 'bozzies-para-body' }),
-      p(`So who were they? Where did they come from? What all did they do? Put on your headsets and stream a little stream of Boz while you explore the lives and times of Martha, Connie and Vet.`, { className: 'bozzies-para-body' }),
+      p(`There are many fascinating facets to the Boswell Sisters, but none shines as brightly as their music. There are myriad sources on the web where you can stream their music, and in some ways that listening is the best way to come to understand the Sisters. We recommend <a href="http://www.archive.org">archive.org</a> and <a href="http://www.youtube.com">youtube.com</a> for your first entre&rsquo; to the land of Boz.`, { className: 'article-body', fontSize: 'lead' }),
+      p(`While there are records, movies, sheet music and many other manifestations of the Boswell Sisters&rsquo; short but meteoric career, it was radio that brought them into the homes of a Depression weary nation. Ephemeral, of the moment, and fleeting, radio would go on to shape what we today might take for granted as the way broadcast entertainment has always been. As pioneers of network radio, the Boswell Sisters created an archetype that lives on to this day in top-billed &ldquo;girl groups&rdquo; that range from the Dixie Chicks to the Pointer Sisters.`, { className: 'article-body' }),
+      p(`So who were they? Where did they come from? What all did they do? Put on your headsets and stream a little stream of Boz while you explore the lives and times of Martha, Connie and Vet.`, { className: 'article-body' }),
     ].join('\n'),
   );
 
+  // Astro's sisters hub cards are wrapped in `.sisters-cards` grid with each
+  // card as `<li class="sister-card"><a class="sister-card__link">…`. Emitted
+  // via the native bozzies/sister-cards + bozzies/sister-card blocks so the
+  // owner can edit each card in place; render.php builds Astro's exact DOM.
+  // Gutenberg's block serializer normalizes ASCII `"` inside block-comment
+  // JSON to `"`. Match its output so opening + saving the page in the
+  // editor yields byte-identical post_content (round-trip clean).
+  const sisterCard = ({ order, nickname, name, quote, href, ctaLabel = 'Read the bio' }) =>
+    `<!-- wp:bozzies/sister-card ${JSON.stringify({ order, nickname, name, quote, href, ctaLabel }).replace(/\\"/g, '\\u0022')} /-->`;
   const sistersGrid = section(
     { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
     [
-      p('Meet the Sisters', { className: 'is-style-eyebrow' }),
+      p('Meet the Sisters', { className: 'is-style-eyebrow sisters-grid__eyebrow' }),
       h(2, 'Martha, Connie and Vet', { fontSize: 'section-title' }),
-      `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '01', nickname: 'MBoz' },
-  title: 'Martha Boswell',
-  body: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.',
-  cta: 'Read the bio',
-  href: '/sisters/martha/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '02', nickname: 'CBoz' },
-  title: 'Connee Boswell',
-  body: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, &quot;They also sing&quot;.',
-  cta: 'Read the bio',
-  href: '/sisters/connee/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: { order: '03', nickname: 'VBoz' },
-  title: 'Vet Boswell',
-  body: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...',
-  cta: 'Read the bio',
-  href: '/sisters/vet/',
-  variant: 'card-plain',
-})}</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
+      `<!-- wp:bozzies/sister-cards -->
+${sisterCard({ order: '01', nickname: 'MBoz', name: 'Martha Boswell', quote: 'If we sang according to orthodox musical traditions, Vet would be the high voice or soprano, I would be the middle or alto, and Connie would be the low or contralto.', href: '/sisters/martha/' })}
+${sisterCard({ order: '02', nickname: 'CBoz', name: 'Connee Boswell', quote: 'We had loads of fun with our swinging trio. We were billed one time as musicians and in small print it said, "They also sing".', href: '/sisters/connee/' })}
+${sisterCard({ order: '03', nickname: 'VBoz', name: 'Vet Boswell', quote: 'Vet apparently is the domesticated one. She packs the trunks with uncanny skill, arranges the flowers with unerring artistic rights and so on...', href: '/sisters/vet/' })}
+<!-- /wp:bozzies/sister-cards -->`,
     ].join('\n'),
   );
 
@@ -217,90 +250,93 @@ function buildSisters(media) {
     ),
   );
 
-  const teasers = section(
-    { backgroundStyle: 'gold', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: 'Further Reading',
-  title: 'Boz Biography',
-  body: 'The definitive family biography of the Boswell Sisters.',
-  cta: 'Explore the Boz Biography',
-  href: '/sisters/bio-resources/',
-})}</div>
-<!-- /wp:column -->
-<!-- wp:column -->
-<div class="wp-block-column">${card({
-  eyebrow: 'Career Timeline',
-  title: 'Their story, year by year',
-  body: 'From Martha&rsquo;s 1905 birth through the trio&rsquo;s final broadcast in 1936 — every recording, tour, and turning point in one scrollable timeline.',
-  cta: 'Open the timeline',
-  href: '/sisters/career-timeline/',
-})}</div>
-<!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  // Astro's sisters-subpages section is emitted verbatim by the
+  // bozzies/subpage-cards + bozzies/subpage-card blocks. Container block
+  // renders <section class="section ground-gold sisters-subpages"><div
+  // class="container sisters-subpages__grid">…</div></section>; each child
+  // block renders one <a class="subpage-card"> with Astro's exact inner DOM
+  // (eyebrow + h3 + body p + cta span with arrow SVG). Verbatim from
+  // ~/boswell-poc/src/pages/sisters/index.astro lines 87-110.
+  const subpageCard = ({ eyebrow, title, body, ctaLabel, href }) =>
+    `<!-- wp:bozzies/subpage-card ${JSON.stringify({ eyebrow, title, body, ctaLabel, href })} /-->`;
+  const teasers = `<!-- wp:bozzies/subpage-cards {"align":"full"} -->
+${subpageCard({ eyebrow: 'Further Reading', title: 'Boz Biography', body: 'The definitive family biography of the Boswell Sisters.', ctaLabel: 'Explore the Boz Biography', href: '/sisters/bio-resources/' })}
+${subpageCard({ eyebrow: 'Career Timeline', title: 'Their story, year by year', body: 'From Martha’s 1905 birth through the trio’s final broadcast in 1936 — every recording, tour, and turning point in one scrollable timeline.', ctaLabel: 'Open the timeline', href: '/sisters/career-timeline/' })}
+<!-- /wp:bozzies/subpage-cards -->`;
 
   return [hero, introProse, separator(), sistersGrid, trioQuote, teasers].join('\n\n');
 }
 
 function buildSisterBio({ slug, nickname, order, name, portrait, pullQuoteText, pullQuoteAttr, facts, bodyBlocks, hasSoloTimeline }) {
-  const hero = section(
-    { backgroundStyle: 'purple', backdrop: 'staves', width: 'narrow', headingWidth: 'container', spacing: 'spacious', align: 'full' },
-    [
-      p(`<a href="/sisters/">← The Sisters</a>`),
-      p(nickname, { className: 'is-style-eyebrow' }),
-      `<!-- wp:heading {"level":1} --><h1 class="wp-block-heading">${name}</h1><!-- /wp:heading -->`,
-      quote(pullQuoteText, pullQuoteAttr ? `— ${pullQuoteAttr}` : ''),
-    ].join('\n'),
-  );
+  // Sister-bio hero — the bozzies/bio-hero block emits Astro's exact
+  // <section class="bio-hero ground-purple"><div class="music-backdrop">…</div>
+  // <div class="container-narrow bio-hero__inner"><a class="bio-hero__back">…</a>
+  // <span class="eyebrow bio-hero__eyebrow">…</span><h1 class="bio-hero__name">…</h1>
+  // <blockquote class="bio-hero__quote">"…"<cite>—…</cite></blockquote></div></section>
+  // DOM verbatim from ~/boswell-poc/src/pages/sisters/[slug].astro lines 46-63.
+  // Decode HTML entities on the attribute values so the JSON stored in
+  // post_content already contains Unicode glyphs. Otherwise Gutenberg
+  // re-serializes `&` as `&` on save, and the editor round-trip diff
+  // reports a spurious mismatch even though nothing visible changed.
+  const heroAttrs = {
+    nickname:             decodeFactValue(nickname),
+    name:                 decodeFactValue(name),
+    pullQuote:            decodeFactValue(pullQuoteText),
+    pullQuoteAttribution: decodeFactValue(pullQuoteAttr || ''),
+    backHref: '/sisters/',
+    backLabel: 'The Sisters',
+    align: 'full',
+  };
+  const hero = `<!-- wp:bozzies/bio-hero ${JSON.stringify(heroAttrs)} /-->`;
 
-  const facts_ = section(
-    { backgroundStyle: 'paper', width: 'narrow', headingWidth: 'container', spacing: 'compact', align: 'full' },
-    factsTable(facts),
-  );
+  // The bozzies/facts block emits its own <section class="section-tight
+  // ground-paper facts-strip">…, so it goes in the page body directly (no
+  // outer bozzies/section wrapper).
+  const facts_ = factsTable(facts);
 
-  // Portrait fills the left column of the sticky two-column layout; no
-  // centering (the column itself is the width constraint).
-  const portraitBlock = portrait ? image({
-    id: portrait.id, url: portrait.url, alt: portrait.alt,
-    size: 'large',
-  }) : '';
-
-  // Two-column bio body — portrait sticky on the left, article prose on the
-  // right (matches Astro's .bio-body__layout, 300px + 1fr, sticky under nav).
-  const bodyInner = `<!-- wp:group {"className":"bozzies-bio-body","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-bio-body">
-<!-- wp:columns {"verticalAlignment":"top"} -->
-<div class="wp-block-columns are-vertically-aligned-top">
-<!-- wp:column {"verticalAlignment":"top","width":"300px"} --><div class="wp-block-column is-vertically-aligned-top" style="flex-basis:300px">
-${portraitBlock}
-</div><!-- /wp:column -->
-<!-- wp:column {"verticalAlignment":"top"} --><div class="wp-block-column is-vertically-aligned-top">
+  // Sticky-portrait bio body — the bozzies/bio-body block emits Astro's
+  // exact <section class="section ground-paper bio-body"><div class="container
+  // bio-body__layout"><figure class="bio-portrait">…</figure><div class="prose">
+  // …</div></div></section> DOM verbatim from
+  // ~/boswell-poc/src/pages/sisters/[slug].astro lines 80-96. Portrait metadata
+  // is carried on the block's attributes; the prose lives in the inner blocks.
+  const bioAttrs = portrait
+    ? { portraitId: portrait.id, portraitUrl: portrait.url, portraitAlt: portrait.alt, portraitCaption: name, align: 'full' }
+    : { align: 'full' };
+  const body = `<!-- wp:bozzies/bio-body ${JSON.stringify(bioAttrs)} -->
 ${bodyBlocks.join('\n')}
-</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->
-</div>
-<!-- /wp:group -->`;
-  const body = section(
-    { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },
-    portraitBlock ? bodyInner : bodyBlocks.join('\n'),
-  );
+<!-- /wp:bozzies/bio-body -->`;
 
-  // Connee has a solo-career timeline embedded on her bio page.
-  const timelinePlaceholder = hasSoloTimeline ? section(
-    { backgroundStyle: 'paper', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Solo Years', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, 'Connee Boswell — Solo Career Timeline', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
-    ].join('\n'),
-  ) : '';
+  // Connee has a solo-career timeline embedded on her bio page —
+  // Astro's sisters/[slug].astro L98-111 emits <section class="section
+  // ground-paper bio-timeline"> with a header + <Timeline color="purple" />.
+  // The wp:group wrapper matches the pattern shipped in patterns/timeline.php.
+  const timelinePlaceholder = hasSoloTimeline
+    ? (() => {
+        const conneeEntries = readTimelineEntries('connee');
+        const tlAttrs = gbJson({ entries: conneeEntries, color: 'purple' });
+        return (
+          `<!-- wp:group {"tagName":"section","align":"full","className":"section ground-paper bio-timeline","layout":{"type":"constrained"}} -->\n` +
+          `<section class="wp-block-group alignfull section ground-paper bio-timeline">` +
+            `<!-- wp:group {"className":"container","layout":{"type":"constrained"}} -->\n` +
+            `<div class="wp-block-group container">` +
+              `<!-- wp:group {"tagName":"header","className":"bio-timeline__head","layout":{"type":"constrained"}} -->\n` +
+              `<header class="wp-block-group bio-timeline__head">` +
+                `<!-- wp:paragraph {"className":"eyebrow eyebrow--purple"} --><p class="eyebrow eyebrow--purple">The Solo Years</p><!-- /wp:paragraph -->\n` +
+                `<!-- wp:heading {"level":2,"className":"bio-timeline__title"} --><h2 class="wp-block-heading bio-timeline__title">Connee Boswell — Solo Career Timeline</h2><!-- /wp:heading -->` +
+              `</header>\n` +
+              `<!-- /wp:group -->\n` +
+              `<!-- wp:bozzies/timeline ${tlAttrs} /-->` +
+            `</div>\n` +
+            `<!-- /wp:group -->` +
+          `</section>\n` +
+          `<!-- /wp:group -->`
+        );
+      })()
+    : '';
 
-  // Sister prev/all/next nav (mirrors Astro's bio-nav).
+  // Sister prev/all/next nav (mirrors Astro's bio-nav). Emits Astro's exact
+  // <nav class="section-tight ground-paper bio-nav"> DOM via bozzies/bio-nav.
   const order2 = [
     { slug: 'martha', name: 'Martha Boswell' },
     { slug: 'connee', name: 'Connee Boswell' },
@@ -309,25 +345,20 @@ ${bodyBlocks.join('\n')}
   const idx = order2.findIndex(x => x.slug === slug);
   const prev = order2[(idx - 1 + order2.length) % order2.length];
   const next = order2[(idx + 1) % order2.length];
-  const nav = section(
-    { backgroundStyle: 'paper', spacing: 'compact', headingWidth: 'container', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">
-${p('Previous', { className: 'is-style-eyebrow' })}
-${p(`<a href="/sisters/${prev.slug}/">${prev.name}</a>`)}
-</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">
-${p('All', { className: 'is-style-eyebrow', align: 'center' })}
-${p(`<a href="/sisters/">The Sisters</a>`, { align: 'center' })}
-</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">
-${p('Next', { className: 'is-style-eyebrow', align: 'right' })}
-${p(`<a href="/sisters/${next.slug}/">${next.name}</a>`, { align: 'right' })}
-</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  const navAttrs = {
+    prevHref:  `/sisters/${prev.slug}/`,
+    prevLabel: 'Previous',
+    prevName:  prev.name,
+    allHref:   '/sisters/',
+    allLabel:  'All',
+    allName:   'The Sisters',
+    nextHref:  `/sisters/${next.slug}/`,
+    nextLabel: 'Next',
+    nextName:  next.name,
+    ariaLabel: 'Sisters navigation',
+    align:     'full',
+  };
+  const nav = `<!-- wp:bozzies/bio-nav ${JSON.stringify(navAttrs)} /-->`;
 
   return [hero, facts_, body, timelinePlaceholder, nav].filter(Boolean).join('\n\n');
 }
@@ -348,8 +379,8 @@ function buildAbout(media) {
       // Intro line renders as a lede paragraph on Astro, not a section-title
       // heading — use is-style-lede so it inherits the site's lead typography.
       p('Bozzies.org is dedicated to preserving the memory of the Boswell Sisters.', { className: 'is-style-lede' }),
-      p('Martha, Connee, and Vet Boswell recorded seventy-five sides between 1925 and 1936, invented the swinging vocal harmony that shaped every close-harmony group that came after, and vanished from the popular consciousness before the Second World War. This archive exists to change that.', { className: 'bozzies-para-body' }),
-      p('We pull together the best Boz content available — recordings, press coverage, chart data, biographies, tribute performances, and scholarship — and present it as a living reference for anyone who wants to hear, learn, and share.', { className: 'bozzies-para-body' }),
+      p('Martha, Connee, and Vet Boswell recorded seventy-five sides between 1925 and 1936, invented the swinging vocal harmony that shaped every close-harmony group that came after, and vanished from the popular consciousness before the Second World War. This archive exists to change that.', { className: 'article-body' }),
+      p('We pull together the best Boz content available — recordings, press coverage, chart data, biographies, tribute performances, and scholarship — and present it as a living reference for anyone who wants to hear, learn, and share.', { className: 'article-body' }),
       h(2, 'What we do'),
       `<!-- wp:list -->
 <ul class="wp-block-list">
@@ -360,9 +391,9 @@ function buildAbout(media) {
 </ul>
 <!-- /wp:list -->`,
       h(2, 'Who we are'),
-      p('Bozzies.org is a non-profit tribute site, curated with the participation of Boswell family members, historians, musicians, and enthusiasts around the world. The archive is stewarded by a small group of volunteers; the content and technology are open to anyone who wants to contribute.', { className: 'bozzies-para-body' }),
+      p('Bozzies.org is a non-profit tribute site, curated with the participation of Boswell family members, historians, musicians, and enthusiasts around the world. The archive is stewarded by a small group of volunteers; the content and technology are open to anyone who wants to contribute.', { className: 'article-body' }),
       h(2, 'Get involved'),
-      p(`If you're a researcher, performer, family member, or listener with material to add — recordings, photographs, press clippings, personal recollections — we would love to hear from you. If you can support the archive with a donation, every contribution keeps us Bozzing.`, { className: 'bozzies-para-body' }),
+      p(`If you're a researcher, performer, family member, or listener with material to add — recordings, photographs, press clippings, personal recollections — we would love to hear from you. If you can support the archive with a donation, every contribution keeps us Bozzing.`, { className: 'article-body' }),
     ].join('\n'),
   );
 
@@ -371,7 +402,7 @@ function buildAbout(media) {
     [
       p('Get in touch', { className: 'is-style-eyebrow', align: 'center' }),
       h(2, 'Have something to share, or want to help?', { align: 'center', fontSize: 'section-title-medium' }),
-      p('Reach out with material for the archive, corrections, or collaboration ideas — or make a donation to help keep the Boswells&rsquo; legacy alive.', { align: 'center', className: 'bozzies-para-body' }),
+      p('Reach out with material for the archive, corrections, or collaboration ideas — or make a donation to help keep the Boswells&rsquo; legacy alive.', { align: 'center', className: 'article-body' }),
       buttons(
         `${button('#', 'Contact us')}${button('#', 'Donate', 'large')}`,
         'center',
@@ -411,7 +442,7 @@ function buildBioResources(media) {
   // Two-column body: article prose on the left, book cover on the right
   // (image column ~40 %). Matches Astro's `.book-body` grid.
   const legacyImage = image({ id: media.legacy.id, url: media.legacy.url, alt: 'Boswell Legacy', size: 'large' });
-  const proseBody = p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'bozzies-para-body', fontSize: 'lead' });
+  const proseBody = p(`Get the inside skinny on the home life of the Boswell Sisters as seen through the eyes of VBoz&rsquo; grand daughter, Kyla Titus. <em>The Boswell Legacy</em> takes a deep dive into the family legends passed down all the way from the 1850s that the author uses as a perspective to frame their lives. The book is a great way to glimpse the personal lives of the Bozzies through the lens of a descendant. Long on personal stories, letters and family tradition, the book answers some of the questions Boswell devotees may have about these performers. While the mystery of the musical magic is not addressed and there are no sources to direct the Boz bedazzled to more resources, it will quench the thirst for more, more, more.`, { className: 'article-body', fontSize: 'lead' });
 
   const prose = section(
     { backgroundStyle: 'paper', width: 'container', headingWidth: 'container', align: 'full' },

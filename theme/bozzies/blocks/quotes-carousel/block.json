@@ -1,0 +1,31 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/quotes-carousel",
+	"version": "1.0.0",
+	"title": "Quotes carousel",
+	"category": "design",
+	"icon": "format-quote",
+	"description": "Astro's interactive quotes carousel — the .qc module with auto-rotating slides, prev/next arrows, and dot indicators. Verbatim from ~/boswell-poc/src/components/QuotesCarousel.astro. Quotes (text + attribution) are stored on the block; front-end JS wires up rotation, hover/focus pause, and arrow-key nav.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true
+	},
+	"attributes": {
+		"quotes": {
+			"type": "array",
+			"default": []
+		},
+		"intervalMs": {
+			"type": "number",
+			"default": 7000
+		}
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

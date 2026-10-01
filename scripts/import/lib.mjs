@@ -123,22 +123,23 @@ function writeTmpContent(slug, content) {
 export function upsertPage(opts) {
   return upsertPost({ ...opts, postType: 'page' });
 }
-export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug, postDate, menuOrder, meta = {} }) {
+export function upsertPost({ slug, title, content, template, status = 'publish', postType = 'post', categorySlug, postDate, menuOrder, excerpt, meta = {} }) {
   const existing = findPostBySlug(slug, postType);
   const containerPath = writeTmpContent(`${postType}-${slug}`, content);
 
   const extra = [];
   if (postDate) extra.push(`'post_date'=>${phpStr(postDate)}`, `'post_date_gmt'=>${phpStr(postDate)}`);
   if (typeof menuOrder === 'number') extra.push(`'menu_order'=>${menuOrder}`);
+  if (typeof excerpt === 'string') extra.push(`'post_excerpt'=>${phpStr(excerpt)}`);
   const extraStr = extra.length ? ',' + extra.join(',') : '';
 
   let id;
   if (existing) {
-    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo 'OK';`;
+    const php = `wp_update_post(['ID'=>${existing},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>wp_slash(file_get_contents(${phpStr(containerPath)}))${extraStr}]); echo 'OK';`;
     wp(['eval', php]);
     id = existing;
   } else {
-    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>file_get_contents(${phpStr(containerPath)})${extraStr}]); echo $id;`;
+    const php = `$id = wp_insert_post(['post_type'=>${phpStr(postType)},'post_name'=>${phpStr(slug)},'post_title'=>${phpStr(title)},'post_status'=>${phpStr(status)},'post_content'=>wp_slash(file_get_contents(${phpStr(containerPath)}))${extraStr}]); echo $id;`;
     const out = wp(['eval', php]);
     id = parseInt(out.split(/\s+/).filter(Boolean).pop(), 10);
   }
@@ -185,10 +186,19 @@ export function escAttr(s) {
 
 // Full-bleed photo hero — used for the hub pages that Astro renders with
 // title + subtitle overlaid on a photo (About, Sisters, Media, Press,
-// Lessons). Emits a bozzies/section block with the photo as background,
-// dark ground, corner brackets, Ken Burns + grayscale, and the layout
-// class `is-hero-photo` (see blocks/section/src/style.scss for the
-// centered flex layout and credit-line positioning).
+// Lessons). Emits a bozzies/section block with `heroPhoto:true` on it; the
+// section's PHP render adds Astro's own class names (hero, hero--full-bleed,
+// hero--medium, hero--center) and DOM structure (hero__image-wrap, tint,
+// scrim, frame corners, hero__content container, hero__glyph) so the ported
+// Astro hero CSS (assets/css/astro/hero.css) applies directly. Inner blocks
+// use Astro's class names for the eyebrow, title, and subtitle.
+//
+// Emitted markup must match Gutenberg's canonical serializer output byte-for-
+// byte, so opening + saving a page in the block editor yields no changes:
+//   - attributes appear in block.json order,
+//   - attributes matching the block's declared defaults are omitted,
+//   - inner block comments and their HTML sit on their own lines, separated
+//     by blank lines between blocks.
 //
 // opts = { media: {id,url,alt}, title, subtitle, credit, eyebrow }
 export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
@@ -199,22 +209,32 @@ export function heroPhoto({ media, title, subtitle, credit, eyebrow }) {
   const attrs = {
     backgroundStyle: 'ink',
     backgroundImage: bgImage,
-    overlayColor: '#181615',
     overlayStrength: 55,
+    spacing: 'spacious',
     heroFrame: true,
     imageGrayscale: true,
     imageZoom: true,
-    width: 'container',
-    headingWidth: 'container',
-    spacing: 'spacious',
-    align: 'full',
-    className: 'is-hero-photo',
+    heroPhoto: true,
   };
-  const inner = [
-    eyebrow ? `<!-- wp:paragraph {"align":"center","className":"is-style-eyebrow"} --><p class="is-style-eyebrow has-text-align-center">${eyebrow}</p><!-- /wp:paragraph -->` : '',
-    `<!-- wp:heading {"level":1,"textAlign":"center"} --><h1 class="wp-block-heading has-text-align-center">${title}</h1><!-- /wp:heading -->`,
-    subtitle ? `<!-- wp:paragraph {"align":"center","fontSize":"lead","className":"bozzies-hero-subtitle"} --><p class="has-text-align-center has-lead-font-size bozzies-hero-subtitle">${subtitle}</p><!-- /wp:paragraph -->` : '',
-    credit ? `<!-- wp:paragraph {"align":"center","className":"bozzies-hero-credit"} --><p class="has-text-align-center bozzies-hero-credit">${credit}</p><!-- /wp:paragraph -->` : '',
-  ].filter(Boolean).join('\n');
+  const blocks = [];
+  if (eyebrow) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"eyebrow hero__eyebrow"} -->\n<p class="eyebrow hero__eyebrow">${eyebrow}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  blocks.push(
+    `<!-- wp:heading {"level":1,"className":"hero__title"} -->\n<h1 class="wp-block-heading hero__title">${title}</h1>\n<!-- /wp:heading -->`
+  );
+  if (subtitle) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"hero__subtitle"} -->\n<p class="hero__subtitle">${subtitle}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  if (credit) {
+    blocks.push(
+      `<!-- wp:paragraph {"className":"hero__credit"} -->\n<p class="hero__credit">${credit}</p>\n<!-- /wp:paragraph -->`
+    );
+  }
+  const inner = blocks.join('\n\n');
   return `<!-- wp:bozzies/section ${JSON.stringify(attrs)} -->\n${inner}\n<!-- /wp:bozzies/section -->`;
 }

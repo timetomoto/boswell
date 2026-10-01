@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/lesson-card",
+	"version": "1.0.0",
+	"title": "Lesson card",
+	"category": "design",
+	"icon": "media-audio",
+	"parent": [ "bozzies/lesson-cards" ],
+	"description": "One numbered lesson row on the Media hub. Order, title, summary, link, and CTA label are all editable.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": true,
+		"className": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"order":    { "type": "number", "default": 1 },
+		"title":    { "type": "string", "default": "" },
+		"summary":  { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "" },
+		"ctaLabel": { "type": "string", "default": "Listen" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

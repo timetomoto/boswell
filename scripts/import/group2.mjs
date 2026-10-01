@@ -7,6 +7,36 @@
 
 import { importMedia, upsertPage, heroPhoto } from './lib.mjs';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+import { load } from 'js-yaml';
+
+const __dirname_group2 = dirname(fileURLToPath(import.meta.url));
+
+// Gutenberg's client-side JSON serializer (same as sisters-timeline.mjs).
+const gbJsonG2 = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+function readTimelineEntriesG2(subject) {
+  const src = readFileSync(
+    resolve(__dirname_group2, `../../../boswell-poc/src/content/timelines/${subject}.md`),
+    'utf8'
+  );
+  const m = src.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) throw new Error(`timelines/${subject}.md: no frontmatter found`);
+  const data = load(m[1]);
+  const entries = Array.isArray(data.entries) ? data.entries : [];
+  return entries.map((e) => ({
+    year:     e.year != null ? String(e.year) : '',
+    event:    e.event != null ? String(e.event) : '',
+    image:    e.image || '',
+    imageAlt: e.imageAlt || '',
+  }));
+}
 
 // ---------- Block helpers (mirror group1) ----------
 
@@ -56,37 +86,62 @@ const quote = (text, cite) =>
 const pullQuote = (text, cite) =>
   `<!-- wp:pullquote --><figure class="wp-block-pullquote"><blockquote><p>${text}</p>${cite ? `<cite>— ${cite}</cite>` : ''}</blockquote></figure><!-- /wp:pullquote -->`;
 
-// Lesson row — mirrors Astro's .lesson-card ([num][body][cta] grid) via the
-// bozzies-lesson-row group + child groups styled in chrome.css.
-const lessonRow = ({ order, title, summary, href }) => {
-  const num = `<!-- wp:group {"className":"bozzies-lesson-row__num","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row__num">
-${p('Lesson', { className: 'is-style-eyebrow' })}
-${p(String(order).padStart(2, '0'))}
-</div>
-<!-- /wp:group -->`;
-  const body = `<!-- wp:group {"className":"bozzies-lesson-row__body","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row__body">
-<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="${href}">${title}</a></h3><!-- /wp:heading -->
-${summary ? p(summary) : ''}
-</div>
-<!-- /wp:group -->`;
-  const cta = `<!-- wp:paragraph {"className":"bozzies-lesson-row__cta"} --><p class="bozzies-lesson-row__cta"><a href="${href}">▶ Listen</a></p><!-- /wp:paragraph -->`;
-  return `<!-- wp:group {"className":"bozzies-lesson-row","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-row">
-${num}
-${body}
-${cta}
-</div>
-<!-- /wp:group -->`;
+// Serialize a block-attrs JSON payload the way Gutenberg's client-side
+// serializer does (`@wordpress/blocks` serializeAttributes: JSON.stringify
+// then escape only `--`, `<`, `>`, `&`, U+2028, U+2029) so re-saving the
+// block in the editor produces the exact same string and the round-trip
+// stays clean. Note: PHP-side `wp_json_encode` uses JSON_HEX_APOS/QUOT too,
+// but the editor never serializes through PHP — post_content round-trips
+// through the JS serializer.
+const gbJson = (obj) =>
+  JSON.stringify(obj)
+    .replace(/--/g, '\\u002d\\u002d')
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
+
+const ENTITY_MAP = {
+  '&ndash;': '–', '&mdash;': '—',
+  '&lsquo;': '‘', '&rsquo;': '’',
+  '&ldquo;': '“', '&rdquo;': '”',
+  '&amp;':   '&',
+};
+const decodeEntities = (s) =>
+  String(s || '').replace(/&(?:ndash|mdash|lsquo|rsquo|ldquo|rdquo|amp);/g, (m) => ENTITY_MAP[m] ?? m);
+
+// The bozzies/see-also block. Emits Astro's exact
+// <section class="section ground-gold see-also"><div class="container
+// see-also__grid"><a class="see-also__card">…</a></div></section> DOM
+// verbatim from ~/boswell-poc/src/pages/media/charts.astro lines 27-39
+// and ~/boswell-poc/src/pages/media/discography.astro lines 86-98.
+// Attributes-only. Uses gbJson() (client-side serializer parity) so a
+// straight apostrophe inside `body` round-trips cleanly.
+const seeAlsoBlock = ({ eyebrow, title, body, ctaLabel, href }) => {
+  const attrs = {
+    eyebrow: decodeEntities(eyebrow),
+    title:   decodeEntities(title),
+    body:    decodeEntities(body),
+    href,
+    ctaLabel: decodeEntities(ctaLabel),
+  };
+  return `<!-- wp:bozzies/see-also ${gbJson(attrs)} /-->`;
 };
 
-const lessonRows = (rows) =>
-  `<!-- wp:group {"className":"bozzies-lesson-rows","layout":{"type":"default"}} -->
-<div class="wp-block-group bozzies-lesson-rows">
-${rows.map(lessonRow).join('\n')}
-</div>
-<!-- /wp:group -->`;
+// One lesson card as the new bozzies/lesson-card block. Emits Astro's exact
+// <li class="lesson-card"><a class="lesson-card__link"> DOM verbatim from
+// ~/boswell-poc/src/pages/media/index.astro lines 73-93 via the block's
+// server-render. Attributes-only.
+const lessonCard = ({ order, title, summary, href }) => {
+  const attrs = {
+    order,
+    title:   decodeEntities(title),
+    summary: decodeEntities(summary),
+    href,
+  };
+  // ctaLabel default is 'Listen' — matches block.json default so Gutenberg
+  // strips it on save. Omit here to keep the round-trip clean.
+  return `<!-- wp:bozzies/lesson-card ${gbJson(attrs)} /-->`;
+};
 
 const card = ({ eyebrow, title, body, cta, href }) => {
   const inner = [
@@ -135,12 +190,13 @@ function mdTable(mdLines) {
 
 function buildMedia(media) {
   // Astro's media hub hero: full-bleed photo (Boswell_Sisters_Bing_Crosby.jpg)
-  // with title, subtitle, and credit line under the image.
+  // with title + subtitle. Astro passes only imageAlt for the alt attribute
+  // (no visible credit line under the image — Hero.astro renders `.hero__credit`
+  // only when a `credit` prop is passed, and pages/media/index.astro doesn't).
   const hero = heroPhoto({
     media: media.bingCrosby,
     title: 'Media',
     subtitle: 'A curated playlist, five audio lessons on the Boswell sound, and chart positions and reviews that recognized them.',
-    credit: 'The Boswell Sisters recording with Bing Crosby.',
   });
 
   const intro = proseSection([
@@ -157,47 +213,42 @@ function buildMedia(media) {
     ].join('\n'),
   );
 
-  const lessonsGrid = section(
-    { backgroundStyle: 'paper', headingWidth: 'reading', align: 'full' },
-    [
-      p('Audio Lessons', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, 'Five keys to the Boswell sound', { align: 'center', fontSize: 'section-title' }),
-      p('Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.', { align: 'center' }),
-      lessonRows([
-        { order: 1, title: 'The Blend',       summary: "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.", href: '/media/lessons/lesson-1/' },
-        { order: 2, title: 'The Tempo',       summary: "The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.", href: '/media/lessons/lesson-2/' },
-        { order: 3, title: 'The Riffs',       summary: "The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.", href: '/media/lessons/lesson-3/' },
-        { order: 4, title: `Melody? Words? Who Needs &rsquo;Em!`, summary: "What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.", href: '/media/lessons/lesson-4/' },
-        { order: 5, title: 'Scatting, Hand Trumpets, Gibberish and Gulling', summary: "The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.", href: '/media/lessons/lesson-5/' },
-      ]),
-    ].join('\n'),
-  );
+  // Astro's lessons-grid section is emitted verbatim by the
+  // bozzies/lesson-cards + bozzies/lesson-card blocks. Container renders
+  // <section class="section ground-paper lessons-grid"> with a
+  // <header class="lessons-grid__head"> (eyebrow + h2 + lede) and
+  // <ol class="lessons-cards" role="list">; each child renders one
+  // <li class="lesson-card"> with Astro's exact <a class="lesson-card__link">
+  // DOM (num + body + cta with play-circle SVG). Verbatim from
+  // ~/boswell-poc/src/pages/media/index.astro lines 65-96.
+  const lessonsGridAttrs = {
+    eyebrow: 'Audio Lessons',
+    title:   'Five keys to the Boswell sound',
+    lede:    'Cynthia Lucas, one of the best-known Boz historians, narrates five audio lessons that unpack how the Sisters actually did what they did.',
+  };
+  const lessonsGrid = `<!-- wp:bozzies/lesson-cards ${gbJson(lessonsGridAttrs)} -->
+${lessonCard({ order: 1, title: 'The Blend',       summary: "Cynthia Lucas walks through the first, and most immediately recognizable, element of the Boswell Sound: three sisters singing so closely blended that they sometimes read as one voice.", href: '/media/lessons/lesson-1/' })}
+${lessonCard({ order: 2, title: 'The Tempo',       summary: "The Boswells' signature four-to-five tempo shifts within a single arrangement, executed with the kind of precision that most trios would never even attempt.", href: '/media/lessons/lesson-2/' })}
+${lessonCard({ order: 3, title: 'The Riffs',       summary: "The instrumental-style rhythmic figures the Boswells pulled off with their voices — riffs that would sound at home coming out of a horn section.", href: '/media/lessons/lesson-3/' })}
+${lessonCard({ order: 4, title: `Melody? Words? Who Needs &rsquo;Em!`, summary: "What happens when the Boswells decide the melody as written is only a starting point — reharmonizations, unexpected returns to the verse, lyrics rendered in something resembling pig Latin.", href: '/media/lessons/lesson-4/' })}
+${lessonCard({ order: 5, title: 'Scatting, Hand Trumpets, Gibberish and Gulling', summary: "The Boswell bag of tricks — scat lines, hand trumpets, blues refrains, gulling, and whatever else they felt like throwing into an arrangement.", href: '/media/lessons/lesson-5/' })}
+<!-- /wp:bozzies/lesson-cards -->`;
 
-  const teasers = section(
-    { backgroundStyle: 'gold', backdrop: 'vinyl', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:columns -->
-<div class="wp-block-columns">
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Discography',
-  title: 'Boz on the Charts',
-  body: 'Chart positions from Brunswick 6083 in 1931 to Decca in the late 1930s and beyond — how the Boswell Sisters and Connee actually rated with the record-buying public.',
-  cta: 'Explore the charts', href: '/media/charts/',
-})}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Reviews',
-  title: 'Album reviews from the experts',
-  body: 'Storyville volumes, Singing the Blues, Shout Sisters Shout, and the lost 1957 RCA classic — hand-picked reviews for anyone starting a Boz collection.',
-  cta: 'Read the reviews', href: '/media/reviews/',
-})}</div><!-- /wp:column -->
-<!-- wp:column --><div class="wp-block-column">${card({
-  eyebrow: 'Discography',
-  title: 'Every session, every track',
-  body: `128 recording sessions spanning 1925 to 1957, from the trio's first Victor sides through Connee's final solos with Sy Oliver. Searchable by title, matrix, or personnel.`,
-  cta: 'Browse the sessions', href: '/media/discography/',
-})}</div><!-- /wp:column -->
-</div>
-<!-- /wp:columns -->`,
-  );
+  // Astro's music-teasers section is emitted verbatim by the
+  // bozzies/music-teasers + bozzies/music-teaser blocks. Container block
+  // renders <section class="section ground-gold music-teasers"> with the
+  // vinyl music-backdrop inlined, followed by <div class="container
+  // music-teasers__grid">…</div>; each child block renders one
+  // <a class="music-teaser"> with Astro's exact inner DOM (eyebrow + h3 +
+  // body p + cta span with arrow SVG). Verbatim from
+  // ~/boswell-poc/src/pages/media/index.astro lines 98-139.
+  const musicTeaser = ({ eyebrow, title, body, ctaLabel, href }) =>
+    `<!-- wp:bozzies/music-teaser ${JSON.stringify({ eyebrow, title, body, ctaLabel, href })} /-->`;
+  const teasers = `<!-- wp:bozzies/music-teasers {"align":"full"} -->
+${musicTeaser({ eyebrow: 'Discography', title: 'Boz on the Charts', body: 'Chart positions from Brunswick 6083 in 1931 to Decca in the late 1930s and beyond — how the Boswell Sisters and Connee actually rated with the record-buying public.', ctaLabel: 'Explore the charts', href: '/media/charts/' })}
+${musicTeaser({ eyebrow: 'Reviews', title: 'Album reviews from the experts', body: 'Storyville volumes, Singing the Blues, Shout Sisters Shout, and the lost 1957 RCA classic — hand-picked reviews for anyone starting a Boz collection.', ctaLabel: 'Read the reviews', href: '/media/reviews/' })}
+${musicTeaser({ eyebrow: 'Discography', title: 'Every session, every track', body: '128 recording sessions spanning 1925 to 1957, from the trio’s first Victor sides through Connee’s final solos with Sy Oliver. Searchable by title, matrix, or personnel.', ctaLabel: 'Browse the sessions', href: '/media/discography/' })}
+<!-- /wp:bozzies/music-teasers -->`;
 
   return [hero, intro, separator(), playlistPlaceholder, separator(), lessonsGrid, teasers].join('\n\n');
 }
@@ -252,17 +303,16 @@ function buildCharts() {
   );
 
   // Astro's charts page ends with a "See also → discography" gold card.
-  const seeAlso = section(
-    { backgroundStyle: 'gold', width: 'narrow', headingWidth: 'reading', align: 'full' },
-    `<!-- wp:group {"className":"is-style-card","align":"wide","layout":{"type":"default"}} -->
-<div class="wp-block-group alignwide is-style-card">
-${p('See also', { className: 'is-style-eyebrow', align: 'center' })}
-${h(2, `<a href="/media/discography/">The full discography</a>`, { align: 'center', fontSize: 'section-title-medium' })}
-${p('Chart positions tell you how the records sold. The discography goes deeper — 128 sessions and 500+ tracks, with matrix numbers, personnel, and label catalog data.', { align: 'center' })}
-${buttons(button('/media/discography/', 'Browse the sessions'), 'center')}
-</div>
-<!-- /wp:group -->`,
-  );
+  // Emitted by the bozzies/see-also block — Astro's exact
+  // <section class="section ground-gold see-also"> DOM verbatim from
+  // ~/boswell-poc/src/pages/media/charts.astro lines 27-39.
+  const seeAlso = seeAlsoBlock({
+    eyebrow: 'See also',
+    title:   'The full discography',
+    body:    'Chart positions tell you how the records sold. The discography goes deeper — 128 sessions and 500+ tracks, with matrix numbers, personnel, and label catalog data.',
+    ctaLabel:'Browse the sessions',
+    href:    '/media/discography/',
+  });
 
   return [hero, proseBody, seeAlso].join('\n\n');
 }
@@ -317,7 +367,19 @@ function buildDiscography() {
     ].join('\n'),
   );
 
-  return [hero, placeholder].join('\n\n');
+  // Astro's discography page ends with a "See also → charts" gold card.
+  // Emitted by the bozzies/see-also block — Astro's exact
+  // <section class="section ground-gold see-also"> DOM verbatim from
+  // ~/boswell-poc/src/pages/media/discography.astro lines 86-98.
+  const seeAlso = seeAlsoBlock({
+    eyebrow: 'See also',
+    title:   'Chart positions',
+    body:    "The discography catalogs every session. The charts page shows how those records actually sold — peak positions and weeks charted from Brunswick 6083 in 1931 through Connee's mid-fifties Decca hits.",
+    ctaLabel:'See the chart positions',
+    href:    '/media/charts/',
+  });
+
+  return [hero, placeholder, seeAlso].join('\n\n');
 }
 
 function buildCareerTimeline() {
@@ -335,16 +397,25 @@ function buildCareerTimeline() {
     ),
   );
 
-  const placeholder = section(
-    { backgroundStyle: 'paper', backdrop: 'staves', headingWidth: 'reading', align: 'full' },
-    [
-      p('The Trio Years', { className: 'is-style-eyebrow', align: 'center' }),
-      h(2, '1905 – 1936, year by year', { align: 'center', fontSize: 'section-title-medium' }),
-      p('[Sisters timeline: interactive block pending]', { align: 'center' }),
-    ].join('\n'),
+  // Astro's career-timeline.astro L33-37 emits <section class="section
+  // ground-paper timeline-section"><div class="container"><Timeline
+  // color="purple" /></div></section> — no header. The wp:group wrapper
+  // matches the pattern shipped in patterns/timeline.php.
+  const trioEntries = readTimelineEntriesG2('trio');
+  const timelineAttrs = gbJsonG2({ entries: trioEntries, color: 'purple' });
+  const timeline = (
+    `<!-- wp:group {"tagName":"section","align":"full","className":"section ground-paper timeline-section","layout":{"type":"constrained"}} -->\n` +
+    `<section class="wp-block-group alignfull section ground-paper timeline-section">` +
+      `<!-- wp:group {"className":"container","layout":{"type":"constrained"}} -->\n` +
+      `<div class="wp-block-group container">` +
+        `<!-- wp:bozzies/timeline ${timelineAttrs} /-->` +
+      `</div>\n` +
+      `<!-- /wp:group -->` +
+    `</section>\n` +
+    `<!-- /wp:group -->`
   );
 
-  return [hero, trioQuote, placeholder].join('\n\n');
+  return [hero, trioQuote, timeline].join('\n\n');
 }
 
 function buildLessonsHub(media) {

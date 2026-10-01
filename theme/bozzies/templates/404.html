@@ -1,60 +1,19 @@
 <!-- wp:template-part {"slug":"header","tagName":"header"} /-->
 
-<!-- wp:group {"tagName":"main","layout":{"type":"constrained"}} -->
+<!-- wp:group {"tagName":"main","layout":{"type":"default"}} -->
 <main class="wp-block-group">
 
-	<!-- wp:group {"align":"full","className":"is-style-paper","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group alignfull is-style-paper">
-		<!-- wp:paragraph {"className":"is-style-eyebrow","align":"center"} --><p class="is-style-eyebrow has-text-align-center">Error 404</p><!-- /wp:paragraph -->
-		<!-- wp:heading {"textAlign":"center","level":1} --><h1 class="wp-block-heading has-text-align-center">The page isn't here</h1><!-- /wp:heading -->
-		<!-- wp:paragraph {"align":"center"} --><p class="has-text-align-center">The page you were looking for has moved, been renamed, or never was. Try one of these instead.</p><!-- /wp:paragraph -->
-	</div>
-	<!-- /wp:group -->
+<!-- wp:bozzies/page-hero {"eyebrow":"Error 404","title":"The page isn't here","subtitle":"The page you were looking for has moved, been renamed, or never was. Try one of these instead.","backHref":"/","backLabel":"Home"} /-->
 
-	<!-- wp:group {"align":"full","className":"is-style-gold","layout":{"type":"constrained"}} -->
-	<div class="wp-block-group alignfull is-style-gold">
-		<!-- wp:columns -->
-		<div class="wp-block-columns">
-			<!-- wp:column --><div class="wp-block-column">
-				<!-- wp:group {"className":"is-style-card","layout":{"type":"default"}} -->
-				<div class="wp-block-group is-style-card">
-					<!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Home</p><!-- /wp:paragraph -->
-					<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/">bozzies.org</a></h3><!-- /wp:heading -->
-					<!-- wp:paragraph --><p>Start again from the beginning.</p><!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-			</div><!-- /wp:column -->
-			<!-- wp:column --><div class="wp-block-column">
-				<!-- wp:group {"className":"is-style-card","layout":{"type":"default"}} -->
-				<div class="wp-block-group is-style-card">
-					<!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Section</p><!-- /wp:paragraph -->
-					<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/sisters/">The Sisters</a></h3><!-- /wp:heading -->
-					<!-- wp:paragraph --><p>Martha, Connee, Vet.</p><!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-			</div><!-- /wp:column -->
-			<!-- wp:column --><div class="wp-block-column">
-				<!-- wp:group {"className":"is-style-card","layout":{"type":"default"}} -->
-				<div class="wp-block-group is-style-card">
-					<!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Section</p><!-- /wp:paragraph -->
-					<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/press/">Press</a></h3><!-- /wp:heading -->
-					<!-- wp:paragraph --><p>Vintage articles, features, interviews and video.</p><!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-			</div><!-- /wp:column -->
-			<!-- wp:column --><div class="wp-block-column">
-				<!-- wp:group {"className":"is-style-card","layout":{"type":"default"}} -->
-				<div class="wp-block-group is-style-card">
-					<!-- wp:paragraph {"className":"is-style-eyebrow"} --><p class="is-style-eyebrow">Section</p><!-- /wp:paragraph -->
-					<!-- wp:heading {"level":3} --><h3 class="wp-block-heading"><a href="/media/">Media</a></h3><!-- /wp:heading -->
-					<!-- wp:paragraph --><p>Charts, discography, lessons.</p><!-- /wp:paragraph -->
-				</div>
-				<!-- /wp:group -->
-			</div><!-- /wp:column -->
-		</div>
-		<!-- /wp:columns -->
-	</div>
-	<!-- /wp:group -->
+<!-- wp:bozzies/subpage-cards -->
+<!-- wp:bozzies/subpage-card {"eyebrow":"Section","title":"The Sisters","body":"Martha, Connee and Vet — the family story, career timeline, and biography resources.","href":"/sisters/","ctaLabel":"Explore"} /-->
+
+<!-- wp:bozzies/subpage-card {"eyebrow":"Section","title":"Press","body":"Vintage articles, features, interviews and video.","href":"/press/","ctaLabel":"Explore"} /-->
+
+<!-- wp:bozzies/subpage-card {"eyebrow":"Section","title":"Media","body":"Charts, discography, reviews, and lessons.","href":"/media/","ctaLabel":"Explore"} /-->
+
+<!-- wp:bozzies/subpage-card {"eyebrow":"Section","title":"About","body":"About this archive, and how to get in touch.","href":"/about/","ctaLabel":"Explore"} /-->
+<!-- /wp:bozzies/subpage-cards -->
 
 </main>
 <!-- /wp:group -->

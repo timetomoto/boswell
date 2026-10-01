@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/sample-section",
+	"version": "1.0.0",
+	"title": "Sample the Sound",
+	"category": "design",
+	"icon": "controls-play",
+	"description": "Astro's home Sample the Sound lesson CTA — <section class=\"section ground-paper sample-section\"> with staves music-backdrop, centered eyebrow + h2 + body copy, and a filled purple <a class=\"sample__cta\"> button with an inline play-circle SVG. Verbatim from index.astro lines 80-97.",
+	"textdomain": "bozzies",
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"customClassName": true,
+		"reusable": true,
+		"inserter": true,
+		"align": [ "full" ]
+	},
+	"attributes": {
+		"align":    { "type": "string", "default": "full" },
+		"eyebrow":  { "type": "string", "default": "" },
+		"title":    { "type": "string", "default": "" },
+		"body":     { "type": "string", "default": "" },
+		"href":     { "type": "string", "default": "/media/lessons/1/" },
+		"ctaLabel": { "type": "string", "default": "Play Lesson 1" }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}

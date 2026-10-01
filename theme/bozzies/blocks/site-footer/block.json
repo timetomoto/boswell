@@ -1,0 +1,27 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "bozzies/site-footer",
+	"version": "1.0.0",
+	"title": "Site footer",
+	"category": "theme",
+	"icon": "align-full-width",
+	"description": "Site footer — wordmark + tagline + secondary nav + copyright / credits. Emits Astro's exact <footer class=\"site-footer ground-purple\"> DOM verbatim from ~/boswell-poc/src/components/Footer.astro.",
+	"textdomain": "bozzies",
+	"supports": {
+		"html": false,
+		"reusable": false,
+		"inserter": false,
+		"multiple": false,
+		"customClassName": false
+	},
+	"attributes": {
+		"siteName":       { "type": "string", "default": "The Boswell Sisters" },
+		"tagline":        { "type": "string", "default": "A tribute archive to Martha, Connee, and Vet Boswell, pioneers of American vocal harmony." },
+		"footerCredits":  { "type": "string", "default": "Bozzies.com and Bozzies.org are non-profit organizations dedicated to keeping alive the memory of the Boswell Sisters and their wonderful contributions to the history of music and performance." },
+		"showCookieButton": { "type": "boolean", "default": true },
+		"navRef":         { "type": "number", "default": 4 }
+	},
+	"editorScript": "file:./build/index.js",
+	"render": "file:./render.php"
+}
