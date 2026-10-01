@@ -67,3 +67,32 @@
 .wp-site-blocks main .wp-block-paragraph.has-text-align-center {
 	margin-inline: auto;
 }
+
+/* --- Tables -----------------------------------------------------------
+ * Every table in page content — core/table blocks the owner adds, and the
+ * chart tables already baked into /media/charts/ — matches the 60rem
+ * (1080 px) list cap, centered. Below 1080 viewport the table would be
+ * wider than the screen, so we leave it at parent width in that case.
+ * Above, we honour the parent width when it already allows 60rem, or
+ * break out of a `.container-narrow` reading column via a negative
+ * inline margin ("negative-margin breakout") so the chart ledger reads
+ * at the shared cap even though the surrounding prose stays at 42rem. */
+.wp-site-blocks main .wp-block-table,
+.wp-site-blocks main > table,
+.wp-site-blocks main figure.wp-block-table {
+	max-width: var(--measure-wide);
+	margin-inline: auto;
+}
+
+@media (min-width: 1080px) {
+	/* Table sits inside .container-narrow (42rem = 756px). Give it the
+	 * 60rem = 1080px width, then use a negative inline margin equal to half
+	 * the width difference so the table extends past the narrow column
+	 * symmetrically on each side. */
+	.wp-site-blocks main .container-narrow > figure.wp-block-table,
+	.wp-site-blocks main .container-narrow > .wp-block-table {
+		width: var(--measure-wide);
+		max-width: none;
+		margin-inline: calc((100% - var(--measure-wide)) / 2);
+	}
+}
