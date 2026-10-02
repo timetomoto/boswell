@@ -735,6 +735,54 @@ from the admin UI — a stray click shouldn't be able to turn
 site-wide protections off. They also don't appear under Plugins →
 Installed Plugins.
 
+### Updates, schedules, and backups
+
+**Auto-update policy on live** (set 2026-10-02):
+
+- **Core**: WordPress default — minor releases install automatically,
+  major releases wait for a manual click. We do not override with
+  `WP_AUTO_UPDATE_CORE`.
+- **The four WordPress.org plugins** (CF7, CF7 Apps Honeypot,
+  Flamingo, WP Mail SMTP): `auto_update: on`. Enabled with
+  `wp plugin auto-updates enable <slug>` on the server.
+- **WP Duplicate as Draft**: `auto_update: off` — the plugin header
+  carries `Update URI: false`, so WordPress's updater won't try to
+  match it against WordPress.org. The plugin ships from its private
+  GitHub repo only; updates deploy by rsync.
+- **Bozzies theme**: `style.css` also carries `Update URI: false`.
+  Same rationale — the WordPress.org theme directory can never offer
+  an "update" that overwrites our custom theme. Theme updates deploy
+  via `scripts/deploy/deploy-theme.sh`.
+- No update-blocking constants on live: `DISALLOW_FILE_MODS`,
+  `AUTOMATIC_UPDATER_DISABLED`, and `FS_METHOD` are all undefined.
+  `DISALLOW_FILE_EDIT` is `true`, which blocks the admin's
+  in-browser file editor but doesn't block updates.
+- Site Health → *Background updates* reports **good**.
+
+**Server schedules** are the khalboz crontab:
+
+```
+*/15 * * * * cd /home/khalboz/bozzies.org && /usr/bin/wp cron event run --due-now >/dev/null 2>&1   # bozzies-cron
+15 3 * * 0 /home/khalboz/bin/bozzies-weekly-db-backup.sh >> /home/khalboz/backups-db/weekly-backup.log 2>&1   # bozzies-weekly
+```
+
+- `DISABLE_WP_CRON` is `true` in the live `wp-config.php`, so
+  WordPress's visit-triggered pseudo-cron is off. Every scheduled WP
+  task (Flamingo hourly cron, Action Scheduler queue, personal-data
+  cleanup, transient GC, Site Health) runs through the system cron
+  every 15 minutes instead.
+- The weekly backup script
+  (`/home/khalboz/bin/bozzies-weekly-db-backup.sh`) exports the live
+  DB with `wp db export | gzip`, writes
+  `/home/khalboz/backups-db/db-weekly-<date>.sql.gz`, keeps the
+  newest 8 files, and deletes older. Separate from DreamHost's
+  server-level backups; this is the self-managed developer-reachable
+  copy.
+- To edit either schedule: `ssh khalboz@bozzies.org 'crontab -e'`.
+  The marker comments at the end of each line (`# bozzies-cron`,
+  `# bozzies-weekly`) are used by the install step to strip and
+  replace idempotently.
+
 ---
 
 ## 13. Analytics and consent

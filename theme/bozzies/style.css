@@ -1,6 +1,7 @@
 /*
 Theme Name: The Boswell Sisters
 Theme URI: https://bozzies.org/
+Update URI: false
 Author: Time to Moto
 Author URI: https://bozzies.org/
 Description: The Boswell Sisters tribute archive — a modern museum editorial WordPress block theme. Design tokens ported from the Astro source: warm ivory ground, Cormorant Garamond display, Source Serif 4 body, Inter UI, Art-Deco-inspired brass accents.
@@ -13,3 +14,12 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: bozzies
 Tags: block-theme, full-site-editing, editorial
 */
+
+/*
+ * `Update URI: false` tells WordPress's updater that this theme does
+ * not accept updates from the WordPress.org theme directory. Without
+ * it, if a theme with slug `bozzies` ever appeared on wp.org, the
+ * admin would be prompted to "update" our custom theme with that
+ * stranger's code. Theme updates for live happen via
+ * scripts/deploy/deploy-theme.sh, never through wp-admin.
+ */

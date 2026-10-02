@@ -82,6 +82,25 @@ rsync from its sibling repo.
 
 **Not installed, must not be re-added**: Akismet, Hello Dolly. DreamHost's WP one-click sometimes seeds both; if they ever reappear, `wp plugin delete akismet hello`.
 
+### Auto-update policy on live
+
+- **Core**: at WordPress default — minor releases install automatically, major releases wait for a manual click. We do not force major updates with `WP_AUTO_UPDATE_CORE` either way.
+- **The four WordPress.org plugins** (Contact Form 7, CF7 Apps Honeypot, Flamingo, WP Mail SMTP): `auto_update: on`. Enabled 2026-10-02 with `wp plugin auto-updates enable <slug>` on the server.
+- **WP Duplicate as Draft**: `auto_update: off`. Carries `Update URI: false` in its plugin header, so WordPress's updater won't match it against the WordPress.org directory. Updates still deploy by rsync from `~/code/wp-duplicate-as-draft/`.
+- **Bozzies theme**: carries `Update URI: false` in `style.css`. Same rationale — no stranger with the slug `bozzies` on wp.org can ever offer an "update" that overwrites our theme. Deploys via `scripts/deploy/deploy-theme.sh`.
+- **No update-blocking constants**: `DISALLOW_FILE_MODS` is undefined, `AUTOMATIC_UPDATER_DISABLED` is undefined, `FS_METHOD` is undefined (direct). `DISALLOW_FILE_EDIT` is `true`, which blocks the admin's in-browser file editor but does not block updates. Site Health → "Background updates are working" reports **good**.
+
+### Live schedules (khalboz crontab)
+
+```
+*/15 * * * * cd /home/khalboz/bozzies.org && /usr/bin/wp cron event run --due-now >/dev/null 2>&1   # bozzies-cron
+15 3 * * 0 /home/khalboz/bin/bozzies-weekly-db-backup.sh >> /home/khalboz/backups-db/weekly-backup.log 2>&1   # bozzies-weekly
+```
+
+- **Visit-triggered pseudo-cron is off**: `define('DISABLE_WP_CRON', true)` is now in the live `wp-config.php` just above the `require_once ABSPATH . 'wp-settings.php'` line. All WordPress scheduled tasks (Flamingo hourly cron, Action Scheduler queue, personal-data cleanup, transient GC, Site Health, etc.) run through the system cron every 15 minutes instead.
+- **Weekly DB backups**: `/home/khalboz/bin/bozzies-weekly-db-backup.sh` runs Sundays 03:15 server time. Dumps `wp db export | gzip` to `/home/khalboz/backups-db/db-weekly-<date>.sql.gz`, keeps the newest 8, deletes older. Separate from DreamHost's own server-level backups; this is the self-managed developer-reachable copy that doesn't depend on a DreamHost support ticket. The script also logs a one-liner to `/home/khalboz/backups-db/weekly-backup.log` for each run.
+- To edit either schedule later: `ssh khalboz@bozzies.org 'crontab -e'`. The marker comments (`# bozzies-cron`, `# bozzies-weekly`) are used by the install step to strip and replace our lines idempotently.
+
 ## Must-use plugins
 
 Live at `wp-content/mu-plugins/` on the server. WordPress loads every
@@ -166,7 +185,8 @@ Both live in **Google Drive → My Drive → Boswell → Guides**. Developer-sid
 ## Open items
 
 - **11 missing playlist tracks on the home page.** When the site launched, 11 of the 26 playlist entries pointed at archive.org files that had already been removed by Google before launch day. 14 tracks were saved locally during the build; 1 more was recovered from the DreamHost backup of the pre-WordPress site. The 11 missing titles are listed in the owner guide; the plan is to replace them when the owner locates working audio.
-- Nothing else is currently open.
+- **Raise HSTS `max-age`** — set 2026-10-02 to `max-age=300` as a safety floor on first roll-out. If no reports of broken HTTPS come in by **2026-10-16** (two weeks), bump it to `max-age=31536000` (one year) in `mu-plugins/bozzies-hardening.php`, redeploy with `scripts/deploy/deploy-mu-plugins.sh`, and tick this item off. Do NOT add `includeSubDomains` or `preload` yet — the account hosts other subdomains (e.g. new.bozzies.org) that aren't ready to be HTTPS-locked.
+- **WordPress Administration Email** — currently set to the DreamHost one-click installer's placeholder (visible via `wp option get admin_email` on the server). This is where background-update-success / failure notices land, so until it's set to a real inbox those messages go nowhere. Change it from Admin → Settings → General, or `wp option update admin_email '<address>'`. (Not changed in this task because the owner asked only to be told the current value.)
 
 ## Working habits
 
