@@ -56,6 +56,7 @@ The Boswell Sisters tribute archive, a WordPress block theme. Live at
 | What | How | Direction |
 |---|---|---|
 | Theme code | `bash scripts/deploy/deploy-theme.sh` (dry-run then prompt; `--yes` to skip the prompt) | local → live |
+| Must-use plugins (`mu-plugins/*.php`) | `bash scripts/deploy/deploy-mu-plugins.sh` (dry-run then prompt; `--yes` to skip) | local → live |
 | Live DB + uploads | `bash scripts/deploy/pull-live.sh` | live → local |
 | Secret rotation (DB, SMTP, admin password) | `bash scripts/deploy/set-live-secrets.sh` | local prompts, SSH-piped stdin → live wp-config |
 | WP Duplicate as Draft plugin | rsync from its own repo (see below) | local → live |
@@ -80,6 +81,22 @@ rsync from its sibling repo.
   - **Remove**: `ssh khalboz@bozzies.org 'cd /home/khalboz/bozzies.org && wp plugin deactivate wp-duplicate-as-draft && wp plugin delete wp-duplicate-as-draft'`.
 
 **Not installed, must not be re-added**: Akismet, Hello Dolly. DreamHost's WP one-click sometimes seeds both; if they ever reappear, `wp plugin delete akismet hello`.
+
+## Must-use plugins
+
+Live at `wp-content/mu-plugins/` on the server. WordPress loads every
+top-level `.php` file in that directory unconditionally — they cannot
+be deactivated from the admin UI, which is why we keep site-wide
+security hardening here rather than in the theme or as a regular
+plugin. Deployed from the repo's `mu-plugins/` folder with
+`scripts/deploy/deploy-mu-plugins.sh`.
+
+- **`bozzies-hardening.php`** (`mu-plugins/bozzies-hardening.php`) — single-file mu-plugin that:
+  - Disables XML-RPC: `xmlrpc_enabled` → false, strips the `X-Pingback` header + `<link rel="EditURI">` RSD tag, and intercepts any request to `/xmlrpc.php` at `init` priority 1 with a 403.
+  - Removes the `wp/v2/users` + `wp/v2/users/{id}` REST routes for logged-out visitors via `rest_endpoints`.
+  - Hooks `template_redirect` priority 1 (before core's `redirect_canonical` at 10) to 301 `?author=N` **and** direct `/author/<slug>/` requests to the home page when logged out. Blocks both username-discovery paths; logged-in editors keep access.
+  - Sends 5 security response headers via `send_headers`: `Strict-Transport-Security: max-age=300` (short to start, no `includeSubDomains` or `preload` — ramp up once stable), `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`. **No Content Security Policy** yet.
+  - The consent cookie's Secure + SameSite=Lax flags live in `theme/bozzies/assets/js/consent.js` (JS-set cookie, no server-side path). The mu-plugin has a reference comment pointing at that file.
 
 ## Rules
 

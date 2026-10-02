@@ -115,11 +115,13 @@ npm run measure              # Playwright-based style/pixel measure helper
 Deploy and verification scripts live under `scripts/`:
 
 ```sh
-bash scripts/deploy/deploy-theme.sh         # push theme/ to live (interactive)
-bash scripts/deploy/set-live-secrets.sh     # inject DB/SMTP/admin passwords
-node scripts/dev/a11y-axe.mjs               # axe sweep across 14 pages
-node scripts/dev/a11y-keyboard.mjs          # keyboard-focus sweep
-node scripts/dev/ga4-smoke.mjs --action=accept  # GA4 consent-flow test
+bash scripts/deploy/deploy-theme.sh          # push theme/ to live
+bash scripts/deploy/deploy-mu-plugins.sh     # push mu-plugins/ to live
+bash scripts/deploy/pull-live.sh             # pull live DB + uploads to local
+bash scripts/deploy/set-live-secrets.sh      # inject DB/SMTP/admin passwords
+node scripts/dev/a11y-axe.mjs                # axe sweep across 14 pages
+node scripts/dev/a11y-keyboard.mjs           # keyboard-focus sweep
+node scripts/dev/ga4-smoke.mjs --action=accept   # GA4 consent-flow test
 ```
 
 ---
@@ -127,8 +129,11 @@ node scripts/dev/ga4-smoke.mjs --action=accept  # GA4 consent-flow test
 ## 5. Repo layout
 
 ```
-theme/bozzies/        the block theme (everything shipped to the server
-                      except plugins, uploads, and wp-config)
+theme/bozzies/        the block theme (shipped to wp-content/themes/
+                      bozzies/ by deploy-theme.sh)
+mu-plugins/           must-use plugins (one site-wide security hardening
+                      file). Shipped to wp-content/mu-plugins/ by
+                      deploy-mu-plugins.sh. See section 12.
 scripts/deploy/       bash scripts for pushing to and pulling from live
 scripts/dev/          Node/Playwright verification scripts (a11y, GA4,
                       visual diffs, roundtrip tests)
@@ -712,6 +717,24 @@ WordPress's own "Hello Dolly" and "Akismet" are explicitly **not**
 installed on the live site. If a one-click install ever re-adds
 them, remove with `wp plugin delete hello akismet`.
 
+### Must-use plugin
+
+In addition to the five regular plugins, the live site runs one
+**mu-plugin** at `wp-content/mu-plugins/bozzies-hardening.php`
+(shipped from `mu-plugins/bozzies-hardening.php` in this repo via
+`scripts/deploy/deploy-mu-plugins.sh`). It handles site-wide
+security hardening: XML-RPC off, REST users endpoint hidden from
+logged-out visitors, `?author=N` + `/author/<slug>/` redirected to
+home for logged-out visitors, and five security response headers
+(HSTS short-max-age-300, nosniff, SAMEORIGIN, strict-origin-when-
+cross-origin referrer, Permissions-Policy denying camera / mic /
+geolocation). Full description in CLAUDE.md.
+
+Mu-plugins are chosen for this because they can't be deactivated
+from the admin UI — a stray click shouldn't be able to turn
+site-wide protections off. They also don't appear under Plugins →
+Installed Plugins.
+
 ---
 
 ## 13. Analytics and consent
@@ -786,6 +809,8 @@ silently overwrite their work.
   deploy workflow, plugin list, open items.
 - `scripts/deploy/` — deploy and backup toolkit:
   - `deploy-theme.sh` — push theme changes to live.
+  - `deploy-mu-plugins.sh` — push `mu-plugins/*.php` to the live
+    `wp-content/mu-plugins/` folder.
   - `pull-live.sh` — pull live DB + uploads to local, with URLs
     rewritten back.
   - `set-live-secrets.sh` — rotate the DB, SMTP, or admin passwords
