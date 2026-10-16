@@ -149,19 +149,20 @@ add_action(
 // fonts) do not pass through PHP — if those ever need the same
 // headers, add them in `.htaccess`.
 //
-// HSTS starts at a deliberately short `max-age` (300 seconds / 5
-// minutes) so a mistake can be rolled back quickly. Ramp this value
-// up (to a day, then a month, then a year with `preload`) once the
-// headers have been running clean for a while.
+// HSTS was rolled out at `max-age=300` on 2026-10-02 as a safety floor
+// and raised to one year (`31536000`) on 2026-10-16 after two clean
+// weeks. Still no `includeSubDomains` and no `preload`: the DreamHost
+// account hosts sibling subdomains (e.g. new.bozzies.org) that aren't
+// ready to be HTTPS-locked, and `preload` is effectively irreversible
+// once the hostname is in the browser preload list.
 // ----------------------------------------------------------------------
 add_action(
 	'send_headers',
 	function () {
-		// HSTS — short to start, no preload, no includeSubDomains on
-		// the first roll-out so sibling subdomains (new.bozzies.org,
-		// forum subdomains, etc.) aren't accidentally forced to HTTPS
-		// before they're ready.
-		header( 'Strict-Transport-Security: max-age=300' );
+		// HSTS — one year. Do not add includeSubDomains or preload
+		// without first auditing every sibling subdomain under
+		// bozzies.org.
+		header( 'Strict-Transport-Security: max-age=31536000' );
 		header( 'X-Content-Type-Options: nosniff' );
 		header( 'X-Frame-Options: SAMEORIGIN' );
 		header( 'Referrer-Policy: strict-origin-when-cross-origin' );

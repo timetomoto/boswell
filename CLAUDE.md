@@ -114,7 +114,7 @@ plugin. Deployed from the repo's `mu-plugins/` folder with
   - Disables XML-RPC: `xmlrpc_enabled` → false, strips the `X-Pingback` header + `<link rel="EditURI">` RSD tag, and intercepts any request to `/xmlrpc.php` at `init` priority 1 with a 403.
   - Removes the `wp/v2/users` + `wp/v2/users/{id}` REST routes for logged-out visitors via `rest_endpoints`.
   - Hooks `template_redirect` priority 1 (before core's `redirect_canonical` at 10) to 301 `?author=N` **and** direct `/author/<slug>/` requests to the home page when logged out. Blocks both username-discovery paths; logged-in editors keep access.
-  - Sends 5 security response headers via `send_headers`: `Strict-Transport-Security: max-age=300` (short to start, no `includeSubDomains` or `preload` — ramp up once stable), `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`. **No Content Security Policy** yet.
+  - Sends 5 security response headers via `send_headers`: `Strict-Transport-Security: max-age=31536000` (one year, raised 2026-10-16 after two clean weeks at `max-age=300`; still no `includeSubDomains` and no `preload` — sibling subdomains like new.bozzies.org aren't ready to be HTTPS-locked, and `preload` is effectively irreversible), `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy: camera=(), microphone=(), geolocation=()`. **No Content Security Policy** yet.
   - The consent cookie's Secure + SameSite=Lax flags live in `theme/bozzies/assets/js/consent.js` (JS-set cookie, no server-side path). The mu-plugin has a reference comment pointing at that file.
 
 ## Rules
@@ -185,8 +185,6 @@ Both live in **Google Drive → My Drive → Boswell → Guides**. Developer-sid
 ## Open items
 
 - **11 missing playlist tracks on the home page.** When the site launched, 11 of the 26 playlist entries pointed at archive.org files that had already been removed by Google before launch day. 14 tracks were saved locally during the build; 1 more was recovered from the DreamHost backup of the pre-WordPress site. The 11 missing titles are listed in the owner guide; the plan is to replace them when the owner locates working audio.
-- **Raise HSTS `max-age`** — set 2026-10-02 to `max-age=300` as a safety floor on first roll-out. If no reports of broken HTTPS come in by **2026-10-16** (two weeks), bump it to `max-age=31536000` (one year) in `mu-plugins/bozzies-hardening.php`, redeploy with `scripts/deploy/deploy-mu-plugins.sh`, and tick this item off. Do NOT add `includeSubDomains` or `preload` yet — the account hosts other subdomains (e.g. new.bozzies.org) that aren't ready to be HTTPS-locked.
-- **WordPress Administration Email** — currently set to the DreamHost one-click installer's placeholder (visible via `wp option get admin_email` on the server). This is where background-update-success / failure notices land, so until it's set to a real inbox those messages go nowhere. Change it from Admin → Settings → General, or `wp option update admin_email '<address>'`. (Not changed in this task because the owner asked only to be told the current value.)
 
 ## Working habits
 
